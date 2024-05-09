@@ -1,5 +1,10 @@
-# 2800-202410-DTC13
-Project repo for group DTC13's five week term.
-## Project Name  
-## User Instruction
-## Authors
+## About Us
+DTC-13
+Team Members: 
+- Malcolm Wanless
+- Xini Wang
+- Caroline Su
+- Flora Deng
+- Joao Eduardo Santos Pollhuber
+## More details to come
+TBA
