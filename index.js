@@ -124,7 +124,6 @@ function adminAuthorization(req, res, next) {
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
-    console.log(req.session);
     res.render("recipedisplaypage");
 });
 
