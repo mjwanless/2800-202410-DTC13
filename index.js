@@ -44,7 +44,7 @@ const userCollection = database.db(mongodb_database).collection("users");
 
 // This is to set up the session with MongoDB
 let mongoStore = MongoStore.create({
-    mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${"Please replace this with the name of your database"}`,
+    mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate?retryWrites=true`,
     crypto: {
         secret: mongodb_session_secret,
     },
@@ -124,153 +124,148 @@ function adminAuthorization(req, res, next) {
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
-    let name = req.session.name;
-
-    if (req.session.authenticated) {
-        res.render("indexauthenticateduser", { name: name });
-    } else {
-        res.render("indexunauthenticateduser");
-    }
+    console.log(req.session);
+    res.render("recipedisplaypage");
 });
 
-// GET request for the login page
-app.get("/login", (req, res) => {
-    res.render("login");
-});
+// // GET request for the login page
+// app.get("/login", (req, res) => {
+//     res.render("login");
+// });
 
-// POST request for the login page
-app.post("/loginValidation", async (req, res) => {
-    let email = req.body.email;
-    let password = req.body.password;
+// // POST request for the login page
+// app.post("/loginValidation", async (req, res) => {
+//     let email = req.body.email;
+//     let password = req.body.password;
 
-    const userSchema = joi.object({
-        email: joi.string().email().max(200).required(),
-    });
+//     const userSchema = joi.object({
+//         email: joi.string().email().max(200).required(),
+//     });
 
-    const validationResult = userSchema.validate({ email: email });
+//     const validationResult = userSchema.validate({ email: email });
 
-    if (validationResult.error != null) {
-        res.render("loginvalidationresulterror", { error: validationResult.error });
-        return;
-    }
+//     if (validationResult.error != null) {
+//         res.render("loginvalidationresulterror", { error: validationResult.error });
+//         return;
+//     }
 
-    const result = await userCollection.find({ email: email }).project({ role: 1, email: 1, password: 1, name: 1, _id: 1 }).toArray();
+//     const result = await userCollection.find({ email: email }).project({ role: 1, email: 1, password: 1, name: 1, _id: 1 }).toArray();
 
-    console.log(result[0]);
-    if (result.length != 1) {
-        res.render("usernotfound");
-        return;
-    }
+//     console.log(result[0]);
+//     if (result.length != 1) {
+//         res.render("usernotfound");
+//         return;
+//     }
 
-    if (await bcrypt.compare(password, result[0].password)) {
-        req.session.authenticated = true;
-        req.session.name = result[0].name;
-        req.session.role = result[0].role; 
-        req.session.cookie.maxAge = sessionExpireTime;
+//     if (await bcrypt.compare(password, result[0].password)) {
+//         req.session.authenticated = true;
+//         req.session.name = result[0].name;
+//         req.session.role = result[0].role; 
+//         req.session.cookie.maxAge = sessionExpireTime;
 
-        res.redirect("/loggedIn");
-        return;
-    } else {
-        res.render("incorrectpassword");
-        return;
-    }
-});
+//         res.redirect("/loggedIn");
+//         return;
+//     } else {
+//         res.render("incorrectpassword");
+//         return;
+//     }
+// });
 
-// Checking to see if the user is authenticated
-app.use("/loggedIn", sessionValidation);
-app.get("/loggedIn", (req, res) => {
-    if (req.session.authenticated) {
-        res.redirect("/members");
-    } else {
-        res.redirect("/login");
-    }
-});
+// // Checking to see if the user is authenticated
+// app.use("/loggedIn", sessionValidation);
+// app.get("/loggedIn", (req, res) => {
+//     if (req.session.authenticated) {
+//         res.redirect("/members");
+//     } else {
+//         res.redirect("/login");
+//     }
+// });
 
-// GET request for the signup page
-app.get("/signup", (req, res) => {
-    res.render("signup");
-});
+// // GET request for the signup page
+// app.get("/signup", (req, res) => {
+//     res.render("signup");
+// });
 
-// POST request for the signup page
-app.post("/createUser", async (req, res) => {
-    let name = req.body.name;
-    let email = req.body.email;
-    let password = req.body.password;
-    let role = req.body.role;
+// // POST request for the signup page
+// app.post("/createUser", async (req, res) => {
+//     let name = req.body.name;
+//     let email = req.body.email;
+//     let password = req.body.password;
+//     let role = req.body.role;
 
-    if (!name) {
-        res.render("createusernoname");
-        return;
-    } else if (!email) {
-        res.render("createusernoemail");
-        return;
-    } else if (!password) {
-        res.render("createusernopassword");
-        return;
-    } else if (!role) {
-        res.render("createusernorole");
-        return;
-    }
+//     if (!name) {
+//         res.render("createusernoname");
+//         return;
+//     } else if (!email) {
+//         res.render("createusernoemail");
+//         return;
+//     } else if (!password) {
+//         res.render("createusernopassword");
+//         return;
+//     } else if (!role) {
+//         res.render("createusernorole");
+//         return;
+//     }
 
-    const userSchema = joi.object({
-        name: joi.string().alphanum().max(30).required(),
-        email: joi.string().email().max(200).required(),
-        password: joi.string().max(30).required(),
-        role: joi.string().valid("admin", "user").required(),
-    });
+//     const userSchema = joi.object({
+//         name: joi.string().alphanum().max(30).required(),
+//         email: joi.string().email().max(200).required(),
+//         password: joi.string().max(30).required(),
+//         role: joi.string().valid("admin", "user").required(),
+//     });
 
-    const validationResult = userSchema.validate({ name: name, email: email, password: password, role: role });
+//     const validationResult = userSchema.validate({ name: name, email: email, password: password, role: role });
 
-    if (validationResult.error) {
-        res.render("validationresulterror", { error: validationResult.error });
-        return;
-    }
+//     if (validationResult.error) {
+//         res.render("validationresulterror", { error: validationResult.error });
+//         return;
+//     }
 
-    let hashedPassword = bcrypt.hashSync(password, saltRounds);
-    await userCollection.insertOne({ name: name, email: email, password: hashedPassword, role: role });
+//     let hashedPassword = bcrypt.hashSync(password, saltRounds);
+//     await userCollection.insertOne({ name: name, email: email, password: hashedPassword, role: role });
 
-    req.session.authenticated = true;
-    req.session.name = name;
-    req.session.role = role;
-    req.session.cookie.maxAge = sessionExpireTime;
-    res.redirect("/members");
-});
+//     req.session.authenticated = true;
+//     req.session.name = name;
+//     req.session.role = role;
+//     req.session.cookie.maxAge = sessionExpireTime;
+//     res.redirect("/members");
+// });
 
-// Members page
-app.get("/members", async (req, res) => {
-    console.log(req.session.role);
-    let name = req.session.name;
+// // Members page
+// app.get("/members", async (req, res) => {
+//     console.log(req.session.role);
+//     let name = req.session.name;
 
-    if (!req.session.authenticated) {
-        res.redirect("/");
-        return;
-    }
+//     if (!req.session.authenticated) {
+//         res.redirect("/");
+//         return;
+//     }
 
-    res.render("members", { name: name });
-});
+//     res.render("members", { name: name });
+// });
 
-// New admin page
-app.get("/admin", sessionValidation, adminAuthorization, async (req, res) => {
-    const result = await userCollection.find().project({email: 1, role: 1, _id: 1 }).toArray();
-    res.render("admin", { results: result });
-});
+// // New admin page
+// app.get("/admin", sessionValidation, adminAuthorization, async (req, res) => {
+//     const result = await userCollection.find().project({email: 1, role: 1, _id: 1 }).toArray();
+//     res.render("admin", { results: result });
+// });
 
-// POST request for the admin page
-app.post("/updateRole", async (req, res) => {
-    let email = req.body.email;
-    let role = req.body.role;
+// // POST request for the admin page
+// app.post("/updateRole", async (req, res) => {
+//     let email = req.body.email;
+//     let role = req.body.role;
 
-    await userCollection.updateOne({ email: email }, { $set: { role: role } });
+//     await userCollection.updateOne({ email: email }, { $set: { role: role } });
 
-    res.redirect("/admin");
-});
+//     res.redirect("/admin");
+// });
 
-// Logout page
-app.get("/logout", (req, res) => {
-    req.session.destroy();
-    res.clearCookie("connect.sid", { path: "/" });
-    res.render("logout");
-});
+// // Logout page
+// app.get("/logout", (req, res) => {
+//     req.session.destroy();
+//     res.clearCookie("connect.sid", { path: "/" });
+//     res.render("logout");
+// });
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
