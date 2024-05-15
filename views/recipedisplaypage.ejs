@@ -1,105 +1,128 @@
 <%- include('templates/header') %>
-<div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
-    <div class="md:flex">
-        <div class="md:flex-shrink-0">
-            <img class="h-48 w-full object-cover md:w-48" src="/placeholderImage.jpg" alt="Healthy Dish">
-        </div>
-        <div class="p-8">
-            <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-blue-800">Healthy Dish</h1>
-            </div>
-            <p class="mt-2 text-gray-600">Lorem ipsum dolor sit amet consectetur. Leo quisque scelerisque massa ullamcorper ornare ullamcorper ipsum.</p>
-                <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
-                    <button class="text-red-500">Clear</button>
-                </div>
-                <div class="mt-4 bg-blue-100 p-4 rounded-xl">
+        <div class="relative container">
+            <!-- back button -->
+            <%- include('templates/backBtn'); %>
+                <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+                    <div class="md:flex">
+                        <div class="md:flex-shrink-0">
+                            <img class="h-48 w-full object-cover md:w-48" src="/placeholderImage.jpg"
+                                alt="Healthy Dish">
+                        </div>
+                        <div class="p-8">
+                            <div class="flex items-center justify-between">
+                                <h1 class="text-2xl font-bold text-blue-800">Healthy Dish</h1>
+                            </div>
+                            <p class="mt-2 text-gray-600">Lorem ipsum dolor sit amet consectetur. Leo quisque
+                                scelerisque massa ullamcorper ornare ullamcorper ipsum.</p>
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
+                                <button class="text-red-500">Clear</button>
+                            </div>
+                            <div class="mt-4 bg-blue-100 p-4 rounded-xl">
 
-                <ul class="mt-2">
-                    <li class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <span>Carrots</span>
-                            <span class="text-gray-500 ml-2">$0.99</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="flex ml-2">
-                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
-                                <input type="number" value="1" class="w-12 text-center bg-blue-100 rounded-md mx-2">
-                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="flex items-center justify-between mt-2">
-                        <div class="flex items-center">
-                            <span>Zucchini</span>
-                            <span class="text-gray-500 ml-2">$0.99</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="flex ml-2">
-                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
-                                <input type="number" value="1" class="w-12 text-center bg-blue-100 rounded-md mx-2">
-                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="flex items-center justify-between mt-2">
-                        <div class="flex items-center">
-                            <span>Onion</span>
-                            <span class="text-gray-500 ml-2">$0.99</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="flex ml-2">
-                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
-                                <input type="number" value="0" class="w-12 text-center bg-blue-100 rounded-md mx-2">
-                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-                <div class="flex items-center justify-between mt-4">
-                    <span class="text-xl font-semibold text-blue-800">Total: $1.98</span>
-                </div>
+                                <ul class="mt-2">
+                                    <li class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span>Carrots</span>
+                                            <span class="text-gray-500 ml-2">$0.99</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <div class="flex ml-2">
+                                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
+                                                <input type="number" value="1"
+                                                    class="w-12 text-center bg-blue-100 rounded-md mx-2">
+                                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-center justify-between mt-2">
+                                        <div class="flex items-center">
+                                            <span>Zucchini</span>
+                                            <span class="text-gray-500 ml-2">$0.99</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <div class="flex ml-2">
+                                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
+                                                <input type="number" value="1"
+                                                    class="w-12 text-center bg-blue-100 rounded-md mx-2">
+                                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-center justify-between mt-2">
+                                        <div class="flex items-center">
+                                            <span>Onion</span>
+                                            <span class="text-gray-500 ml-2">$0.99</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <div class="flex ml-2">
+                                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
+                                                <input type="number" value="0"
+                                                    class="w-12 text-center bg-blue-100 rounded-md mx-2">
+                                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="flex items-center justify-between mt-4">
+                                    <span class="text-xl font-semibold text-blue-800">Total: $1.98</span>
+                                </div>
 
-            </div>
-            <div class="flex mt-4 justify-end">
-                <button class="bg-white text-orange-500 px-4 py-2 rounded-md border border-orange-300">Select Default</button>
-                <button class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
-            </div>
-            <div class="mt-6">
-                <h2 class="text-2xl font-semibold text-blue-800">Recipe</h2>
-                <ol class="list-decimal list-inside mt-2 text-gray-700">
-                    <li>Rinse the pasta under cold running water.</li>
-                    <li>Drain well and cool.</li>
-                    <li>Pesto & mayonnaise first - Mix the pesto and mayonnaise through the pasta first.</li>
-                    <li>Tomato & bocconcini next - Then gently mix through the tomato and bocconcini.</li>
-                    <li>Leafy greens last - And lastly, toss through the rocket/arugula. Just quickly, to disperse.</li>
-                </ol>
-            </div>
+                            </div>
+                            <div class="flex mt-4 justify-end">
+                                <button
+                                    class="bg-white text-orange-500 px-4 py-2 rounded-md border border-orange-300">Select
+                                    Default</button>
+                                <button class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
+                            </div>
+                            <div class="mt-6">
+                                <h2 class="text-2xl font-semibold text-blue-800">Recipe</h2>
+                                <ol class="list-decimal list-inside mt-2 text-gray-700">
+                                    <li>Rinse the pasta under cold running water.</li>
+                                    <li>Drain well and cool.</li>
+                                    <li>Pesto & mayonnaise first - Mix the pesto and mayonnaise through the pasta first.
+                                    </li>
+                                    <li>Tomato & bocconcini next - Then gently mix through the tomato and bocconcini.
+                                    </li>
+                                    <li>Leafy greens last - And lastly, toss through the rocket/arugula. Just quickly,
+                                        to disperse.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fixed bottom-0 left-0 right-0 bg-white shadow-md p-4">
+                    <div class="flex justify-around">
+                        <button class="text-gray-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3v18h18V3H3z"></path>
+                            </svg>
+                        </button>
+                        <button class="text-gray-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 3h14a2 2 0 012 2v15H3V5a2 2 0 012-2z"></path>
+                            </svg>
+                        </button>
+                        <button class="text-gray-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 6h12M6 6h.01M6 10h12M6 10h.01M6 14h12M6 14h.01M6 18h12M6 18h.01"></path>
+                            </svg>
+                        </button>
+                        <button class="text-gray-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16m-7 6h7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
         </div>
-    </div>
-</div>
-<div class="fixed bottom-0 left-0 right-0 bg-white shadow-md p-4">
-    <div class="flex justify-around">
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18V3H3z"></path>
-            </svg>
-        </button>
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3h14a2 2 0 012 2v15H3V5a2 2 0 012-2z"></path>
-            </svg>
-        </button>
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h12M6 6h.01M6 10h12M6 10h.01M6 14h12M6 14h.01M6 18h12M6 18h.01"></path>
-            </svg>
-        </button>
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-            </svg>
-        </button>
-    </div>
-</div>
-<%- include('templates/footer') %>
+        <%- include('templates/menuBar') %>
+            <%- include('templates/footer') %>
