@@ -34,152 +34,152 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-// Connecting to the Atlas database
-const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
-const connectToDB = async () => {
-  try {
-    await mongoose.connect(atlasURI, {
-      autoIndex: true,
-      writeConcern: {
-        w: "majority",
-        j: true,
-        wtimeout: 1000,
-      },
-    });
-    console.log("Connected to Mongodb Atlas");
-  } catch (error) {
-    console.error(error);
-  }
-};
-connectToDB();
+// // Connecting to the Atlas database
+// const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
+// const connectToDB = async () => {
+//   try {
+//     await mongoose.connect(atlasURI, {
+//       autoIndex: true,
+//       writeConcern: {
+//         w: "majority",
+//         j: true,
+//         wtimeout: 1000,
+//       },
+//     });
+//     console.log("Connected to Mongodb Atlas");
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+// connectToDB();
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
-  security_question: String,
-  security_answer: String,
-  preferences: Array,
-  my_fav: Array,
-  address: String,
-  phone: String,
-  order: Array,
-});
+// const userSchema = new mongoose.Schema({
+//   username: String,
+//   email: String,
+//   password: String,
+//   security_question: String,
+//   security_answer: String,
+//   preferences: Array,
+//   my_fav: Array,
+//   address: String,
+//   phone: String,
+//   order: Array,
+// });
 
-const User = mongoose.model("User", userSchema);
+// const User = mongoose.model("User", userSchema);
 
-// mongoDB session
-var store = new MongoDBStore({
-  uri: atlasURI,
-  collection: "sessions",
-  autoRemove: 'native'
-});
+// // mongoDB session
+// var store = new MongoDBStore({
+//   uri: atlasURI,
+//   collection: "sessions",
+//   autoRemove: 'native'
+// });
 
-// Catch errors
-store.on("error", function (error) {
-  console.log(error);
-});
+// // Catch errors
+// store.on("error", function (error) {
+//   console.log(error);
+// });
 
-app.use(
-  session({
-    secret: mongodb_session_secret,
-    resave: false,
-    saveUninitialized: true,
-    store: store,
-  })
-);
+// app.use(
+//   session({
+//     secret: mongodb_session_secret,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: store,
+//   })
+// );
 
-// ======================================
-// This is to be able to use html, css, and js files in the public folder
-// ======================================
-app.use(express.static(__dirname + "/public"));
+// // ======================================
+// // This is to be able to use html, css, and js files in the public folder
+// // ======================================
+// app.use(express.static(__dirname + "/public"));
 
-// ======================================
-// Where the magic happens ================================================================
-// ======================================
+// // ======================================
+// // Where the magic happens ================================================================
+// // ======================================
 
-// ======================================
-// Commit to create dev branch
-// ======================================
+// // ======================================
+// // Commit to create dev branch
+// // ======================================
 
-// ======================================
-// functions and middleware
-// ======================================
+// // ======================================
+// // functions and middleware
+// // ======================================
 
-// Middleware to check if the user is authenticated
-isAuthenticated = (req, res, next) => {
-  if (req.session.authenticated) {
-    req.session.username = req.session.username
-    next()
-  }
-  else
-    return res.redirect('/login')
-}
-// Middleware to create a user
-const createUser = async (req, res, next) => {
-  const schema = joi.object({
-    username: joi.string().alphanum().max(30).required(),
-    email: joi.string().max(200).required(),
-    password: joi.string().max(50).required(),
-  })
-  const { error } = schema.validate(req.body)
-  if (error) {
-    return res.send(`Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`);
-  }
+// // Middleware to check if the user is authenticated
+// isAuthenticated = (req, res, next) => {
+//   if (req.session.authenticated) {
+//     req.session.username = req.session.username;
+//     next();
+//   }
+//   else
+//     return res.redirect('/login')
+// }
+// // Middleware to create a user
+// const createUser = async (req, res, next) => {
+//   const schema = joi.object({
+//     username: joi.string().alphanum().max(30).required(),
+//     email: joi.string().max(200).required(),
+//     password: joi.string().max(50).required(),
+//   })
+//   const { error } = schema.validate(req.body)
+//   if (error) {
+//     return res.send(`Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`);
+//   }
 
-  var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
-  const user = new User({
-    username: req.body.username,
-    email: req.body.email,
-    password: hashedPassword
-  })
+//   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
+//   const user = new User({
+//     username: req.body.username,
+//     email: req.body.email,
+//     password: hashedPassword
+//   })
 
-  try {
-    await user.save();
-  }
-  catch (err) {
-    console.log("Failed to create user:", err)
-    res.status(500).send("Internal server error");
-  }
+//   try {
+//     await user.save();
+//   }
+//   catch (err) {
+//     console.log("Failed to create user:", err)
+//     res.status(500).send("Internal server error");
+//   }
 
-  req.session.authenticated = true
-  req.session.username = req.body.username
-  req.session.cookie.maxAge = sessionExpireTime
-  next()
-}
+//   req.session.authenticated = true
+//   req.session.username = req.body.username
+//   req.session.cookie.maxAge = sessionExpireTime
+//   next()
+// }
 
-// Middleware to validate a user account
-const loginValidation = async (req, res, next) => {
-  const schema = joi.object({
-    email: joi.string().max(200).required()
-  })
-  const validationResult = schema.validate({ email: req.body.email });
-  if (validationResult.error) {
-    res.send("login validation result error", { error: validationResult.error });
-    return;
-  }
-  try {
-    user = await User.findOne({ email: req.body.email })
-    if (user) {
-      const outputPassword = user.password
-      const inputPassword = req.body.password
+// // Middleware to validate a user account
+// const loginValidation = async (req, res, next) => {
+//   const schema = joi.object({
+//     email: joi.string().max(200).required()
+//   })
+//   const validationResult = schema.validate({ email: req.body.email });
+//   if (validationResult.error) {
+//     res.send("login validation result error", { error: validationResult.error });
+//     return;
+//   }
+//   try {
+//     user = await User.findOne({ email: req.body.email })
+//     if (user) {
+//       const outputPassword = user.password
+//       const inputPassword = req.body.password
 
-      if (await bcrypt.compare(inputPassword, outputPassword)) {
-        req.session.authenticated = true
-        req.session.username = user.username
-        req.session.cookie.maxAge = sessionExpireTime
-        next()
-      } else {
-        return res.render('login', { wrongPassword: true })
-      }
-    } else {
-      return res.render('login', { noUser: true })
-    }
-  }
-  catch (err) {
-    console.log("fail to login", err)
-  }
-}
+//       if (await bcrypt.compare(inputPassword, outputPassword)) {
+//         req.session.authenticated = true
+//         req.session.username = user.username
+//         req.session.cookie.maxAge = sessionExpireTime
+//         next()
+//       } else {
+//         return res.render('login', { wrongPassword: true })
+//       }
+//     } else {
+//       return res.render('login', { noUser: true })
+//     }
+//   }
+//   catch (err) {
+//     console.log("fail to login", err)
+//   }
+// }
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
@@ -187,100 +187,106 @@ app.get("/", (req, res) => {
 }
 );
 
-// GET request for the login page
-app.get("/login", (req, res) => {
-  res.render("login");
-});
+// Test for API data display
+app.get("/apitest", (req, res) => {
+  res.render("api_practice");
+}
+);
 
-// GET request for the signup page
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
+// // GET request for the login page
+// app.get("/login", (req, res) => {
+//   res.render("login");
+// });
+
+// // GET request for the signup page
+// app.get("/signup", (req, res) => {
+//   res.render("signup");
+// });
 
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
     res.render("recipedisplaypage");
 });
 
-// After successful signup
-app.post("/signup", createUser, (req, res) => {
-  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
-});
+// // After successful signup
+// app.post("/signup", createUser, (req, res) => {
+//   res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+// });
 
-// After successful login
-app.post("/login", loginValidation, (req, res) => {
-  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
-});
+// // After successful login
+// app.post("/login", loginValidation, (req, res) => {
+//   res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+// });
 
-// User Account page
-app.get("/user_account", isAuthenticated, async (req, res) => {
-  if (req.session.username) {
-    try {
-      // Fetch the user based on the username stored in the session
-      const user = await User.findOne({ username: req.session.username });
-      if (!user) {
-        return res.status(404).send("User not found");
-      }
-      // Render the user_account page with user data
-      res.render("user_account", { user: user });
-    } catch (err) {
-      console.error("Failed to retrieve user:", err);
-      res.status(500).send("Internal server error");
-    }
-  } else {
-    res.redirect("/login");  // Redirect to login if no username is found in the session
-  }
-});
+// // User Account page
+// app.get("/user_account", isAuthenticated, async (req, res) => {
+//   if (req.session.username) {
+//     try {
+//       // Fetch the user based on the username stored in the session
+//       const user = await User.findOne({ username: req.session.username });
+//       if (!user) {
+//         return res.status(404).send("User not found");
+//       }
+//       // Render the user_account page with user data
+//       res.render("user_account", { user: user });
+//     } catch (err) {
+//       console.error("Failed to retrieve user:", err);
+//       res.status(500).send("Internal server error");
+//     }
+//   } else {
+//     res.redirect("/login");  // Redirect to login if no username is found in the session
+//   }
+// });
 
-app.get("/user_profile", isAuthenticated, async (req, res) => {
-  if (req.session.username) {
-      try {
-          // Fetch the user from the database using the username stored in the session
-          const user = await User.findOne({ username: req.session.username });
-          if (user) {
-              res.render("user_profile", { user: user }); // Pass user data to the template
-          } else {
-              res.status(404).send("User not found");
-          }
-      } catch (err) {
-          console.error("Failed to retrieve user for profile:", err);
-          res.status(500).send("Internal server error");
-      }
-  } else {
-      res.redirect("/login"); // If not authenticated, redirect to login
-  }
-});
+// app.get("/user_profile", isAuthenticated, async (req, res) => {
+//   if (req.session.username) {
+//       try {
+//           // Fetch the user from the database using the username stored in the session
+//           const user = await User.findOne({ username: req.session.username });
+//           if (user) {
+//               res.render("user_profile", { user: user }); // Pass user data to the template
+//           } else {
+//               res.status(404).send("User not found");
+//           }
+//       } catch (err) {
+//           console.error("Failed to retrieve user for profile:", err);
+//           res.status(500).send("Internal server error");
+//       }
+//   } else {
+//       res.redirect("/login"); // If not authenticated, redirect to login
+//   }
+// });
 
-app.post("/update_profile", isAuthenticated, async (req, res) => {
-  const { name, email, phone, address } = req.body;
-  try {
-      const updatedUser = await User.findOneAndUpdate(
-          { username: req.session.username },
-          { $set: { username: name, email: email, phone: phone, address: address } },
-          { new: true }
-      );
-      // Update session if necessary
-      req.session.username = updatedUser.username;
-      res.redirect("/user_profile"); // Redirect to the profile page to show updated info
-  } catch (err) {
-      console.error("Failed to update user:", err);
-      res.status(500).send("Failed to update profile.");
-  }
-});
+// app.post("/update_profile", isAuthenticated, async (req, res) => {
+//   const { name, email, phone, address } = req.body;
+//   try {
+//       const updatedUser = await User.findOneAndUpdate(
+//           { username: req.session.username },
+//           { $set: { username: name, email: email, phone: phone, address: address } },
+//           { new: true }
+//       );
+//       // Update session if necessary
+//       req.session.username = updatedUser.username;
+//       res.redirect("/user_profile"); // Redirect to the profile page to show updated info
+//   } catch (err) {
+//       console.error("Failed to update user:", err);
+//       res.status(500).send("Failed to update profile.");
+//   }
+// });
 
 
-app.use(isAuthenticated)
-// Members page
-app.get("/test", async (req, res) => {
-  res.render("test", { username: req.session.username });
-});
+// app.use(isAuthenticated)
+// // Members page
+// app.get("/test", async (req, res) => {
+//   res.render("test", { username: req.session.username });
+// });
 
-// Logout page
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.clearCookie("connect.sid", { path: "/" });
-  res.render("logout");
-});
+// // Logout page
+// app.get("/logout", (req, res) => {
+//   req.session.destroy();
+//   res.clearCookie("connect.sid", { path: "/" });
+//   res.render("logout");
+// });
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
