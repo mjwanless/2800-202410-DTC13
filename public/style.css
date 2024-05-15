@@ -1,0 +1,107 @@
+/* account */
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FFFFFF;
+    /* White background */
+}
+
+.profile-picture {
+    display: block;
+    width: 100px;
+    height: 100px;
+    background: #FFE9E2;
+    /* Light pink background for the profile picture */
+    border-radius: 50%;
+    margin: 20px auto;
+    background-image: url('<%= user.profilePicture || "/path/to/default/profile.jpg" %>');
+    /* Conditional profile picture */
+    background-size: cover;
+}
+
+.card-container {
+    display: flex;
+    justify-content: space-around;
+    /* Ensures space between cards */
+    padding: 20px;
+    gap: 10px;
+    /* Space between each card */
+}
+
+.card {
+    background-color: #E8EFFF;
+    /* Light blue background */
+    border-radius: 10px;
+    padding: 20px;
+    flex: 1;
+    /* Flex property to fill evenly */
+    text-align: center;
+    box-sizing: border-box;
+    /* Includes padding in the width */
+}
+
+.icon {
+    color: #EA7051;
+    /* Coral color for the icons */
+    font-size: 24px;
+    /* Larger font size for the icons */
+}
+
+.link {
+    color: #EA7051;
+    /* Coral color for the links */
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+
+/* profile */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FFE9E2;
+    /* Light pink background */
+}
+
+.profile-picture {
+    display: block;
+    width: 100px;
+    height: 100px;
+    background: #FFE9E2;
+    /* Light pink background for the profile picture */
+    border-radius: 50%;
+    margin: 20px auto;
+}
+
+.input-field {
+    width: 80%;
+    padding: 8px;
+    margin: 10px auto;
+    display: block;
+    border: none;
+    border-bottom: 2px solid #EA7051;
+}
+
+.form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: auto;
+    width: 90%;
+}
+
+.submit-button {
+    width: 80%;
+    padding: 10px;
+    background-color: #EA7051;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    margin: 20px auto;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #ff8360;
+}
