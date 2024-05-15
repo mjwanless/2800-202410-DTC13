@@ -1,0 +1,53 @@
+<%- include('templates/header') %>
+<script src="/script/home.js"></script> 
+<div class="wrapper relative w-full flex gap-6 snap-x overflow-x-auto pb-14">
+  <div class="carousel snap-center shrink-0 first:pl-8 last:pr-8">
+    <img
+      id="1"
+      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      onclick="goToRecipe(id)"
+      src="2.jpg"
+    />
+  </div>
+  <div class="snap-center shrink-0 first:pl-8 last:pr-8">
+    <img
+      id="2"
+      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      onclick="goToRecipe(id)"
+      src="2.jpg"
+    />
+  </div>
+  <div class="snap-center shrink-0 first:pl-8 last:pr-8">
+    <img
+      id="3"
+      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      onclick="goToRecipe(id)"
+      src="3.jpg"
+    />
+  </div>
+  <div class="snap-center shrink-0 first:pl-8 last:pr-8">
+    <img
+      id="4"
+      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      onclick="goToRecipe(id)"
+      src="4.jpg"
+    />
+  </div>
+  <div class="snap-center shrink-0 first:pl-8 last:pr-8">
+    <img
+      id="5"
+      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      onclick="goToRecipe(id)"
+      src="2.jpg"
+    />
+  </div>
+  <div class="snap-center shrink-0 first:pl-8 last:pr-8">
+    <img id="6" class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white" onclick="goToRecipe(id)" src="3.jpg" />
+  </div>
+</div>
+<script>
+  function goToRecipe(id) {
+    window.location.href = `/recipedisplaypage/${id}`;
+  }
+</script>
+<%- include('templates/footer') %>
