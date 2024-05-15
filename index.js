@@ -227,6 +227,25 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
   }
 });
 
+app.get("/user_profile", isAuthenticated, async (req, res) => {
+  if (req.session.username) {
+      try {
+          // Fetch the user from the database using the username stored in the session
+          const user = await User.findOne({ username: req.session.username });
+          if (user) {
+              res.render("user_profile", { user: user }); // Pass user data to the template
+          } else {
+              res.status(404).send("User not found");
+          }
+      } catch (err) {
+          console.error("Failed to retrieve user for profile:", err);
+          res.status(500).send("Internal server error");
+      }
+  } else {
+      res.redirect("/login"); // If not authenticated, redirect to login
+  }
+});
+
 
 
 app.use(isAuthenticated)
