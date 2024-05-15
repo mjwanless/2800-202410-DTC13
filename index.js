@@ -115,6 +115,7 @@ isAuthenticated = (req, res, next) => {
   else
     return res.redirect('/login')
 }
+
 // Middleware to create a user
 const createUser = async (req, res, next) => {
   const schema = joi.object({
@@ -187,6 +188,52 @@ const loginValidation = async (req, res, next) => {
   }
 }
 
+// Middleware to reset a password
+const resetPassword = async (req, res, next) => {
+  const schema = joi.object({
+    email: joi.string().max(200).required()
+  })
+  const validationResult = schema.validate({ email: req.body.email });
+  if (validationResult.error) {
+    res.send("login validation result error", { error: validationResult.error });
+    return;
+  }
+  try {
+    user = await User.findOne({ email: req.body.email })
+    if (user) {
+      const outputQuestion = user.security_question
+      const inputQuestion = req.body.security_question
+      const outputAnswer = user.security_answer
+      const inputAnswer = req.body.security_answer
+
+      if (inputQuestion != outputQuestion || !await bcrypt.compare(inputAnswer, outputAnswer)) {
+        return res.render('reset_password', { wrongAnswer: true })
+      }
+
+      var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
+
+      try {
+        await User.findOneAndUpdate(
+          { email: req.body.email },
+          { $set: { password: hashedPassword } }
+        );
+
+        next()
+      }
+      catch (err) {
+        console.error("Failed to update password:", err);
+        res.status(500).send("Failed to update password.");
+      }
+
+    } else {
+      return res.render('reset_password', { noUser: true })
+    }
+  }
+  catch (err) {
+    console.log("fail to login", err)
+  }
+}
+
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
   res.render("home");
@@ -221,6 +268,11 @@ app.post("/signup", createUser, (req, res) => {
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
   res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+});
+
+// After successful password reset
+app.post("/reset_password", resetPassword, (req, res) => {
+  res.redirect("/login");
 });
 
 // User Account page
