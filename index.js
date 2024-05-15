@@ -197,6 +197,11 @@ app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
+// GET request for the recipedisplaypage
+app.get("/recipedisplaypage", (req, res) => {
+    res.render("recipedisplaypage");
+});
+
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
   res.redirect("/user_account"); // Changed from "/test" to "/user_account"
