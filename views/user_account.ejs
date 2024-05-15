@@ -1,61 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Account</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^3.0/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #FFFFFF; /* White background */
-        }
-
-        .profile-picture {
-            display: block;
-            width: 100px;
-            height: 100px;
-            background: #FFE9E2; /* Light pink background for the profile picture */
-            border-radius: 50%;
-            margin: 20px auto;
-            background-image: url('<%= user.profilePicture || "/path/to/default/profile.jpg" %>'); /* Conditional profile picture */
-            background-size: cover;
-        }
-
-        .card-container {
-            display: flex;
-            justify-content: space-around; /* Ensures space between cards */
-            padding: 20px;
-            gap: 10px; /* Space between each card */
-        }
-
-        .card {
-            background-color: #E8EFFF; /* Light blue background */
-            border-radius: 10px;
-            padding: 20px;
-            flex: 1; /* Flex property to fill evenly */
-            text-align: center;
-            box-sizing: border-box; /* Includes padding in the width */
-        }
-
-        .icon {
-            color: #EA7051; /* Coral color for the icons */
-            font-size: 24px; /* Larger font size for the icons */
-        }
-
-        .link {
-            color: #EA7051; /* Coral color for the links */
-            text-decoration: none;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body class="text-center p-5">
+<%- include('templates/header'); %>
     <div class="text-center mt-6">
         <div class="profile-picture"></div>
-        <h1><%= user.username %></h1>
-        <p><%= user.email %></p>
+        <h1>
+            <%= user.username %>
+        </h1>
+        <p>
+            <%= user.email %>
+        </p>
         <a href="/user_profile" class="link">Edit</a>
     </div>
 
@@ -81,5 +32,7 @@
         <p><i class="fas fa-sign-out-alt icon"></i> Sign out</p>
         <p><i class="fas fa-history icon"></i> Order History</p>
     </div>
-</body>
-</html>
+
+    <%-include('templates/menuBar')%>
+
+        <%-include('templates/footer')%>
