@@ -197,13 +197,37 @@ app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
+// After successful signup
 app.post("/signup", createUser, (req, res) => {
-  res.redirect("/test");
+  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
 });
 
+// After successful login
 app.post("/login", loginValidation, (req, res) => {
-  res.redirect("/test");
+  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
 });
+
+// User Account page
+app.get("/user_account", isAuthenticated, async (req, res) => {
+  if (req.session.username) {
+    try {
+      // Fetch the user based on the username stored in the session
+      const user = await User.findOne({ username: req.session.username });
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+      // Render the user_account page with user data
+      res.render("user_account", { user: user });
+    } catch (err) {
+      console.error("Failed to retrieve user:", err);
+      res.status(500).send("Internal server error");
+    }
+  } else {
+    res.redirect("/login");  // Redirect to login if no username is found in the session
+  }
+});
+
+
 
 app.use(isAuthenticated)
 // Members page
