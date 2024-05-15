@@ -187,8 +187,8 @@ app.get("/", (req, res) => {
 }
 );
 
-app.get("/landing", (req, res) => {
-  res.render("landing");
+app.get("/home", (req, res) => {
+  res.render("home");
 });
 
 // GET request for the login page
