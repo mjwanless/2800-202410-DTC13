@@ -203,6 +203,11 @@ app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
+// GET request for the reset password page
+app.get("/reset_password", (req, res) => {
+  res.render("reset_password");
+});
+
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
