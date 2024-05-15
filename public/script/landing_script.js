@@ -48,3 +48,8 @@ carousel.addEventListener("touchmove", dragging);
 
 carousel.addEventListener("mouseup", draggingStop);
 carousel.addEventListener("touched", draggingStop);
+
+// redirect to the recipe info page
+function goToRecipe(id) {
+  window.location.href = `/recipe_info/${id}`;
+}
