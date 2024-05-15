@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^3.0/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFE9E2; /* Light pink background */
+        }
+
+        .profile-picture {
+            display: block;
+            width: 100px;
+            height: 100px;
+            background: #FFE9E2; /* Light pink background for the profile picture */
+            border-radius: 50%;
+            margin: 20px auto;
+        }
+
+        .input-field {
+            width: 80%;
+            padding: 8px;
+            margin: 10px auto;
+            display: block;
+            border: none;
+            border-bottom: 2px solid #EA7051;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: auto;
+            width: 90%;
+        }
+
+        .submit-button {
+            width: 80%;
+            padding: 10px;
+            background-color: #EA7051;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin: 20px auto;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #ff8360;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <img class="profile-picture" src="/path/to/your/profile/image.jpg" alt="Profile Picture">
+        <form action="/update_profile" method="POST">
+            <label for="name">Name</label>
+            <input class="input-field" type="text" id="name" name="name" placeholder="Name" value="<%= user.username %>">
+
+            <label for="email">Email</label>
+            <input class="input-field" type="email" id="email" name="email" placeholder="Email" value="<%= user.email %>">
+
+            <label for="phone">Phone</label>
+            <input class="input-field" type="tel" id="phone" name="phone" placeholder="Phone" pattern="[0-9]{1,12}" title="Phone number must be up to 12 digits">
+
+            <label for="address">Address</label>
+            <input class="input-field" type="text" id="address" name="address" placeholder="Address" value="<%= user.address %>">
+
+            <button type="submit" class="submit-button">Save Changes</button>
+        </form>
+        <a href="/user_account" class="back-link">Back to Account</a>
+    </div>
+</body>
+</html>
