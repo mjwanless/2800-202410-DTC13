@@ -246,6 +246,22 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
   }
 });
 
+app.post("/update_profile", isAuthenticated, async (req, res) => {
+  const { name, email, phone, address } = req.body;
+  try {
+      const updatedUser = await User.findOneAndUpdate(
+          { username: req.session.username },
+          { $set: { username: name, email: email, phone: phone, address: address } },
+          { new: true }
+      );
+      // Update session if necessary
+      req.session.username = updatedUser.username;
+      res.redirect("/user_profile"); // Redirect to the profile page to show updated info
+  } catch (err) {
+      console.error("Failed to update user:", err);
+      res.status(500).send("Failed to update profile.");
+  }
+});
 
 
 app.use(isAuthenticated)
