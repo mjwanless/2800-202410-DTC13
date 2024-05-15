@@ -121,6 +121,8 @@ const createUser = async (req, res, next) => {
     username: joi.string().alphanum().max(30).required(),
     email: joi.string().max(200).required(),
     password: joi.string().max(50).required(),
+    security_question: joi.string().max(50).required(),
+    security_answer: joi.string().max(50).required()
   })
   const { error } = schema.validate(req.body)
   if (error) {
@@ -128,10 +130,14 @@ const createUser = async (req, res, next) => {
   }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
+  var hashedSecurityAnswer = await bcrypt.hash(req.body.security_answer, saltRounds)
+
   const user = new User({
     username: req.body.username,
     email: req.body.email,
-    password: hashedPassword
+    password: hashedPassword,
+    security_question: req.body.security_question,
+    security_answer: hashedSecurityAnswer
   })
 
   try {
@@ -199,7 +205,7 @@ app.get("/signup", (req, res) => {
 
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
-    res.render("recipedisplaypage");
+  res.render("recipedisplaypage");
 });
 
 // After successful signup
@@ -234,37 +240,37 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
 
 app.get("/user_profile", isAuthenticated, async (req, res) => {
   if (req.session.username) {
-      try {
-          // Fetch the user from the database using the username stored in the session
-          const user = await User.findOne({ username: req.session.username });
-          if (user) {
-              res.render("user_profile", { user: user }); // Pass user data to the template
-          } else {
-              res.status(404).send("User not found");
-          }
-      } catch (err) {
-          console.error("Failed to retrieve user for profile:", err);
-          res.status(500).send("Internal server error");
+    try {
+      // Fetch the user from the database using the username stored in the session
+      const user = await User.findOne({ username: req.session.username });
+      if (user) {
+        res.render("user_profile", { user: user }); // Pass user data to the template
+      } else {
+        res.status(404).send("User not found");
       }
+    } catch (err) {
+      console.error("Failed to retrieve user for profile:", err);
+      res.status(500).send("Internal server error");
+    }
   } else {
-      res.redirect("/login"); // If not authenticated, redirect to login
+    res.redirect("/login"); // If not authenticated, redirect to login
   }
 });
 
 app.post("/update_profile", isAuthenticated, async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
-      const updatedUser = await User.findOneAndUpdate(
-          { username: req.session.username },
-          { $set: { username: name, email: email, phone: phone, address: address } },
-          { new: true }
-      );
-      // Update session if necessary
-      req.session.username = updatedUser.username;
-      res.redirect("/user_profile"); // Redirect to the profile page to show updated info
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { username: name, email: email, phone: phone, address: address } },
+      { new: true }
+    );
+    // Update session if necessary
+    req.session.username = updatedUser.username;
+    res.redirect("/user_profile"); // Redirect to the profile page to show updated info
   } catch (err) {
-      console.error("Failed to update user:", err);
-      res.status(500).send("Failed to update profile.");
+    console.error("Failed to update user:", err);
+    res.status(500).send("Failed to update profile.");
   }
 });
 
