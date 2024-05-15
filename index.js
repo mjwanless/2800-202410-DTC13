@@ -148,7 +148,38 @@ const createUser = async (req, res, next) => {
   next()
 }
 
+// Middleware to validate a user account
+const loginValidation = async (req, res, next) => {
+  const schema = joi.object({
+    email: joi.string().max(200).required()
+  })
+  const validationResult = schema.validate({ email: req.body.email });
+  if (validationResult.error) {
+    res.send("login validation result error", { error: validationResult.error });
+    return;
+  }
+  try {
+    user = await User.findOne({ email: req.body.email })
+    if (user) {
+      const outputPassword = user.password
+      const inputPassword = req.body.password
 
+      if (await bcrypt.compare(inputPassword, outputPassword)) {
+        req.session.authenticated = true
+        req.session.username = user.username
+        req.session.cookie.maxAge = sessionExpireTime
+        next()
+      } else {
+        return res.render('login', { wrongPassword: true })
+      }
+    } else {
+      return res.render('login', { noUser: true })
+    }
+  }
+  catch (err) {
+    console.log("fail to login", err)
+  }
+}
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
@@ -170,6 +201,9 @@ app.post("/signup", createUser, (req, res) => {
   res.redirect("/test");
 });
 
+app.post("/login", loginValidation, (req, res) => {
+  res.redirect("/test");
+});
 
 app.use(isAuthenticated)
 // Members page
