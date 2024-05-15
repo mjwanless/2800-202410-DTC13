@@ -158,6 +158,10 @@ app.get("/", (req, res) => {
   }
 });
 
+app.get("/landing", (req, res) => {
+  res.render("landing");
+});
+
 // GET request for the login page
 app.get("/login", (req, res) => {
   res.render("login");
