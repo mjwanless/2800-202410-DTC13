@@ -7,7 +7,7 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
-const sessionExpireTime = 1 * 60 * 60 * 1000;
+const sessionExpireTime = 1 * 60 * 60 * 1000;  //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 
@@ -54,7 +54,7 @@ const connectToDB = async () => {
 connectToDB();
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  username: String,
   email: String,
   password: String,
   security_question: String,
@@ -66,13 +66,13 @@ const userSchema = new mongoose.Schema({
   order: Array,
 });
 
-// connect schema to collection
-const users = mongoose.model("users", userSchema);
+const User = mongoose.model("User", userSchema);
 
 // mongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
+  autoRemove: 'native'
 });
 
 // Catch errors
@@ -106,112 +106,59 @@ app.use(express.static(__dirname + "/public"));
 // functions and middleware
 // ======================================
 
-// Middleware to check if the session is valid
-function isValidSession(req) {
+// Middleware to check if the user is authenticated
+isAuthenticated = (req, res, next) => {
   if (req.session.authenticated) {
-    return true;
-  } else {
-    return false;
+    req.session.username = req.session.username
+    next()
   }
+  else
+    return res.redirect('/login')
+}
+// Middleware to create a user
+const createUser = async (req, res, next) => {
+  const schema = joi.object({
+    username: joi.string().alphanum().max(30).required(),
+    email: joi.string().max(200).required(),
+    password: joi.string().max(50).required(),
+  })
+  const { error } = schema.validate(req.body)
+  if (error) {
+    return res.send(`Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`);
+  }
+
+  var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
+  const user = new User({
+    username: req.body.username,
+    email: req.body.email,
+    password: hashedPassword
+  })
+
+  try {
+    await user.save();
+  }
+  catch (err) {
+    console.log("Failed to create user:", err)
+    res.status(500).send("Internal server error");
+  }
+
+  req.session.authenticated = true
+  req.session.username = req.body.username
+  req.session.cookie.maxAge = sessionExpireTime
+  next()
 }
 
-// Middleware to check if the session is valid
-function sessionValidation(req, res, next) {
-  console.log(req.session.authenticated);
-  console.log(req.session.name);
-  console.log(req.session.role);
-  if (isValidSession(req)) {
-    next();
-  } else {
-    res.redirect("/login");
-  }
-}
 
-// Middleware to check if the user is an admin
-function isAdmin(req) {
-  if (req.session.role == "admin") {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-// Middleware to check if the user is an admin
-function adminAuthorization(req, res, next) {
-  console.log(req.session.role);
-  if (isAdmin(req)) {
-    next();
-  } else {
-    res.status(403);
-    res.render("notadmin");
-  }
-}
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
-  let name = req.session.name;
-
-  if (req.session.authenticated) {
-    res.render("indexauthenticateduser", { name: name });
-  } else {
-    res.render("indexunauthenticateduser");
-  }
-});
+  res.render("home");
+}
+);
 
 // GET request for the login page
 app.get("/login", (req, res) => {
   res.render("login");
-});
-
-// POST request for the login page
-app.post("/loginValidation", async (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
-
-  const userSchema = joi.object({
-    email: joi.string().email().max(200).required(),
-  });
-
-  const validationResult = userSchema.validate({ email: email });
-
-  if (validationResult.error != null) {
-    res.render("loginvalidationresulterror", { error: validationResult.error });
-    return;
-  }
-
-  const result = await userCollection
-    .find({ email: email })
-    .project({ role: 1, email: 1, password: 1, name: 1, _id: 1 })
-    .toArray();
-
-  console.log(result[0]);
-  if (result.length != 1) {
-    res.render("usernotfound");
-    return;
-  }
-
-  if (await bcrypt.compare(password, result[0].password)) {
-    req.session.authenticated = true;
-    req.session.name = result[0].name;
-    req.session.role = result[0].role;
-    req.session.cookie.maxAge = sessionExpireTime;
-
-    res.redirect("/loggedIn");
-    return;
-  } else {
-    res.render("incorrectpassword");
-    return;
-  }
-});
-
-// Checking to see if the user is authenticated
-app.use("/loggedIn", sessionValidation);
-app.get("/loggedIn", (req, res) => {
-  if (req.session.authenticated) {
-    res.redirect("/members");
-  } else {
-    res.redirect("/login");
-  }
 });
 
 // GET request for the signup page
@@ -219,91 +166,15 @@ app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
-// POST request for the signup page
-app.post("/createUser", async (req, res) => {
-  let name = req.body.name;
-  let email = req.body.email;
-  let password = req.body.password;
-  let role = req.body.role;
-
-  if (!name) {
-    res.render("createusernoname");
-    return;
-  } else if (!email) {
-    res.render("createusernoemail");
-    return;
-  } else if (!password) {
-    res.render("createusernopassword");
-    return;
-  } else if (!role) {
-    res.render("createusernorole");
-    return;
-  }
-
-  const userSchema = joi.object({
-    name: joi.string().alphanum().max(30).required(),
-    email: joi.string().email().max(200).required(),
-    password: joi.string().max(30).required(),
-    role: joi.string().valid("admin", "user").required(),
-  });
-
-  const validationResult = userSchema.validate({
-    name: name,
-    email: email,
-    password: password,
-    role: role,
-  });
-
-  if (validationResult.error) {
-    res.render("validationresulterror", { error: validationResult.error });
-    return;
-  }
-
-  let hashedPassword = bcrypt.hashSync(password, saltRounds);
-  await userCollection.insertOne({
-    name: name,
-    email: email,
-    password: hashedPassword,
-    role: role,
-  });
-
-  req.session.authenticated = true;
-  req.session.name = name;
-  req.session.role = role;
-  req.session.cookie.maxAge = sessionExpireTime;
-  res.redirect("/members");
+app.post("/signup", createUser, (req, res) => {
+  res.redirect("/test");
 });
 
+
+app.use(isAuthenticated)
 // Members page
-app.get("/members", async (req, res) => {
-  console.log(req.session.role);
-  let name = req.session.name;
-
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-
-  res.render("members", { name: name });
-});
-
-// New admin page
-app.get("/admin", sessionValidation, adminAuthorization, async (req, res) => {
-  const result = await userCollection
-    .find()
-    .project({ email: 1, role: 1, _id: 1 })
-    .toArray();
-  res.render("admin", { results: result });
-});
-
-// POST request for the admin page
-app.post("/updateRole", async (req, res) => {
-  let email = req.body.email;
-  let role = req.body.role;
-
-  await userCollection.updateOne({ email: email }, { $set: { role: role } });
-
-  res.redirect("/admin");
+app.get("/test", async (req, res) => {
+  res.render("test", { username: req.session.username });
 });
 
 // Logout page
@@ -315,8 +186,7 @@ app.get("/logout", (req, res) => {
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
-  res.status(404);
-  res.render("404");
+  res.status(404).render("404");
 });
 
 // This is to let us know that the server is running and is good to go/where
