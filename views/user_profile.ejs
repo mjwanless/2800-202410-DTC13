@@ -1,27 +1,51 @@
 <%- include('templates/header'); %>
-    <div class="form-container">
-        <img class="profile-picture" src="/path/to/your/profile/image.jpg" alt="Profile Picture">
-        <form action="/update_profile" method="POST">
-            <label for="name">Name</label>
-            <input class="input-field" type="text" id="name" name="name" placeholder="Name"
-                value="<%= user.username %>">
-
-            <label for="email">Email</label>
-            <input class="input-field" type="email" id="email" name="email" placeholder="Email"
-                value="<%= user.email %>">
-
-            <label for="phone">Phone</label>
-            <input class="input-field" type="tel" id="phone" name="phone" placeholder="Phone" pattern="[0-9]{1,12}"
-                title="Phone number must be up to 12 digits">
-
-            <label for="address">Address</label>
-            <input class="input-field" type="text" id="address" name="address" placeholder="Address"
-                value="<%= user.address %>">
-
-            <button type="submit" class="submit-button">Save Changes</button>
+<div class="bg-indigo-50 flex py-10 justify-center min-h-screen">
+    <div class="bg-indigo-50 p-8 rounded-lg items-center justify-center max-w-sm w-full">
+        <div class="flex justify-center mb-6">
+            <img src="/profileimg.png" alt="Profile Picture" class="w-24 h-24 rounded-full">
+        </div>
+        <form action="/update_profile" method="POST" class="space-y-4">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-semibold mb-2">Name</label>
+                <input type="text" id="name" name="name" class="form-input w-full px-4 py-2 border rounded-lg text-gray-700" value="<%= user.username %>" required>
+            </div>
+            <div>
+                <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email</label>
+                <input type="email" id="email" name="email" class="form-input w-full px-4 py-2 border rounded-lg text-gray-700" value="<%= user.email %>" required>
+            </div>
+            <div>
+                <label for="phone" class="block text-gray-700 text-sm font-semibold mb-2">Phone</label>
+                <input type="tel" id="phone" name="phone" class="form-input w-full px-4 py-2 border rounded-lg text-gray-700" pattern="[0-9]{1,12}" title="Phone number cannot be up to 12 digits" value="<%= user.phone %>">
+            </div>
+            <div>
+                <label for="address" class="block text-gray-700 text-sm font-semibold mb-2">Address</label>
+                <input type="text" id="address" name="address" class="form-input w-full px-4 py-2 border rounded-lg text-gray-700" value="<%= user.address %>">
+            </div>
+            <div class="mt-8" >
+            <button type="button" onclick="confirmSave()" class="w-full bg-orange-500 text-white px-4 py-3 rounded-lg hover:bg-orange-600">Save Changes</button>
+            </div>
         </form>
-        <a href="/user_account" class="back-link">Back to Account</a>
+        <div class="mt-4 text-center" >
+        <a onclick="confirmSignOut()" class="w-full text-red-500 px-4 py-3 rounded-lg hover:underline">Sign Out</a>
     </div>
-    <%-include('templates/menuBar')%>
+    </div>
+</div>
+<%- include('templates/menuBar'); %>
+<%- include('templates/footer'); %>
 
-        <%-include('templates/footer')%>
+<script>
+    function confirmSave() {
+        if (confirm("Are you sure you want to save changes?")) {
+            document.querySelector('form').submit();
+        }
+    }
+    
+    function confirmSignOut() {
+        if (confirm("Are you sure you want to sign out?")) {
+            req.session.destroy();
+            res.clearCookie("connect.sid", { path: "/" });
+            window.location.href = '/login';
+        }
+    }
+</script>
+

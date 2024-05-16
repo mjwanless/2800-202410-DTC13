@@ -336,6 +336,7 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
 });
 
 
+
 app.use(isAuthenticated)
 // Members page
 app.get("/test", async (req, res) => {
