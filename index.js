@@ -7,6 +7,7 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
+const dateFormat = require("date-fns");
 const sessionExpireTime = 1 * 60 * 60 * 1000;  //1 hour
 const saltRounds = 10;
 const joi = require("joi");
@@ -269,11 +270,47 @@ app.post("/login", loginValidation, (req, res) => {
 app.post("/reset_password", resetPassword, (req, res) => {
   res.redirect("/login");
 });
+
 app.use(isAuthenticated);
 app.get("/home", (req, res) => {
   res.render("home");
 });
 
+//post request for the order confirmation page
+app.post("/orderconfirm", async(req, res) => {
+  //generate random order number
+  const number = (Math.floor(Math.random() * 1000) + 1).toString();
+  // generate random 3 letter code
+  let letter = '';
+  for(let i = 0; i < 3; i++){
+    letter += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+  }
+  const orderNumber = number + letter;
+
+  //update user's order list
+  await User.updateOne({ username: req.session.username}, { $push: { order: orderNumber } });
+
+  // calculate delivery date
+  const now = new Date();
+  const deliveryDate = new Date(now.setDate(now.getDate() + 7));
+  const formattedDate = dateFormat.format(deliveryDate, "yyyy-MM-dd");
+
+  // format the amount
+  const currencyFormater = new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+  });
+  //TO DO: get the amount from the cart
+  const amount = 55.00; // hard coded amount for now
+  const formattedAmount = currencyFormater.format(amount);
+
+  res.render("orderconfirm", {
+    orderId: orderNumber,
+    deliveryDate: formattedDate,
+    amount: formattedAmount,
+  });
+  
+});
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
