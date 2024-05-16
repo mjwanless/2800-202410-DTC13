@@ -8,9 +8,11 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const dateFormat = require("date-fns");
-const sessionExpireTime = 1 * 60 * 60 * 1000;  //1 hour
+const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
+const { Double } = require("mongodb");
+const { is } = require("date-fns/locale");
 
 // ======================================
 // Create a new express app and set up the port for .env variables
@@ -67,13 +69,30 @@ const userSchema = new mongoose.Schema({
   order: Array,
 });
 
+const orderSchema = new mongoose.Schema({
+  orderId: String,
+  orde_date: Date,
+  isPickup: Boolean,
+  isDelivery: Boolean,
+  vendor: {
+    name: String,
+    address: String,
+  },
+  amount: Number,
+  info: {
+    recipeTitle: String,
+    description: String,
+  },
+});
+
 const User = mongoose.model("User", userSchema);
+const orders = mongoose.model("orders", orderSchema);
 
 // mongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
-  autoRemove: 'native'
+  autoRemove: "native",
 });
 
 // Catch errors
@@ -110,12 +129,10 @@ app.use(express.static(__dirname + "/public"));
 // Middleware to check if the user is authenticated
 isAuthenticated = (req, res, next) => {
   if (req.session.authenticated) {
-    req.session.username = req.session.username
-    next()
-  }
-  else
-    return res.redirect('/login')
-}
+    req.session.username = req.session.username;
+    next();
+  } else return res.redirect("/login");
+};
 
 // Middleware to create a user
 const createUser = async (req, res, next) => {
@@ -124,94 +141,104 @@ const createUser = async (req, res, next) => {
     email: joi.string().max(200).required(),
     password: joi.string().max(50).required(),
     security_question: joi.string().max(50).required(),
-    security_answer: joi.string().max(50).required()
-  })
-  const { error } = schema.validate(req.body)
+    security_answer: joi.string().max(50).required(),
+  });
+  const { error } = schema.validate(req.body);
   if (error) {
-    return res.send(`Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`);
+    return res.send(
+      `Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`
+    );
   }
 
-  var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
-  var hashedSecurityAnswer = await bcrypt.hash(req.body.security_answer, saltRounds)
+  var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+  var hashedSecurityAnswer = await bcrypt.hash(
+    req.body.security_answer,
+    saltRounds
+  );
 
   const user = new User({
     username: req.body.username,
     email: req.body.email,
     password: hashedPassword,
     security_question: req.body.security_question,
-    security_answer: hashedSecurityAnswer
-  })
+    security_answer: hashedSecurityAnswer,
+  });
 
   try {
     await user.save();
-  }
-  catch (err) {
-    console.log("Failed to create user:", err)
+  } catch (err) {
+    console.log("Failed to create user:", err);
     res.status(500).send("Internal server error");
   }
 
-  req.session.authenticated = true
-  req.session.username = req.body.username
-  req.session.cookie.maxAge = sessionExpireTime
-  next()
-}
+  req.session.authenticated = true;
+  req.session.username = req.body.username;
+  req.session.cookie.maxAge = sessionExpireTime;
+  next();
+};
 
 // Middleware to validate a user account
 const loginValidation = async (req, res, next) => {
   const schema = joi.object({
-    email: joi.string().max(200).required()
-  })
+    email: joi.string().max(200).required(),
+  });
   const validationResult = schema.validate({ email: req.body.email });
   if (validationResult.error) {
-    res.send("login validation result error", { error: validationResult.error });
+    res.send("login validation result error", {
+      error: validationResult.error,
+    });
     return;
   }
   try {
-    user = await User.findOne({ email: req.body.email })
+    user = await User.findOne({ email: req.body.email });
     if (user) {
-      const outputPassword = user.password
-      const inputPassword = req.body.password
+      const outputPassword = user.password;
+      const inputPassword = req.body.password;
 
       if (await bcrypt.compare(inputPassword, outputPassword)) {
-        req.session.authenticated = true
-        req.session.username = user.username
-        req.session.cookie.maxAge = sessionExpireTime
-        next()
+        req.session.authenticated = true;
+        req.session.username = user.username;
+        req.session.cookie.maxAge = sessionExpireTime;
+        next();
       } else {
-        return res.render('login', { wrongPassword: true })
+        return res.render("login", { wrongPassword: true });
       }
     } else {
-      return res.render('login', { noUser: true })
+      return res.render("login", { noUser: true });
     }
+  } catch (err) {
+    console.log("fail to login", err);
   }
-  catch (err) {
-    console.log("fail to login", err)
-  }
-}
+};
 
 // Middleware to reset a password
 const resetPassword = async (req, res, next) => {
   const schema = joi.object({
-    email: joi.string().max(200).required()
-  })
+    email: joi.string().max(200).required(),
+  });
   const validationResult = schema.validate({ email: req.body.email });
   if (validationResult.error) {
-    res.send("login validation result error", { error: validationResult.error });
+    res.send("login validation result error", {
+      error: validationResult.error,
+    });
     return;
   }
   try {
-    user = await User.findOne({ email: req.body.email })
+    user = await User.findOne({ email: req.body.email });
     if (user) {
-      const outputQuestion = user.security_question
-      const inputQuestion = req.body.security_question
-      const outputAnswer = user.security_answer
-      const inputAnswer = req.body.security_answer
+      const outputQuestion = user.security_question;
+      const inputQuestion = req.body.security_question;
+      const outputAnswer = user.security_answer;
+      const inputAnswer = req.body.security_answer;
 
-      if (inputQuestion != outputQuestion || !await bcrypt.compare(inputAnswer, outputAnswer)) {
-        return res.render('reset_password', { wrongAnswer: true })
+      if (
+        inputQuestion != outputQuestion ||
+        !(await bcrypt.compare(inputAnswer, outputAnswer))
+      ) {
+        return res.render("reset_password", { wrongAnswer: true });
       }
 
-      var hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
+      var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
       try {
         await User.findOneAndUpdate(
@@ -219,27 +246,23 @@ const resetPassword = async (req, res, next) => {
           { $set: { password: hashedPassword } }
         );
 
-        next()
-      }
-      catch (err) {
+        next();
+      } catch (err) {
         console.error("Failed to update password:", err);
         res.status(500).send("Failed to update password.");
       }
-
     } else {
-      return res.render('reset_password', { noUser: true })
+      return res.render("reset_password", { noUser: true });
     }
+  } catch (err) {
+    console.log("fail to login", err);
   }
-  catch (err) {
-    console.log("fail to login", err)
-  }
-}
+};
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
   res.render("landing");
-}
-);
+});
 
 // GET request for the login page
 app.get("/login", (req, res) => {
@@ -254,7 +277,6 @@ app.get("/signup", (req, res) => {
 app.get("/reset_password", (req, res) => {
   res.render("reset_password");
 });
-
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
@@ -277,18 +299,21 @@ app.get("/home", (req, res) => {
 });
 
 //post request for the order confirmation page
-app.post("/orderconfirm", async(req, res) => {
+app.post("/orderconfirm", async (req, res) => {
   //generate random order number
   const number = (Math.floor(Math.random() * 1000) + 1).toString();
   // generate random 3 letter code
-  let letter = '';
-  for(let i = 0; i < 3; i++){
+  let letter = "";
+  for (let i = 0; i < 3; i++) {
     letter += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
   }
   const orderNumber = number + letter;
 
   //update user's order list
-  await User.updateOne({ username: req.session.username}, { $push: { order: orderNumber } });
+  await User.updateOne(
+    { username: req.session.username },
+    { $push: { order: orderNumber } }
+  );
 
   // calculate delivery date
   const now = new Date();
@@ -296,20 +321,22 @@ app.post("/orderconfirm", async(req, res) => {
   const formattedDate = dateFormat.format(deliveryDate, "yyyy-MM-dd");
 
   // format the amount
-  const currencyFormater = new Intl.NumberFormat('en-CA', {
-    style: 'currency',
-    currency: 'CAD',
+  const currencyFormater = new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
   });
   //TO DO: get the amount from the cart
-  const amount = 55.00; // hard coded amount for now
+  const amount = 55.0; // hard coded amount for now
   const formattedAmount = currencyFormater.format(amount);
+
+  //save the order to the database
+  // TO DO:
 
   res.render("orderconfirm", {
     orderId: orderNumber,
     deliveryDate: formattedDate,
     amount: formattedAmount,
   });
-  
 });
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
@@ -332,7 +359,7 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
       res.status(500).send("Internal server error");
     }
   } else {
-    res.redirect("/login");  // Redirect to login if no username is found in the session
+    res.redirect("/login"); // Redirect to login if no username is found in the session
   }
 });
 
@@ -360,7 +387,9 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { username: req.session.username },
-      { $set: { username: name, email: email, phone: phone, address: address } },
+      {
+        $set: { username: name, email: email, phone: phone, address: address },
+      },
       { new: true }
     );
     // Update session if necessary
@@ -372,9 +401,7 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-
-
-app.use(isAuthenticated)
+app.use(isAuthenticated);
 // Members page
 app.get("/test", async (req, res) => {
   res.render("test", { username: req.session.username });
