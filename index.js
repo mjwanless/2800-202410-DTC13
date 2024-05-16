@@ -290,12 +290,12 @@ app.get("/reset_password", (req, res) => {
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
-  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+  res.redirect("/home"); // Changed from "/test" to "/user_account"
 });
 
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
-  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+  res.redirect("/home"); // Changed from "/test" to "/user_account"
 });
 
 // After successful password reset
@@ -417,6 +417,10 @@ app.get("/home", (req, res) => {
   res.render("home");
 });
 
+app.get("/browse", (req, res) => {
+  res.render("browse");
+});
+
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
@@ -426,12 +430,10 @@ app.get("/recipedisplaypage", (req, res) => {
 app.get("/user_account", isAuthenticated, async (req, res) => {
   if (req.session.username) {
     try {
-      // Fetch the user based on the username stored in the session
       const user = await User.findOne({ username: req.session.username });
       if (!user) {
         return res.status(404).send("User not found");
       }
-      // Render the user_account page with user data
       res.render("user_account", { user: user });
     } catch (err) {
       console.error("Failed to retrieve user:", err);
@@ -442,13 +444,13 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
   }
 });
 
+// User profile page
 app.get("/user_profile", isAuthenticated, async (req, res) => {
   if (req.session.username) {
     try {
-      // Fetch the user from the database using the username stored in the session
       const user = await User.findOne({ username: req.session.username });
       if (user) {
-        res.render("user_profile", { user: user }); // Pass user data to the template
+        res.render("user_profile", { user: user });
       } else {
         res.status(404).send("User not found");
       }
@@ -457,10 +459,11 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
       res.status(500).send("Internal server error");
     }
   } else {
-    res.redirect("/login"); // If not authenticated, redirect to login
+    res.redirect("/login");
   }
 });
 
+// Update user profile
 app.post("/update_profile", isAuthenticated, async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
@@ -471,26 +474,29 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
       },
       { new: true }
     );
-    // Update session if necessary
     req.session.username = updatedUser.username;
-    res.redirect("/user_profile"); // Redirect to the profile page to show updated info
+    res.redirect("/user_profile");
   } catch (err) {
     console.error("Failed to update user:", err);
     res.status(500).send("Failed to update profile.");
   }
 });
 
-app.use(isAuthenticated);
-// Members page
-app.get("/test", async (req, res) => {
-  res.render("test", { username: req.session.username });
+// favorite page
+app.get('/favorite', (req, res) => {
+  res.render('favorite');
+});
+
+// my preference page
+app.get('/my_preference', (req, res) => {
+  res.render('my_preference');
 });
 
 // Logout page
-app.get("/logout", (req, res) => {
+app.post("/signout", (req, res) => {
   req.session.destroy();
   res.clearCookie("connect.sid", { path: "/" });
-  res.render("logout");
+  res.send("you have logged out");
 });
 
 // 404 Page (Keep down here so that you don't muck up other routes)
