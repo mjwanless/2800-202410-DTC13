@@ -344,6 +344,11 @@ app.get('/favorite', (req, res) => {
   res.render('favorite');
 });
 
+// my preference page
+app.get('/my_preference', (req, res) => {
+  res.render('my_preference');
+});
+
 // Logout page
 app.post("/signout", (req, res) => {
   req.session.destroy();
