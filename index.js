@@ -279,29 +279,27 @@ app.post("/reset_password", resetPassword, (req, res) => {
 app.get("/user_account", isAuthenticated, async (req, res) => {
   if (req.session.username) {
     try {
-      // Fetch the user based on the username stored in the session
       const user = await User.findOne({ username: req.session.username });
       if (!user) {
         return res.status(404).send("User not found");
       }
-      // Render the user_account page with user data
       res.render("user_account", { user: user });
     } catch (err) {
       console.error("Failed to retrieve user:", err);
       res.status(500).send("Internal server error");
     }
   } else {
-    res.redirect("/login");  // Redirect to login if no username is found in the session
+    res.redirect("/login");
   }
 });
 
+// User profile page
 app.get("/user_profile", isAuthenticated, async (req, res) => {
   if (req.session.username) {
     try {
-      // Fetch the user from the database using the username stored in the session
       const user = await User.findOne({ username: req.session.username });
       if (user) {
-        res.render("user_profile", { user: user }); // Pass user data to the template
+        res.render("user_profile", { user: user });
       } else {
         res.status(404).send("User not found");
       }
@@ -310,10 +308,11 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
       res.status(500).send("Internal server error");
     }
   } else {
-    res.redirect("/login"); // If not authenticated, redirect to login
+    res.redirect("/login");
   }
 });
 
+// Update user profile
 app.post("/update_profile", isAuthenticated, async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
@@ -322,16 +321,23 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
       { $set: { username: name, email: email, phone: phone, address: address } },
       { new: true }
     );
-    // Update session if necessary
     req.session.username = updatedUser.username;
-    res.redirect("/user_profile"); // Redirect to the profile page to show updated info
+    res.redirect("/user_profile");
   } catch (err) {
     console.error("Failed to update user:", err);
     res.status(500).send("Failed to update profile.");
   }
 });
 
+// favorite page
+app.get('/favorite', (req, res) => {
+  res.render('favorite');
+});
 
+// my_preference page
+app.get('/my_preference', (req, res) => {
+  res.render('my_preference');
+});
 
 app.use(isAuthenticated)
 // Members page
