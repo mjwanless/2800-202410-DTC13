@@ -257,21 +257,27 @@ app.get("/reset_password", (req, res) => {
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
-  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+  res.redirect("/home"); // Changed from "/test" to "/user_account"
 });
 
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
-  res.redirect("/user_account"); // Changed from "/test" to "/user_account"
+  res.redirect("/home"); // Changed from "/test" to "/user_account"
 });
 
 // After successful password reset
 app.post("/reset_password", resetPassword, (req, res) => {
   res.redirect("/login");
 });
+
+
 app.use(isAuthenticated);
 app.get("/home", (req, res) => {
   res.render("home");
+});
+
+app.get("/browse", (req, res) => {
+  res.render("browse");
 });
 
 // GET request for the recipedisplaypage
@@ -335,13 +341,6 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-
-
-app.use(isAuthenticated)
-// Members page
-app.get("/test", async (req, res) => {
-  res.render("test", { username: req.session.username });
-});
 
 // Logout page
 app.post("/signout", (req, res) => {
