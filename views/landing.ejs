@@ -1,0 +1,31 @@
+<%- include('templates/header'); %>
+    <div class="relative container">
+        <img src="/landing_img.png" alt="FleshPlate Logo">
+        <div class="flex min-h-full flex-col justify-center px-6 py-10 lg:px-8">
+            
+            
+            <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+                <img class="mx-auto h-60 w-auto" src="/logo_with_name.svg" alt="FleshPlate Logo">
+            </div>
+
+            <a href="/login">
+                <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm flex justify-center">
+                    <div class="flex w-60">
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-full bg-orange-500 px-3 py-1.5 text-md font-semibold leading-6 text-white shadow-sm">Log
+                            in</button>
+                    </div>
+                </div>
+            </a>
+            <a href="/signup">
+                <div class="mt-5 sm:mx-auto sm:w-full sm:max-w-sm flex justify-center">
+                    <div class="flex w-60">
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-full bg-orange-500 max-xs border-2 border-orange-500 bg-transparent px-3 py-1.5 text-md font-semibold leading-6 text-orange-500">Sign up</button>
+                    </div>
+                
+                </div>
+            </a>
+        </div>
+    </div>
+    <%-include('templates/footer')%>

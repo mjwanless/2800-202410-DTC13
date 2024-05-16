@@ -236,7 +236,7 @@ const resetPassword = async (req, res, next) => {
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
-  res.render("home");
+  res.render("landing");
 }
 );
 
