@@ -40,12 +40,22 @@
         }
     }
     
-    function confirmSignOut() {
+    async function confirmSignOut() {
         if (confirm("Are you sure you want to sign out?")) {
-            req.session.destroy();
-            res.clearCookie("connect.sid", { path: "/" });
-            window.location.href = '/login';
+            try {
+                response = await fetch('/signout', {
+                    method: 'POST'
+                })
+                if(response.ok){
+                    window.location.href = '/'
+                }else{
+                    alert("An error occurred. Please try again later.")
+                }
+
+            }catch(err) {
+                alert("An error occurred. Please try again later.")
         }
     }
+}
 </script>
 

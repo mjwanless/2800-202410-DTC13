@@ -344,10 +344,10 @@ app.get("/test", async (req, res) => {
 });
 
 // Logout page
-app.get("/logout", (req, res) => {
+app.post("/signout", (req, res) => {
   req.session.destroy();
   res.clearCookie("connect.sid", { path: "/" });
-  res.render("logout");
+  res.send("you have logged out");
 });
 
 // 404 Page (Keep down here so that you don't muck up other routes)
