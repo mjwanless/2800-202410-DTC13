@@ -8,11 +8,19 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const dateFormat = require("date-fns");
+const nodeMailer = require("nodemailer");
+const {google} = require("googleapis");
+const config = require("./config");
+const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
+const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
+OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
+
+
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 const { Double } = require("mongodb");
-const { is } = require("date-fns/locale");
+const { is, fr, ht, tr } = require("date-fns/locale");
 
 // ======================================
 // Create a new express app and set up the port for .env variables
@@ -125,6 +133,7 @@ app.use(express.static(__dirname + "/public"));
 // ======================================
 // functions and middleware
 // ======================================
+let emailSent = false;
 
 // Middleware to check if the user is authenticated
 isAuthenticated = (req, res, next) => {
@@ -211,6 +220,7 @@ const loginValidation = async (req, res, next) => {
   }
 };
 
+
 // Middleware to reset a password
 const resetPassword = async (req, res, next) => {
   const schema = joi.object({
@@ -293,13 +303,9 @@ app.post("/reset_password", resetPassword, (req, res) => {
   res.redirect("/login");
 });
 
-app.use(isAuthenticated);
-app.get("/home", (req, res) => {
-  res.render("home");
-});
-
 //post request for the order confirmation page
 app.post("/orderconfirm", async (req, res) => {
+  req.session.emailSent = false;
   //generate random order number
   const number = (Math.floor(Math.random() * 1000) + 1).toString();
   // generate random 3 letter code
@@ -329,8 +335,70 @@ app.post("/orderconfirm", async (req, res) => {
   const amount = 55.0; // hard coded amount for now
   const formattedAmount = currencyFormater.format(amount);
 
-  //save the order to the database
-  // TO DO:
+  // send email
+  const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
+
+  let recipient = "waxah66944@ahieh.com";
+  function sendConfirmationEmail(recipient) {
+    const transporter = nodeMailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: config.user,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        refreshToken: config.refreshToken,
+        accessToken: accessToken,
+      },
+    });
+
+    const mailOptions = {
+      from: `Fresh Plate <${config.user}>`,
+      to: recipient,
+      subject: "Order Confirmation",
+      html: confirmationInfo(),
+    };
+
+    transporter.sendMail(mailOptions, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Email sent: " + result);
+      }
+      transporter.close();
+    });
+  }
+
+  function confirmationInfo() {
+    return `
+    <h1>Order Confirmation</h1>
+    <p>Thank you for your order. Your order has been confirmed.</p>
+    <p>Thank you for choosing Fresh Plate</p>
+    `;
+  }
+  if (!session.emailSent){
+    sendConfirmationEmail(recipient);
+    session.emailSent = true;
+    //save the order to the database
+    await orders.create({
+      id: orderNumber,
+      orde_date: new Date(),
+      isPickup: false,
+      isDelivery: true,
+      vendor: {
+        name: "Fresh Plate",
+        address: "1234 Fresh Plate Lane",
+      },
+      amount: amount,
+      info: {
+        recipeTitle: "Recipe Title",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      },
+    }).then((order) => {
+      order.save();
+      console.log("Order created: ", order);
+    });
+  }
 
   res.render("orderconfirm", {
     orderId: orderNumber,
@@ -338,6 +406,16 @@ app.post("/orderconfirm", async (req, res) => {
     amount: formattedAmount,
   });
 });
+
+app.get("/payment", async (req, res) => {
+  res.render("payment");
+});
+
+app.use(isAuthenticated);
+app.get("/home", (req, res) => {
+  res.render("home");
+});
+
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
