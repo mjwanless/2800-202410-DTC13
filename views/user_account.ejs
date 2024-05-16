@@ -1,15 +1,4 @@
 <%- include('templates/header'); %>
-
-<!-- <div class="bg-light-blue min-h-screen flex flex-col items-center justify-start pt-4">
-    <div class="flex items-center space-x-4 w-full max-w-xs px-4">
-        <img src="/profileimg.png" alt="Profile Picture" class="w-16 h-16 rounded-full">
-        <div>
-            <h2 class="font-semibold text-blue-950"><%= user.username %></h2>
-            <p class="text-sm text-gray-600"><%= user.email %></p>
-        </div>
-        <a href="/user_profile" class="text-orange-500 hover:underline text-sm">Edit</a>
-    </div> -->
-
     <div class="bg-indigo-50 pt-4">
         <div class="flex items-center justify-between w-full max-w-xs px-4">
             <img src="/profileimg.png" alt="Profile Picture" class="w-20 h-20 rounded-full">
@@ -66,12 +55,6 @@
 
 <script>
 function confirmSignOut() {
-    
-        // fetch('/logout', { method: 'POST' })
-        // .then(() => {
-        //     window.location.href = '/login';
-        // })
-        // .catch((error) => console.error('Error:', error));
         window.location.href = '/logout';
 }
 </script>
