@@ -240,10 +240,6 @@ app.get("/", (req, res) => {
 }
 );
 
-app.get("/home", (req, res) => {
-  res.render("home");
-});
-
 // GET request for the login page
 app.get("/login", (req, res) => {
   res.render("login");
@@ -253,16 +249,11 @@ app.get("/login", (req, res) => {
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
-
 // GET request for the reset password page
 app.get("/reset_password", (req, res) => {
   res.render("reset_password");
 });
 
-// GET request for the recipedisplaypage
-app.get("/recipedisplaypage", (req, res) => {
-  res.render("recipedisplaypage");
-});
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
@@ -277,6 +268,15 @@ app.post("/login", loginValidation, (req, res) => {
 // After successful password reset
 app.post("/reset_password", resetPassword, (req, res) => {
   res.redirect("/login");
+});
+app.use(isAuthenticated);
+app.get("/home", (req, res) => {
+  res.render("home");
+});
+
+// GET request for the recipedisplaypage
+app.get("/recipedisplaypage", (req, res) => {
+  res.render("recipedisplaypage");
 });
 
 // User Account page
