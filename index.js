@@ -407,6 +407,7 @@ app.post("/orderconfirm", async (req, res) => {
   });
 });
 
+// This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
   res.render("payment");
 });

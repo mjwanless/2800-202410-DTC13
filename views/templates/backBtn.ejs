@@ -7,3 +7,9 @@
             clip-rule="evenodd"></path>
     </svg>
 </a>
+<script>
+    document.querySelector('a').addEventListener('click', function (e) {
+        e.preventDefault();
+        window.history.back();
+    });
+</script>
