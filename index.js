@@ -34,77 +34,77 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-// Connecting to the Atlas database
-const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
-const connectToDB = async () => {
-  try {
-    await mongoose.connect(atlasURI, {
-      autoIndex: true,
-      writeConcern: {
-        w: "majority",
-        j: true,
-        wtimeout: 1000,
-      },
-    });
-    console.log("Connected to Mongodb Atlas");
-  } catch (error) {
-    console.error(error);
-  }
-};
-connectToDB();
+// // Connecting to the Atlas database
+// const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
+// const connectToDB = async () => {
+//   try {
+//     await mongoose.connect(atlasURI, {
+//       autoIndex: true,
+//       writeConcern: {
+//         w: "majority",
+//         j: true,
+//         wtimeout: 1000,
+//       },
+//     });
+//     console.log("Connected to Mongodb Atlas");
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+// connectToDB();
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
-  security_question: String,
-  security_answer: String,
-  preferences: Array,
-  my_fav: Array,
-  address: String,
-  phone: String,
-  order: Array,
-});
+// const userSchema = new mongoose.Schema({
+//   username: String,
+//   email: String,
+//   password: String,
+//   security_question: String,
+//   security_answer: String,
+//   preferences: Array,
+//   my_fav: Array,
+//   address: String,
+//   phone: String,
+//   order: Array,
+// });
 
-const User = mongoose.model("User", userSchema);
+// const User = mongoose.model("User", userSchema);
 
-// mongoDB session
-var store = new MongoDBStore({
-  uri: atlasURI,
-  collection: "sessions",
-  autoRemove: 'native'
-});
+// // mongoDB session
+// var store = new MongoDBStore({
+//   uri: atlasURI,
+//   collection: "sessions",
+//   autoRemove: 'native'
+// });
 
-// Catch errors
-store.on("error", function (error) {
-  console.log(error);
-});
+// // Catch errors
+// store.on("error", function (error) {
+//   console.log(error);
+// });
 
-app.use(
-  session({
-    secret: mongodb_session_secret,
-    resave: false,
-    saveUninitialized: true,
-    store: store,
-  })
-);
+// app.use(
+//   session({
+//     secret: mongodb_session_secret,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: store,
+//   })
+// );
 
-// ======================================
-// This is to be able to use html, css, and js files in the public folder
-// ======================================
-app.use(express.static(__dirname + "/public"));
+// // ======================================
+// // This is to be able to use html, css, and js files in the public folder
+// // ======================================
+// app.use(express.static(__dirname + "/public"));
 
-// ======================================
-// Where the magic happens ================================================================
-// ======================================
+// // ======================================
+// // Where the magic happens ================================================================
+// // ======================================
 
-// ======================================
-// Commit to create dev branch
-// ======================================
+// // ======================================
+// // Commit to create dev branch
+// // ======================================
 
-// ======================================
-// functions and middleware
-// ======================================
+// // ======================================
+// // functions and middleware
+// // ======================================
 
 // Middleware to check if the user is authenticated
 isAuthenticated = (req, res, next) => {
@@ -141,52 +141,52 @@ const createUser = async (req, res, next) => {
     security_answer: hashedSecurityAnswer
   })
 
-  try {
-    await user.save();
-  }
-  catch (err) {
-    console.log("Failed to create user:", err)
-    res.status(500).send("Internal server error");
-  }
+//   try {
+//     await user.save();
+//   }
+//   catch (err) {
+//     console.log("Failed to create user:", err)
+//     res.status(500).send("Internal server error");
+//   }
 
-  req.session.authenticated = true
-  req.session.username = req.body.username
-  req.session.cookie.maxAge = sessionExpireTime
-  next()
-}
+//   req.session.authenticated = true
+//   req.session.username = req.body.username
+//   req.session.cookie.maxAge = sessionExpireTime
+//   next()
+// }
 
-// Middleware to validate a user account
-const loginValidation = async (req, res, next) => {
-  const schema = joi.object({
-    email: joi.string().max(200).required()
-  })
-  const validationResult = schema.validate({ email: req.body.email });
-  if (validationResult.error) {
-    res.send("login validation result error", { error: validationResult.error });
-    return;
-  }
-  try {
-    user = await User.findOne({ email: req.body.email })
-    if (user) {
-      const outputPassword = user.password
-      const inputPassword = req.body.password
+// // Middleware to validate a user account
+// const loginValidation = async (req, res, next) => {
+//   const schema = joi.object({
+//     email: joi.string().max(200).required()
+//   })
+//   const validationResult = schema.validate({ email: req.body.email });
+//   if (validationResult.error) {
+//     res.send("login validation result error", { error: validationResult.error });
+//     return;
+//   }
+//   try {
+//     user = await User.findOne({ email: req.body.email })
+//     if (user) {
+//       const outputPassword = user.password
+//       const inputPassword = req.body.password
 
-      if (await bcrypt.compare(inputPassword, outputPassword)) {
-        req.session.authenticated = true
-        req.session.username = user.username
-        req.session.cookie.maxAge = sessionExpireTime
-        next()
-      } else {
-        return res.render('login', { wrongPassword: true })
-      }
-    } else {
-      return res.render('login', { noUser: true })
-    }
-  }
-  catch (err) {
-    console.log("fail to login", err)
-  }
-}
+//       if (await bcrypt.compare(inputPassword, outputPassword)) {
+//         req.session.authenticated = true
+//         req.session.username = user.username
+//         req.session.cookie.maxAge = sessionExpireTime
+//         next()
+//       } else {
+//         return res.render('login', { wrongPassword: true })
+//       }
+//     } else {
+//       return res.render('login', { noUser: true })
+//     }
+//   }
+//   catch (err) {
+//     console.log("fail to login", err)
+//   }
+// }
 
 // Middleware to reset a password
 const resetPassword = async (req, res, next) => {
@@ -240,10 +240,11 @@ app.get("/", (req, res) => {
 }
 );
 
-// GET request for the login page
-app.get("/login", (req, res) => {
-  res.render("login");
-});
+// Test for API data display
+app.get("/apitest", (req, res) => {
+  res.render("api_practice");
+}
+);
 
 // GET request for the signup page
 app.get("/signup", (req, res) => {
