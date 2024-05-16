@@ -120,7 +120,7 @@ app.use(
 // // ======================================
 // // This is to be able to use html, css, and js files in the public folder
 // // ======================================
-// app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/public"));
 
 // // ======================================
 // // Where the magic happens ================================================================
