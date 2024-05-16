@@ -381,9 +381,8 @@ app.post("/orderconfirm", async (req, res) => {
     <p>Thank you for choosing Fresh Plate</p>
     `;
   }
-  if (!session.emailSent){
     sendConfirmationEmail(recipient);
-    session.emailSent = true;
+
     //save the order to the database
     await orders
       .create({
@@ -406,7 +405,6 @@ app.post("/orderconfirm", async (req, res) => {
         order.save();
         console.log("Order created: ", order);
       });
-  }
 
   res.render("orderconfirm", {
     orderId: orderNumber,
