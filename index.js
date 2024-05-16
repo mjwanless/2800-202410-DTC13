@@ -46,23 +46,23 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 // // Connecting to the Atlas database
-// const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
-// const connectToDB = async () => {
-//   try {
-//     await mongoose.connect(atlasURI, {
-//       autoIndex: true,
-//       writeConcern: {
-//         w: "majority",
-//         j: true,
-//         wtimeout: 1000,
-//       },
-//     });
-//     console.log("Connected to Mongodb Atlas");
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-// connectToDB();
+const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
+const connectToDB = async () => {
+  try {
+    await mongoose.connect(atlasURI, {
+      autoIndex: true,
+      writeConcern: {
+        w: "majority",
+        j: true,
+        wtimeout: 1000,
+      },
+    });
+    console.log("Connected to Mongodb Atlas");
+  } catch (error) {
+    console.error(error);
+  }
+};
+connectToDB();
 
 const userSchema = new mongoose.Schema({
   username: String,
@@ -108,14 +108,14 @@ var store = new MongoDBStore({
 //   console.log(error);
 // });
 
-// app.use(
-//   session({
-//     secret: mongodb_session_secret,
-//     resave: false,
-//     saveUninitialized: true,
-//     store: store,
-//   })
-// );
+app.use(
+  session({
+    secret: mongodb_session_secret,
+    resave: false,
+    saveUninitialized: true,
+    store: store,
+  })
+);
 
 // // ======================================
 // // This is to be able to use html, css, and js files in the public folder
