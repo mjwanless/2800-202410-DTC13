@@ -1,38 +1,75 @@
 <%- include('templates/header'); %>
-    <div class="text-center mt-6">
-        <div class="profile-picture"></div>
-        <h1>
-            <%= user.username %>
-        </h1>
-        <p>
-            <%= user.email %>
-        </p>
-        <a href="/user_profile" class="link">Edit</a>
-    </div>
 
-    <div class="card-container">
-        <div class="card">
-            <i class="fas fa-heart icon"></i>
-            <p>Favorites</p>
+<!-- <div class="bg-light-blue min-h-screen flex flex-col items-center justify-start pt-4">
+    <div class="flex items-center space-x-4 w-full max-w-xs px-4">
+        <img src="/profileimg.png" alt="Profile Picture" class="w-16 h-16 rounded-full">
+        <div>
+            <h2 class="font-semibold text-blue-950"><%= user.username %></h2>
+            <p class="text-sm text-gray-600"><%= user.email %></p>
         </div>
-        <div class="card">
-            <i class="fas fa-sliders-h icon"></i>
-            <p>Preference</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-star icon"></i>
-            <p>Membership</p>
+        <a href="/user_profile" class="text-orange-500 hover:underline text-sm">Edit</a>
+    </div> -->
+
+    <div class="bg-indigo-50 pt-4">
+        <div class="flex items-center justify-between w-full max-w-xs px-4">
+            <img src="/profileimg.png" alt="Profile Picture" class="w-20 h-20 rounded-full">
+            <div>
+                <h1 class="text-lg font-semibold text-blue-950"><%= user.username %></h1>
+                <h3 class="text-m text-gray-600"><%= user.email %></h3>
+            </div>
+            <a href="/user_profile" class="text-orange-500 hover:underline text-sm">Edit</a>
         </div>
     </div>
 
-    <div class="mt-6">
-        <p><i class="fas fa-bullhorn icon"></i> Promotions</p>
-        <p><i class="fas fa-info-circle icon"></i> About</p>
-        <p><i class="fas fa-cog icon"></i> Settings</p>
-        <p><i class="fas fa-sign-out-alt icon"></i> Sign out</p>
-        <p><i class="fas fa-history icon"></i> Order History</p>
+    <div class="bg-white p-4">
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="flex flex-col items-center onclick="location.href='/favorite';" style="cursor: pointer;">
+                <div class="bg-orange-50 p-7 rounded-full mb-3">
+                    <i class="fas fa-heart text-orange-500"></i>
+                </div>
+                <span class="text-gray-900 font-semibold">Favorites</span>
+            </div>
+            <div class="flex flex-col items-center onclick="location.href='/my_preference';" style="cursor: pointer;">
+                <div class="bg-orange-50 p-7 rounded-full mb-3">
+                    <i class="fas fa-sliders-h text-orange-500"></i>
+                </div>
+                <span class="text-gray-900 font-semibold">Preference</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="bg-orange-50 p-7 rounded-full mb-3">
+                    <i class="fas fa-star text-orange-500"></i>
+                </div>
+                <span class="text-gray-900 font-semibold">Membership</span>
+            </div>
+        </div>
+        
+        <div class="space-y-4 mt-6">
+            <div><i class="fas fa-bullhorn"></i> Promotions</div>
+            <div><i class="fas fa-info-circle"></i> About</div>
+            <div><i class="fas fa-cog"></i> Settings</div>
+            <div onclick="confirmSignOut()" class="cursor-pointer text-red-500"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
+        </div>
+    </div>
+    <div class="bg-white mt-2 p-4">
+        <hr class="border-t-2 p-4 border-orange-300">
+        <div class="flex items-center space-x-2">
+            
+            <i class="fas fa-history text-lg"></i>
+            <h1 class="text-lg font-semibold">Order History</h1>
+        </div>
+        <!-- Add content for order history here -->
     </div>
 
-    <%-include('templates/menuBar')%>
 
-        <%-include('templates/footer')%>
+<%- include('templates/menuBar'); %>
+<%- include('templates/footer'); %>
+
+<script>
+function confirmSignOut() {
+    if (confirm("Are you sure you want to sign out?")) {
+        req.session.destroy();
+        res.clearCookie("connect.sid", { path: "/" });
+        window.location.href = '/login';
+    }
+}
+</script>
