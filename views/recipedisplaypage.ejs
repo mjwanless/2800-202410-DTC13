@@ -1,15 +1,22 @@
 <%- include('templates/header') %>
+<div>
+    <p>search for a recipe to display on this place</p>
+    <input type="text" id="query" placeholder="Search for recipes...">
+    <button onclick="getRecipes()">Search</button>
+</div>
+
+
 <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
     <div class="md:flex">
         <div class="md:flex-shrink-0">
-            <img class="h-48 w-full object-cover md:w-48" src="/placeholderImage.jpg" alt="Healthy Dish">
+            <img id="recipe-image" class="h-48 w-full object-cover md:w-48" alt="Healthy Dish">
         </div>
         <div class="p-8">
             <div class="flex items-center justify-between">
                 <!-- Replace this with the recipe name -->
                 <h1 class="text-2xl font-bold text-blue-800">Healthy Dish</h1>
             </div>
-            <p class="mt-2 text-gray-600">Lorem ipsum dolor sit amet consectetur. Leo quisque scelerisque massa ullamcorper ornare ullamcorper ipsum.</p>
+            <p class="mt-2 text-gray-600">Lorem ipsum dolor sit amet conasectetur. Leo quisque scelerisque massa ullamcorper ornare ullamcorper ipsum.</p>
                 <!-- This will need to be a display of all the ingredients in the recipe -->
             <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
@@ -106,4 +113,22 @@
         </button>
     </div>
 </div>
+<script>
+    const appId = '2f8713ec';
+    const appKey = '7393ce8d980bb01c8359857c74dd0f56';
+
+    async function getRecipes() {
+        const query = document.getElementById('query').value;
+        const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}&`;
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data.hits);
+
+        if (data.hits && data.hits.length > 0) {
+                const firstRecipe = data.hits[0].recipe;
+                document.getElementById('recipe-image').src = firstRecipe.image;
+            }
+        }
+        
+</script>
 <%- include('templates/footer') %>

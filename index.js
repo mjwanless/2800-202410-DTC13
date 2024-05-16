@@ -183,7 +183,8 @@ const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
-  res.render("home");
+  // res.render("home");
+  res.send("Hello World!");
 }
 );
 
