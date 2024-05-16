@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COMP 2800 - DTC 13 - FreshPlate</title>
+    <!-- import tailwind -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^3.0/dist/tailwind.min.css" rel="stylesheet"> -->
+    <!-- import awesome icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- import logo as tab icon -->
+    <link rel="shortcut icon" href="/logo.svg">
+    <link rel="shortcut icon" href="/logo_with_name.svg">
+</head>
+<body>
+<%- include("templates/backBtn") %>
+<h2 class="text-4xl font-bold dark:text-white text-center py-2 text-blue-950">Confirmation</h2>
+<!--order confimation card-->
+<div class="relative flex grid justify-center top-20">
+    <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+        <a href="#">
+            <img class="rounded-t-lg" src="1.jpg" alt="" />
+        </a>
+        <div class="p-5">
+            <a href="#">
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Order Number: <%= orderId %></h5>
+            </a><br>
+            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Delivery Date: <%= deliveryDate %> </p>
+            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Amount: <%= amount %></p>
+        </div>
+    </div>
+    <div class="max-w-sm flex grid justify-center py-7 my-7">
+        <a href="#" id="doneBtn" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Done
+        </a>
+    </div>
+</div>
+<script>
+    document.getElementById("doneBtn").addEventListener("click", () => {
+        window.location.href = "/home";
+    });
+</script>
+</body>
+</html>
+
