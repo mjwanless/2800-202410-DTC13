@@ -55,6 +55,16 @@
 
 <script>
 function confirmSignOut() {
-        window.location.href = '/logout';
+    if(confirm('Are you sure you want to sign out?')){
+        fetch('/logout', {
+            method: 'POST',
+        }).then(res => {
+            if(res.status === 200) {
+                window.location.href = '/';
+            }
+        }).catch(err => {
+            console.error(err);
+        });
+    }
 }
 </script>
