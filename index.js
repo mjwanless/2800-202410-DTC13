@@ -285,8 +285,11 @@ app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
 });
 
+app.get('/favorites', (req, res) => { 
+  res.render('favorites') })
+
 // User Account page
-app.get("/user_account", isAuthenticated, async (req, res) => {
+app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
       // Fetch the user based on the username stored in the session
@@ -305,7 +308,7 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/user_profile", isAuthenticated, async (req, res) => {
+app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
       // Fetch the user from the database using the username stored in the session
@@ -324,7 +327,7 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/update_profile", isAuthenticated, async (req, res) => {
+app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
