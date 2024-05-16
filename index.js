@@ -124,7 +124,8 @@ const createUser = async (req, res, next) => {
     password: joi.string().max(50).required(),
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required()
-  })
+})};
+
   const { error } = schema.validate(req.body)
   if (error) {
     return res.send(`Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`);
@@ -139,7 +140,7 @@ const createUser = async (req, res, next) => {
     password: hashedPassword,
     security_question: req.body.security_question,
     security_answer: hashedSecurityAnswer
-  })
+  });
 
 //   try {
 //     await user.save();
@@ -237,8 +238,7 @@ const resetPassword = async (req, res, next) => {
 // GET request for the root URL/"Homepage"
 app.get("/", (req, res) => {
   res.render("landing");
-}
-);
+});
 
 // Test for API data display
 app.get("/apitest", (req, res) => {
