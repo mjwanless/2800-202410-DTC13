@@ -9,12 +9,11 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const dateFormat = require("date-fns");
 const nodeMailer = require("nodemailer");
-const {google} = require("googleapis");
+const { google } = require("googleapis");
 const config = require("./config");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
-
 
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
@@ -112,7 +111,7 @@ app.use(
   session({
     secret: mongodb_session_secret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: store,
   })
 );
@@ -220,7 +219,6 @@ const loginValidation = async (req, res, next) => {
   }
 };
 
-
 // Middleware to reset a password
 const resetPassword = async (req, res, next) => {
   const schema = joi.object({
@@ -310,7 +308,6 @@ app.post("/reset_password", resetPassword, (req, res) => {
 
 //post request for the order confirmation page
 app.post("/orderconfirm", async (req, res) => {
-  req.session.emailSent = false;
   //generate random order number
   const number = (Math.floor(Math.random() * 1000) + 1).toString();
   // generate random 3 letter code
@@ -381,30 +378,29 @@ app.post("/orderconfirm", async (req, res) => {
     <p>Thank you for choosing Fresh Plate</p>
     `;
   }
-    sendConfirmationEmail(recipient);
+  sendConfirmationEmail(recipient);
 
-    //save the order to the database
-    await orders
-      .create({
-        orderId: orderNumber,
-        orde_date: new Date(),
-        isPickup: false,
-        isDelivery: true,
-        vendor: {
-          name: "Fresh Plate",
-          address: "1234 Fresh Plate Lane",
-        },
-        amount: amount,
-        info: {
-          recipeTitle: "Recipe Title",
-          description:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-      })
-      .then((order) => {
-        order.save();
-        console.log("Order created: ", order);
-      });
+  //save the order to the database
+  await orders
+    .create({
+      orderId: orderNumber,
+      orde_date: new Date(),
+      isPickup: false,
+      isDelivery: true,
+      vendor: {
+        name: "Fresh Plate",
+        address: "1234 Fresh Plate Lane",
+      },
+      amount: amount,
+      info: {
+        recipeTitle: "Recipe Title",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      },
+    })
+    .then((order) => {
+      order.save();
+      console.log("Order created: ", order);
+    });
 
   res.render("orderconfirm", {
     orderId: orderNumber,
@@ -489,19 +485,19 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
 });
 
 // favorite page
-app.get('/favorite', (req, res) => {
-  res.render('favorite');
+app.get("/favorite", (req, res) => {
+  res.render("favorite");
 });
 
 // my preference page
-app.get('/my_preference', (req, res) => {
-  res.render('my_preference');
+app.get("/my_preference", (req, res) => {
+  res.render("my_preference");
 });
 
 // Logout page
-app.post("/signout", (req, res) => {
-  req.session.destroy();
+app.get("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
+  req.session.destroy();
   res.send("you have logged out");
 });
 
