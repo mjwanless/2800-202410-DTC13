@@ -274,6 +274,11 @@ app.get("/", (req, res) => {
   res.render("landing");
 });
 
+// GET request for the login page
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 // Test for API data display
 app.get("/apitest", (req, res) => {
   res.render("api_practice");
