@@ -9,66 +9,22 @@
 <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
     <div class="md:flex">
         <div class="md:flex-shrink-0">
-            <img id="recipe-image" class="h-48 w-full object-cover md:w-48" alt="Healthy Dish">
+            <img id="recipe-image" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
         </div>
         <div class="p-8">
             <div class="flex items-center justify-between">
-                <!-- Replace this with the recipe name -->
-                <h1 class="text-2xl font-bold text-blue-800">Healthy Dish</h1>
+                <h1 id="recipe-name" class="text-2xl font-bold text-blue-800">Recipe Name</h1>
             </div>
-            <p class="mt-2 text-gray-600">Lorem ipsum dolor sit amet conasectetur. Leo quisque scelerisque massa ullamcorper ornare ullamcorper ipsum.</p>
-                <!-- This will need to be a display of all the ingredients in the recipe -->
+            <p id="recipe-cuisine" class="mt-2 text-gray-600">Cuisine Type</p>
+            <p id="recipe-dishType" class="mt-2 text-gray-600">Dish Type</p>
+            <p id="recipe-mealType" class="mt-2 text-gray-600">Meal Type</p>
+
             <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
-                    <button class="text-red-500">Clear</button>
-                </div>
-                <div class="mt-4 bg-blue-100 p-4 rounded-xl">
-
-                <ul class="mt-2">
-                    <li class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <span>Carrots</span>
-                            <span class="text-gray-500 ml-2">$0.99</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="flex ml-2">
-                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
-                                <input type="number" value="1" class="w-12 text-center bg-blue-100 rounded-md mx-2">
-                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="flex items-center justify-between mt-2">
-                        <div class="flex items-center">
-                            <span>Zucchini</span>
-                            <span class="text-gray-500 ml-2">$0.99</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="flex ml-2">
-                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
-                                <input type="number" value="1" class="w-12 text-center bg-blue-100 rounded-md mx-2">
-                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="flex items-center justify-between mt-2">
-                        <div class="flex items-center">
-                            <span>Onion</span>
-                            <span class="text-gray-500 ml-2">$0.99</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="flex ml-2">
-                                <button class="text-gray-500 px-2 bg-orange-200 rounded">-</button>
-                                <input type="number" value="0" class="w-12 text-center bg-blue-100 rounded-md mx-2">
-                                <button class="text-gray-500 px-2 bg-orange-500 rounded">+</button>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-                <div class="flex items-center justify-between mt-4">
-                    <span class="text-xl font-semibold text-blue-800">Total: $1.98</span>
-                </div>
-
+                <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
+            </div>
+                
+            <div class="mt-4 bg-blue-100 p-4 rounded-xl">
+                <ul id="ingredients-list" class="mt-2"></ul>
             </div>
             <!-- Possibly look to change it to number of recipes that they need -->
             <div class="flex mt-4 justify-end">
@@ -77,58 +33,55 @@
             </div>
             <!-- This will have to be nutritional information/important to know things (Dietary restrictions)/ Make a card of each thing to display -->
             <div class="mt-6">
-                <h2 class="text-2xl font-semibold text-blue-800">Recipe</h2>
-                <ol class="list-decimal list-inside mt-2 text-gray-700">
-                    <li>Rinse the pasta under cold running water.</li>
-                    <li>Drain well and cool.</li>
-                    <li>Pesto & mayonnaise first - Mix the pesto and mayonnaise through the pasta first.</li>
-                    <li>Tomato & bocconcini next - Then gently mix through the tomato and bocconcini.</li>
-                    <li>Leafy greens last - And lastly, toss through the rocket/arugula. Just quickly, to disperse.</li>
-                </ol>
+                <h2 class="text-2xl font-semibold text-blue-800">Nutritional Information</h2>
+                <ul id="nutritional-info" class="list-disc list-inside mt-2 text-gray-700"></ul>
             </div>
+
         </div>
     </div>
 </div>
-<div class="fixed bottom-0 left-0 right-0 bg-white shadow-md p-4">
-    <div class="flex justify-around">
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18V3H3z"></path>
-            </svg>
-        </button>
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3h14a2 2 0 012 2v15H3V5a2 2 0 012-2z"></path>
-            </svg>
-        </button>
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h12M6 6h.01M6 10h12M6 10h.01M6 14h12M6 14h.01M6 18h12M6 18h.01"></path>
-            </svg>
-        </button>
-        <button class="text-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-            </svg>
-        </button>
-    </div>
 </div>
 <script>
     const appId = '2f8713ec';
     const appKey = '7393ce8d980bb01c8359857c74dd0f56';
 
     async function getRecipes() {
-        const query = document.getElementById('query').value;
-        const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}&`;
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log(data.hits);
+    const query = document.getElementById('query').value;
+    const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log(data.hits);
 
-        if (data.hits && data.hits.length > 0) {
-                const firstRecipe = data.hits[0].recipe;
-                document.getElementById('recipe-image').src = firstRecipe.image;
+    if (data.hits && data.hits.length > 0) {
+        const firstRecipe = data.hits[0].recipe;
+        document.getElementById('recipe-image').src = firstRecipe.image;
+        document.getElementById('recipe-name').textContent = firstRecipe.label;
+        document.getElementById('recipe-cuisine').textContent = firstRecipe.cuisineType;
+        document.getElementById('recipe-mealType').textContent = firstRecipe.mealType[0];
+        document.getElementById('recipe-dishType').textContent = firstRecipe.dishType[0];
+
+        const ingredientsList = document.getElementById('ingredients-list');
+        ingredientsList.innerHTML = '';
+        firstRecipe.ingredients.forEach(ingredient => {
+            const listItem = document.createElement('li');
+            listItem.className = 'flex items-center justify-between mt-2';
+            listItem.innerHTML = `
+                <div class="flex items-center">
+                    <span>${ingredient.text}</span>
+                </div>
+            `;
+            ingredientsList.appendChild(listItem);
+        });
+        const nutritionalInfo = document.getElementById('nutritional-info');
+            nutritionalInfo.innerHTML = '';
+            for (const nutrient in firstRecipe.totalDaily) {
+                const nutrientInfo = firstRecipe.totalDaily[nutrient];
+                const listItem = document.createElement('li');
+                listItem.textContent = `${nutrientInfo.label}: ${nutrientInfo.quantity.toFixed(2)}${nutrientInfo.unit}`;
+                nutritionalInfo.appendChild(listItem);
             }
-        }
-        
+    }
+}
+
 </script>
 <%- include('templates/footer') %>
