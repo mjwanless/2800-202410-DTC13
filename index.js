@@ -498,7 +498,7 @@ app.get("/my_preference", (req, res) => {
 app.get("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
   req.session.destroy();
-  res.send("you have logged out");
+  res.render("logout");
 });
 
 // 404 Page (Keep down here so that you don't muck up other routes)
