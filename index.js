@@ -380,24 +380,27 @@ app.post("/orderconfirm", async (req, res) => {
     sendConfirmationEmail(recipient);
     session.emailSent = true;
     //save the order to the database
-    await orders.create({
-      id: orderNumber,
-      orde_date: new Date(),
-      isPickup: false,
-      isDelivery: true,
-      vendor: {
-        name: "Fresh Plate",
-        address: "1234 Fresh Plate Lane",
-      },
-      amount: amount,
-      info: {
-        recipeTitle: "Recipe Title",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      },
-    }).then((order) => {
-      order.save();
-      console.log("Order created: ", order);
-    });
+    await orders
+      .create({
+        orderId: orderNumber,
+        orde_date: new Date(),
+        isPickup: false,
+        isDelivery: true,
+        vendor: {
+          name: "Fresh Plate",
+          address: "1234 Fresh Plate Lane",
+        },
+        amount: amount,
+        info: {
+          recipeTitle: "Recipe Title",
+          description:
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        },
+      })
+      .then((order) => {
+        order.save();
+        console.log("Order created: ", order);
+      });
   }
 
   res.render("orderconfirm", {
