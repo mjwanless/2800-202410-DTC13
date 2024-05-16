@@ -240,6 +240,10 @@ app.get("/", (req, res) => {
 }
 );
 
+app.get("/home", (req, res) => {
+  res.render("home");
+});
+
 // GET request for the login page
 app.get("/login", (req, res) => {
   res.render("login");
