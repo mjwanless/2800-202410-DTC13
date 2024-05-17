@@ -1,9 +1,17 @@
 <%- include('templates/header') %> <%- include('templates/searchBar') %>
+<style>
+  ::-webkit-scrollbar {
+    display: none;
+  }
+</style>
 <h2 class="px-5 flex items-center">
   <span class="text-lg font-bold">Weekly Recommendation</span>
 </h2>
 
-<div id="h-gallery" class=" relative w-full flex gap-6 snap-x overflow-x-auto pb-10"></div>
+<div
+  id="h-gallery"
+  class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10"
+></div>
 <!--Below is horizontal gallery-->
 <h3 class="p-5 flex items-center">
   <span class="text-lg font-bold">Monthly Hot</span>
@@ -29,17 +37,16 @@
 
 <div id="v-gallery"></div>
 
-
 <script>
-    function goToRecipe(id) {
-      window.location.href = `/recipedisplaypage/${id}`;
-    }
+  function goToRecipe(id) {
+    window.location.href = `/recipedisplaypage/`;
+  }
 
-    function loadMonthlyRecipes() {
-      for(let i = 1; i <= 4; i++) {
-        document.getElementById("v-gallery").innerHTML += `
+  function loadMonthlyRecipes() {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById("v-gallery").innerHTML += `
           <div class="flex items-center gap-4 p-4">
-      <img class="w-20 h-20 flex-shrink-0" src="${i}.jpg" />
+      <img class="w-20 h-20 flex-shrink-0" src="${i}.jpg" onclick="goToRecipe(id)" />
       <div class="flex flex-col">
         <strong class="text-slate-900 text-sm font-medium dark:text-slate-200"
           >Special Drink</strong
@@ -53,11 +60,13 @@
         `;
     }
   }
-    loadMonthlyRecipes();
+  loadMonthlyRecipes();
 
-    function loadWeeklyRecipes() {
-      for(let i = 1; i <= 4; i++) {
-        document.getElementById("h-gallery").innerHTML += `<div class="relative snap-center shrink-0 first:pl-8 last:pr-8">
+  function loadWeeklyRecipes() {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById(
+        "h-gallery"
+      ).innerHTML += `<div class="relative snap-center shrink-0 first:pl-8 last:pr-8">
       <img
         id="${i}"
         class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
@@ -68,9 +77,45 @@
       <p class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-5 rounded-b-lg">
         Title
       </p>
-    </div>`
+    </div>`;
     }
   }
   loadWeeklyRecipes();
+
+  // Below is the codes from the youtube video teaching how to make a horizontal gallery with dragging and touch effect
+  let carousel = document.querySelector("#h-gallery");
+  const firstImg = carousel.querySelectorAll("img")[0];
+  let isMOve = false;
+  let prevPageX;
+  let prevScrollLeft;
+  let firstImgWidth = firstImg.clientWidth;
+
+  const draggingStart = (e) => {
+    isMove = true;
+    prevPageX = e.pageX || e.touches[0].pageX; // get the x position of the mouse or touch
+    prevScrollLeft = carousel.scrollLeft;
+  };
+
+  const dragging = (e) => {
+    if (!isMove) return;
+    e.preventDefault();
+    carousel.classList.add("dragging");
+    let posisionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
+    carousel.scrollLeft = prevScrollLeft - posisionDiff;
+  };
+
+  const draggingStop = () => {
+    isMove = false;
+    carousel.classList.remove("dragging");
+  };
+  carousel.addEventListener("mousedown", draggingStart);
+  carousel.addEventListener("touchstart", draggingStart);
+
+  carousel.addEventListener("mousemove", dragging);
+  carousel.addEventListener("touchmove", dragging);
+
+  carousel.addEventListener("mouseup", draggingStop);
+  carousel.addEventListener("touched", draggingStop);
+
 </script>
 <%- include('templates/menuBar') %> <%- include('templates/footer') %>
