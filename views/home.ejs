@@ -99,14 +99,14 @@
   const dragging = (e) => {
     if (!isMove) return;
     e.preventDefault();
-    carousel.classList.add("dragging");
+    // carousel.classList.add("dragging");
     let posisionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
     carousel.scrollLeft = prevScrollLeft - posisionDiff;
   };
 
   const draggingStop = () => {
     isMove = false;
-    carousel.classList.remove("dragging");
+    // carousel.classList.remove("dragging");
   };
   carousel.addEventListener("mousedown", draggingStart);
   carousel.addEventListener("touchstart", draggingStart);
@@ -116,6 +116,5 @@
 
   carousel.addEventListener("mouseup", draggingStop);
   carousel.addEventListener("touched", draggingStop);
-
 </script>
 <%- include('templates/menuBar') %> <%- include('templates/footer') %>
