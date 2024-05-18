@@ -99,7 +99,7 @@ const orders = mongoose.model("orders", orderSchema);
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
-  autoRemove: 'native'
+  autoRemove: "native",
 });
 
 // // Catch errors
@@ -341,7 +341,6 @@ app.post("/orderconfirm", async (req, res) => {
   // send email
   const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
 
-
   const user = await User.findOne({ email: req.session.email });
   const recipient = user.email;
   const userName = user.username;
@@ -379,7 +378,7 @@ app.post("/orderconfirm", async (req, res) => {
     return `
     <h1>Hello ${userName} ! </h1>
     <h3>Order Confirmation: ${orderNumber}</h3>
-    <h3>Total amount: ${amount}</h3>
+    <h3>Total amount: $ ${amount}</h3>
     <p>Thank you for your order. Your order has been confirmed.</p>
     <p>Thank you for choosing Fresh Plate</p>
     `;
@@ -415,14 +414,13 @@ app.post("/orderconfirm", async (req, res) => {
   });
 });
 
-// This is for testing, will be refactored as app.post("/payment")
-app.get("/payment", async (req, res) => {
-  res.render("payment");
-});
-
 app.use(isAuthenticated);
 app.get("/home", (req, res) => {
   res.render("home");
+});
+
+app.get("/cart", (req, res) => {
+  res.render("cart");
 });
 
 app.get("/browse", (req, res) => {
@@ -432,6 +430,11 @@ app.get("/browse", (req, res) => {
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
+});
+
+// This is for testing, will be refactored as app.post("/payment")
+app.get("/payment", async (req, res) => {
+  res.render("payment");
 });
 
 // User Account page
