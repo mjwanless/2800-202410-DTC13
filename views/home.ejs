@@ -11,7 +11,25 @@
 <div
   id="h-gallery"
   class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10"
-></div>
+>
+  <% recipeList.forEach((recipe) => { %>
+    <div class="relative snap-center shrink-0 first:pl-8 last:pr-8">
+      <img
+        id="<%= recipe.recipeId %>"
+        class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+        onclick="goToRecipe(id)"
+        src="<%= recipe.imgUrl %>"
+        alt="Recipe Image"
+      />
+      <p class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-1 rounded-b-lg bg-lime-500/100 text-black">
+        <%= recipe.recipeTitle %>
+      </p>
+    </div>
+  <% }) %>
+
+
+
+</div>
 <!--Below is horizontal gallery-->
 <h3 class="p-5 flex items-center">
   <span class="text-lg font-bold">Monthly Hot</span>
@@ -62,25 +80,6 @@
   }
   loadMonthlyRecipes();
 
-  function loadWeeklyRecipes() {
-    for (let i = 1; i <= 4; i++) {
-      document.getElementById(
-        "h-gallery"
-      ).innerHTML += `<div class="relative snap-center shrink-0 first:pl-8 last:pr-8">
-      <img
-        id="${i}"
-        class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
-        onclick="goToRecipe(id)"
-        src="${i}.jpg"
-        alt="Recipe Image"
-      />
-      <p class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-5 rounded-b-lg">
-        Title
-      </p>
-    </div>`;
-    }
-  }
-  loadWeeklyRecipes();
 
   // Below is the codes from the youtube video teaching how to make a horizontal gallery with dragging and touch effect
   let carousel = document.querySelector("#h-gallery");
@@ -116,5 +115,6 @@
 
   carousel.addEventListener("mouseup", draggingStop);
   carousel.addEventListener("touched", draggingStop);
+
 </script>
 <%- include('templates/menuBar') %> <%- include('templates/footer') %>

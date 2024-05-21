@@ -456,7 +456,8 @@ app.get("/home", async (req, res) => {
             let index = Math.floor(Math.random() * 10);
             let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
             let imgUrl = recipes[index].recipe.image;
-            recipeList.push({recipeId,imgUrl});
+            let recipeTitle = recipes[index].recipe.label;
+            recipeList.push({recipeId,imgUrl,recipeTitle});
           }
         });
     }
@@ -474,9 +475,8 @@ app.get("/home", async (req, res) => {
   } 
   
   await getRecommendation(preferenceList, recipeList, res); // else, use user's preferences
-  console.log(recipeList.length); // shouldn't be 0
 
-  res.render("home");
+  res.render("home", { recipeList: recipeList });
 });
 
 app.get("/cart", (req, res) => {
