@@ -4,71 +4,29 @@
         <%- include('templates/backBtn'); %>
             <h1 class="text-4xl text-center font-bold py-3">My Favorites</h1>
             <div id="favorites_list" class="px-5">
+                <% for(i=0; i<4; i++) { %>
 
-                <div class="favorite_item_and_list relative">
-                    <div class="flex items-center gap-4 p-5 shadow-md rounded-lg">
-                        <img class="w-20 h-20 flex-shrink-0" src="1.jpg">
-                        <div class="flex flex-col">
-                            <strong class="text-slate-900 text-sm font-medium dark:text-slate-200">Special
-                                Drink</strong>
-                            <span class="text-slate-500 text-sm font-medium dark:text-slate-400">Lorem ipsum dolor sit
-                                amet
-                                consectetur
-                                adipisicing elit. Corporis,
-                                dolorum.</span>
+                    <div class="favorite_item_and_list relative bg-orange-50 mb-3" id="favorite<%= i %>">
+                        <div class="flex items-center gap-4 p-5 shadow-md rounded-lg">
+                            <img class="w-20 h-20 flex-shrink-0" src="1.jpg">
+                            <div class="flex flex-col">
+                                <strong class="text-slate-900 text-sm font-medium dark:text-slate-200">Special
+                                    Drink</strong>
+                                <span class="text-slate-500 text-sm font-medium dark:text-slate-400">Lorem ipsum dolor
+                                    sit
+                                    amet
+                                    consectetur
+                                    adipisicing elit. Corporis,
+                                    dolorum.</span>
+                            </div>
+                        </div>
+                        <div class="fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-2 py-2 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 absolute top-1 right-1 h-8 w-8" 
+                            onclick="favoritesToggle('favorite<%= i %>', this)">
+                            <i class="fas fa-heart icon text-red-500 text-lg"></i>
                         </div>
                     </div>
-                    <i class="fas fa-heart icon text-red-500 text-lg absolute top-5 right-5"></i>
-                </div>
+                    <%}%>
 
-                <div class="favorite_item_and_list relative">
-                    <div class="flex items-center gap-4 p-5 shadow-md rounded-lg">
-                        <img class="w-20 h-20 flex-shrink-0" src="2.jpg">
-                        <div class="flex flex-col">
-                            <strong class="text-slate-900 text-sm font-medium dark:text-slate-200">Special
-                                Drink</strong>
-                            <span class="text-slate-500 text-sm font-medium dark:text-slate-400">Lorem ipsum dolor sit
-                                amet
-                                consectetur
-                                adipisicing elit. Corporis,
-                                dolorum.</span>
-                        </div>
-                    </div>
-                    <i class="fas fa-heart icon text-red-500 text-lg absolute top-5 right-5"></i>
-                </div>
 
-                <div class="favorite_item_and_list relative">
-                    <div class="flex items-center gap-4 p-5 shadow-md rounded-lg">
-                        <img class="w-20 h-20 flex-shrink-0" src="3.jpg">
-                        <div class="flex flex-col">
-                            <strong class="text-slate-900 text-sm font-medium dark:text-slate-200">Special
-                                Drink</strong>
-                            <span class="text-slate-500 text-sm font-medium dark:text-slate-400">Lorem ipsum dolor sit
-                                amet
-                                consectetur
-                                adipisicing elit. Corporis,
-                                dolorum.</span>
-                        </div>
-                    </div>
-                    <i class="fas fa-heart icon text-red-500 text-lg absolute top-5 right-5"></i>
-                </div>
-
-                <div class="favorite_item_and_list relative">
-                    <div class="flex items-center gap-4 p-5 shadow-md rounded-lg">
-                        <img class="w-20 h-20 flex-shrink-0" src="4.jpg">
-                        <div class="flex flex-col">
-                            <strong class="text-slate-900 text-sm font-medium dark:text-slate-200">Special
-                                Drink</strong>
-                            <span class="text-slate-500 text-sm font-medium dark:text-slate-400">Lorem ipsum dolor sit
-                                amet
-                                consectetur
-                                adipisicing elit. Corporis,
-                                dolorum.</span>
-                        </div>
-                    </div>
-                    <i class="fas fa-heart icon text-red-500 text-lg absolute top-5 right-5"></i>
-                </div>
             </div>
-
-    </div>
-    <%- include('templates/footer')%>
+            <%- include('templates/footer')%>

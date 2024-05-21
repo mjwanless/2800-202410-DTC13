@@ -490,6 +490,35 @@ app.get("/favorite", (req, res) => {
   res.render("favorite");
 });
 
+app.post('/favorites/remove/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndDelete(
+      { username: req.session.username },
+      { $pull: { my_fav: id } }
+    )
+    console.log("Removed favorite:", id);
+  }catch(err){
+    console.error("Failed to remove favorite:", err);
+    res.status(500).send("Failed to remove favorite.");
+  }
+  
+})
+app.post('/favorites/add/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $push: { my_fav: id } }
+    )
+    console.log("Added favorite:", id);
+  }catch(err){
+      console.error("Failed to add favorite:", err);
+      res.status(500).send("Failed to add favorite.");
+    }
+  
+  })
+
 // my preference page
 app.get("/my_preference", (req, res) => {
   res.render("my_preference");
