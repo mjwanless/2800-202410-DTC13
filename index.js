@@ -525,6 +525,20 @@ app.get('/my_preference', async (req, res) => {
   }
 });
 
+app.post('/update_preference', async (req, res) => {
+  const { preference } = req.body;
+  try {
+      await User.updateOne(
+          { username: req.session.username },
+          { $addToSet: { preferences: preference } } // Use $addToSet to avoid duplicates
+      );
+      res.json({ status: 'success', message: 'Preference updated successfully' });
+  } catch (error) {
+      console.error('Error updating preference:', error);
+      res.status(500).json({ status: 'error', message: 'Error updating preference' });
+  }
+});
+
 // Logout page
 app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
