@@ -125,13 +125,10 @@ app.use(express.static(__dirname + "/public"));
 // // Where the magic happens ================================================================
 // // ======================================
 
-// // ======================================
-// // Commit to create dev branch
-// // ======================================
-
 // ======================================
 // functions and middleware
 // ======================================
+
 let emailSent = false;
 
 // Middleware to check if the user is authenticated
