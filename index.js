@@ -514,10 +514,16 @@ app.get("/favorite", (req, res) => {
 });
 
 // my preference page
-app.get("/my_preference", (req, res) => {
-  res.render("my_preference");
-});
 
+app.get('/my_preference', async (req, res) => {
+  try {
+      const preferences = await Preference.find();  // Use Mongoose to fetch preferences
+      res.render('my_preference', { preferences }); // Render page with preferences data
+  } catch (error) {
+      console.error('Failed to fetch preferences:', error);
+      res.status(500).send('Error fetching preferences');
+  }
+});
 
 // Logout page
 app.post("/logout", (req, res) => {
