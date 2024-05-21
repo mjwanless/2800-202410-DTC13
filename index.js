@@ -463,6 +463,7 @@ async function fetchAndCacheRecommendations(preferenceList) {
 app.get("/home", async (req, res) => {
   let preferenceList = [];
   let recipeList = [];
+  let monthlyRecipeList = [];
 
   // get user's preferences from database
   const getPreference = async (email) => {
@@ -491,9 +492,26 @@ app.get("/home", async (req, res) => {
 
   if (isCacheExpired()) {
     await fetchAndCacheRecommendations(preferenceList);
-  } 
+  }
   recipeList = cachedRecipes.data;
-  res.render("home", { recipeList: recipeList });
+
+  // monthlyRecipe
+  monthlyRecipes = await monthlyRecipe.find({});
+  if (monthlyRecipes) {
+    for (let i = 0; i < 6; i++) {
+      let recipeId = monthlyRecipes[i].recipeId;
+      let recipeImg = monthlyRecipes[i].recipeImg;
+      let recipeTitle = monthlyRecipes[i].recipeTitle;
+      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle });
+    }
+  } else {
+    console.log("No monthly recipe found");
+  }
+
+  res.render("home", {
+    recipeList: recipeList,
+    monthlyRecipeList: monthlyRecipeList,
+  });
 });
 
 app.get("/cart", (req, res) => {
