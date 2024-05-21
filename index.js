@@ -418,9 +418,10 @@ app.post("/orderconfirm", async (req, res) => {
 app.use(isAuthenticated);
 
 app.get("/home", async (req, res) => {
-  let recipeList = [];
   let preferenceList = [];
-  let recipeImg = [];
+  // let recipeList = [];
+  // let recipeImg = [];
+  let recipeList = [];
 
   // get user's preferences from database
   const getPreference = async (email) => {
@@ -439,7 +440,6 @@ app.get("/home", async (req, res) => {
   const getRecommendation = async (
     preferenceList,
     recipeList,
-    recipeImg,
     res
   ) => {
     // a for loop to qurey each preference from the API and store the recipes ids in recipeList
@@ -456,8 +456,7 @@ app.get("/home", async (req, res) => {
             let index = Math.floor(Math.random() * 10);
             let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
             let imgUrl = recipes[index].recipe.image;
-            recipeList.push(recipeId);
-            recipeImg.push(imgUrl);
+            recipeList.push({recipeId,imgUrl});
           }
         });
     }
@@ -474,7 +473,7 @@ app.get("/home", async (req, res) => {
     preferenceList.push("crab");
   } 
   
-  await getRecommendation(preferenceList, recipeList, recipeImg, res); // else, use user's preferences
+  await getRecommendation(preferenceList, recipeList, res); // else, use user's preferences
   console.log(recipeList.length); // shouldn't be 0
 
   res.render("home");
