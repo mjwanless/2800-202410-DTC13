@@ -437,9 +437,6 @@ app.get("/payment", async (req, res) => {
   res.render("payment");
 });
 
-app.get('/favorites', (req, res) => { 
-  res.render('favorites') })
-
 // User Account page
 app.get("/user_account", async (req, res) => {
   if (req.session.username) {
