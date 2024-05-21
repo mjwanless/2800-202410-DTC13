@@ -19,7 +19,7 @@ const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 const { Double } = require("mongodb");
-const { is, fr, ht, tr } = require("date-fns/locale");
+const { is, fr, ht, tr, el } = require("date-fns/locale");
 
 // ======================================
 // Create a new express app and set up the port for .env variables
@@ -99,7 +99,7 @@ const orders = mongoose.model("orders", orderSchema);
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
-  autoRemove: 'native'
+  autoRemove: "native",
 });
 
 // // Catch errors
@@ -190,7 +190,8 @@ const loginValidation = async (req, res, next) => {
   const schema = joi.object({
     email: joi.string().max(200).required(),
   });
-  const validationResult = schema.validate({ email: req.body.email });
+  req.session.email = req.body.email;
+  const validationResult = schema.validate({ email: req.session.email });
   if (validationResult.error) {
     res.send("login validation result error", {
       error: validationResult.error,
@@ -340,7 +341,9 @@ app.post("/orderconfirm", async (req, res) => {
   // send email
   const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
 
-  let recipient = "waxah66944@ahieh.com";
+  const user = await User.findOne({ email: req.session.email });
+  const recipient = user.email;
+  const userName = user.username;
   function sendConfirmationEmail(recipient) {
     const transporter = nodeMailer.createTransport({
       service: "gmail",
@@ -373,7 +376,9 @@ app.post("/orderconfirm", async (req, res) => {
 
   function confirmationInfo() {
     return `
-    <h1>Order Confirmation</h1>
+    <h1>Hello ${userName} ! </h1>
+    <h3>Order Confirmation: ${orderNumber}</h3>
+    <h3>Total amount: $ ${amount}</h3>
     <p>Thank you for your order. Your order has been confirmed.</p>
     <p>Thank you for choosing Fresh Plate</p>
     `;
@@ -409,14 +414,13 @@ app.post("/orderconfirm", async (req, res) => {
   });
 });
 
-// This is for testing, will be refactored as app.post("/payment")
-app.get("/payment", async (req, res) => {
-  res.render("payment");
-});
-
 app.use(isAuthenticated);
 app.get("/home", (req, res) => {
   res.render("home");
+});
+
+app.get("/cart", (req, res) => {
+  res.render("cart");
 });
 
 app.get("/browse", (req, res) => {
@@ -426,6 +430,11 @@ app.get("/browse", (req, res) => {
 // GET request for the recipedisplaypage
 app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
+});
+
+// This is for testing, will be refactored as app.post("/payment")
+app.get("/payment", async (req, res) => {
+  res.render("payment");
 });
 
 app.get('/favorites', (req, res) => { 
@@ -525,10 +534,10 @@ app.get("/my_preference", (req, res) => {
 });
 
 // Logout page
-app.get("/logout", (req, res) => {
+app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
   req.session.destroy();
-  res.send("you have logged out");
+  res.redirect("/");
 });
 
 // 404 Page (Keep down here so that you don't muck up other routes)
