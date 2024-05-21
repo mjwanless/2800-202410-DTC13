@@ -38,25 +38,27 @@ const monthlyRecipe = mongoose.model("monthlyRecipes", monthlyRecipesSchema);
 
 
 
-const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=chinese&from=0&to=5`;
-fetch(url)
-  .then((response) => response.json())
-  .then((data) => {
-    const recipes = data.hits;
-    recipes.forEach(async (recipe) => {
-      let recipeTitle = recipe.recipe.label;
-      let recipeImg = recipe.recipe.image;
-      let recipeId = recipe.recipe.uri.split("#recipe_")[1];
-      let newrecipe = new monthlyRecipe({
-        recipeTitle: recipeTitle,
-        recipeImg: recipeImg,
-        recipeId: recipeId,
-      });
-      try {
-        await newrecipe.save();
-        console.log("Recipe saved to database");
-      } catch (error) {
-        console.error(error);
-      }
-    });
-  });
+// const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=&from=0&to=5`;
+// fetch(url)
+//   .then((response) => response.json())
+//   .then((data) => {
+//     const recipes = data.hits;
+//     recipes.forEach(async (recipe) => {
+//       let recipeTitle = recipe.recipe.label;
+//       let recipeImg = recipe.recipe.image;
+//       let recipeId = recipe.recipe.uri.split("#recipe_")[1];
+//       let newrecipe = new monthlyRecipe({
+//         recipeTitle: recipeTitle,
+//         recipeImg: recipeImg,
+//         recipeId: recipeId,
+//       });
+//       try {
+//         await newrecipe.save();
+//         console.log("Recipe saved to database");
+//       } catch (error) {
+//         console.error(error);
+//       }
+//     });
+//   });
+
+  module.exports = monthlyRecipe;
