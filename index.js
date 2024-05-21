@@ -95,6 +95,24 @@ const orderSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const orders = mongoose.model("orders", orderSchema);
 
+// Define Mongoose model for preferences
+const preferenceSchema = new mongoose.Schema({
+  name: String,
+  category: String
+});
+const Preference = mongoose.model('Preference', preferenceSchema);
+
+// Route to fetch and display preferences
+app.get('/my_preference', async (req, res) => {
+  try {
+    const preferences = await Preference.find();  // Use Mongoose to fetch preferences
+    res.render('my_preference', { preferences }); // Render page with preferences data
+  } catch (error) {
+    console.error('Failed to fetch preferences:', error);
+    res.status(500).send('Error fetching preferences');
+  }
+});
+
 // mongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
@@ -499,6 +517,7 @@ app.get("/favorite", (req, res) => {
 app.get("/my_preference", (req, res) => {
   res.render("my_preference");
 });
+
 
 // Logout page
 app.post("/logout", (req, res) => {
