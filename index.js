@@ -468,10 +468,14 @@ app.get("/home", async (req, res) => {
   // if user has no preferences, use default preferences
   if (preferenceList.length == 0) {
     preferenceList = ["chicken", "beef", "pork", "vegetarian"];
-    await getRecommendation(preferenceList, recipeList, recipeImg, res);
-  } else{
-    await getRecommendation(preferenceList, recipeList, recipeImg, res); // else, use user's preferences
-  }
+  } else if (preferenceList.length < 2){
+    preferenceList.push("vegetarian","crab");
+  } else if (preferenceList.length < 3){
+    preferenceList.push("crab");
+  } 
+  
+  await getRecommendation(preferenceList, recipeList, recipeImg, res); // else, use user's preferences
+  console.log(recipeList.length); // shouldn't be 0
 
   res.render("home");
 });
