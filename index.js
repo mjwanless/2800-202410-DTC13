@@ -11,6 +11,7 @@ const dateFormat = require("date-fns");
 const nodeMailer = require("nodemailer");
 const { google } = require("googleapis");
 const config = require("./config");
+const monthlyRecipe = require("./createData");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
@@ -415,7 +416,63 @@ app.post("/orderconfirm", async (req, res) => {
 });
 
 app.use(isAuthenticated);
-app.get("/home", (req, res) => {
+
+app.get("/home", async (req, res) => {
+  let recipeList = [];
+  let preferenceList = [];
+  let recipeImg = [];
+
+  // get user's preferences from database
+  const getPreference = async (email) => {
+    try {
+      const user = await User.findOne({ email: email });
+      if (user) {
+        preferenceList = user.preferences;
+      } else {
+        console.log("User not found");
+      }
+    } catch (error) {
+      console.error("Error fetching user preferences:", error);
+    }
+  };
+
+  const getRecommendation = async (
+    preferenceList,
+    recipeList,
+    recipeImg,
+    res
+  ) => {
+    // a for loop to qurey each preference from the API and store the recipes ids in recipeList
+    for (let i = 0; i < preferenceList.length; i++) {
+      const preference = preferenceList[i];
+      const response = await fetch(
+        `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          const recipes = data.hits;
+          // only get two recipes for each preference
+          for (let j = 1; j < 3; j++) {
+            let index = Math.floor(Math.random() * 10);
+            let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+            let imgUrl = recipes[index].recipe.image;
+            recipeList.push(recipeId);
+            recipeImg.push(imgUrl);
+          }
+        });
+    }
+  };
+
+  await getPreference(req.session.email);
+
+  // if user has no preferences, use default preferences
+  if (preferenceList.length == 0) {
+    preferenceList = ["chicken", "beef", "pork", "vegetarian"];
+    await getRecommendation(preferenceList, recipeList, recipeImg, res);
+  } else{
+    await getRecommendation(preferenceList, recipeList, recipeImg, res); // else, use user's preferences
+  }
+
   res.render("home");
 });
 
