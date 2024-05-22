@@ -1,16 +1,9 @@
 <%- include('templates/header') %>
     <%- include('templates/searchBar') %>
-        <div>
-            <p>search for a recipe to display on this place</p>
-            <input type="text" id="query" placeholder="Search for recipes...">
-            <button onclick="getRecipes()">Search</button>
-        </div>
 
-        <div id="recipe-list" class="flex flex-col justify-center text-center">
+        <div id="recipe-list" class="flex flex-col justify-center text-center"></div>
 
-        </div>
-
-        <!--Old code-->
+        <!--Old Layout-->
         <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
             <div class="md:flex">
                 <div class="md:flex-shrink-0">
@@ -32,12 +25,6 @@
                         <ul id="ingredients-list" class="mt-2"></ul>
                     </div>
 
-                    <div class="flex mt-4 justify-end">
-                        <button class="bg-white text-orange-500 px-4 py-2 rounded-md border border-orange-300">Select
-                            Default</button>
-                        <button class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -46,28 +33,26 @@
             const appId = '2f8713ec';
             const appKey = '7393ce8d980bb01c8359857c74dd0f56';
 
-            async function getRecipes() {
-                const query = document.getElementById('query').value;
+            function beginQuery() {
+                let params = new URL(window.location.href);
+                query = params.searchParams.get("user_query");
+                document.getElementById("search-dropdown").value = query;
+
+                getRecipes(query);
+            }
+
+            async function getRecipes(query) {
                 const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
                 const response = await fetch(url);
                 const data = await response.json();
-                console.log(data);
-                console.log(data.hits);
+
+                //Results are limited to 10 hits, need to find out how to get next page
+                //Getting more results is important so we can filter them
 
                 recipeList = document.getElementById('recipe-list')
-
                 recipeList.innerHTML = ""
-
                 data.hits.forEach(result => {
-                    let recipe = result.recipe;
-
-                    recipeCard = document.createElement('div');
-                    recipe.className = 'flex flex-col justify-center text-center'
-                    recipeCard.innerHTML = `
-                    <p>${recipe.label}</p>
-                    `
-
-                    recipeList.appendChild(recipeCard);
+                    createRecipeCard(result.recipe);
                 })
 
                 //old code
@@ -93,6 +78,19 @@
                     });
                 }
             }
+
+            function createRecipeCard(recipe) {
+                recipeCard = document.createElement('div');
+                recipe.className = 'flex flex-col justify-center text-center'
+
+                recipeCard.innerHTML = `
+                <p>${recipe.label}</p>
+                `
+
+                recipeList.appendChild(recipeCard);
+            }
+
+            beginQuery();
 
         </script>
         <%- include('templates/menuBar') %>
