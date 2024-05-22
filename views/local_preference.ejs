@@ -1,0 +1,71 @@
+<%- include('templates/header'); %>
+
+<!-- Menubar -->
+<%- include('templates/menuBar'); %>
+
+<div class="bg-orange-50 min-h-screen py-10">
+    <div class="bg-orange-50 p-8 rounded shadow-md w-full max-w-lg mx-auto">
+        <h3 class="text-2xl font-bold mb-5 text-blue-950">Edit Your Preferences</h3>
+        <div class="mb-4">
+            <input type="text" id="preferenceInput" class="p-2 border rounded w-full" placeholder="Enter a preference">
+        </div>
+        <div class="mb-4 flex justify-center">
+            <button onclick="addPreference()" class="bg-blue-500 text-white px-4 py-2 rounded">Add</button>
+        </div>
+        <div id="preferenceList" class="flex flex-wrap gap-2 mb-4">
+            <% if (user.preferences && user.preferences.length > 0) { %>
+                <% user.preferences.forEach(function(pref) { %>
+                    <span class="bg-indigo-50 text-blue-950 px-3 py-1 rounded-full"><%= pref %></span>
+                <% }) %>
+            <% } %>
+        </div>
+        <div class="mt-10 text-center">
+            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-2 rounded">Save</button>
+        </div>
+    </div>
+</div>
+
+<%- include('templates/footer'); %>
+
+<script>
+    const preferences = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize preferences from server-rendered data
+        const prefElements = document.querySelectorAll('#preferenceList span');
+        prefElements.forEach(element => {
+            preferences.push(element.textContent);
+        });
+    });
+
+    function addPreference() {
+        const input = document.getElementById('preferenceInput');
+        const value = input.value.trim();
+        if (value && !preferences.includes(value)) {
+            preferences.push(value);
+            updatePreferenceList();
+            input.value = '';
+        }
+    }
+
+    function updatePreferenceList() {
+        const list = document.getElementById('preferenceList');
+        list.innerHTML = '';
+        preferences.forEach(pref => {
+            const chip = document.createElement('span');
+            chip.className = 'bg-indigo-50 text-blue-950 px-3 py-1 rounded-full';
+            chip.textContent = pref;
+            list.appendChild(chip);
+        });
+    }
+
+    function savePreferences() {
+        axios.post('/save_preferences', { preferences })
+            .then(response => {
+                window.location.href = '/user_account';
+            })
+            .catch(error => {
+                console.error('Error saving preferences:', error);
+            });
+    }
+</script>

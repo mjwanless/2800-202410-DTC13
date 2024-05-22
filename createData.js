@@ -36,7 +36,7 @@ const monthlyRecipesSchema = new mongoose.Schema({
 
 const monthlyRecipe = mongoose.model("monthlyRecipes", monthlyRecipesSchema);
 
-// const url = `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=chinese&from=0&to=10`;
+// const url = `https://api.edamam.com/api/recipes/v2?type=public&q=chinese&app_id=process.env.EDAMAM_APP_ID&app_key=process.env.EDAMAM_APP_KEY`;
 // fetch(url)
 //   .then((response) => response.json())
 //   .then((data) => {
