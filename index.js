@@ -542,7 +542,7 @@ app.get("/payment", async (req, res) => {
 });
 
 // User Account page
-app.get("/user_account", isAuthenticated, async (req, res) => {
+app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
       const user = await User.findOne({ username: req.session.username });
@@ -559,8 +559,7 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
   }
 });
 
-// User profile page
-app.get("/user_profile", isAuthenticated, async (req, res) => {
+app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
       const user = await User.findOne({ username: req.session.username });
@@ -578,8 +577,7 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// Update user profile
-app.post("/update_profile", isAuthenticated, async (req, res) => {
+app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
@@ -597,10 +595,41 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// favorite page
-app.get("/favorite", (req, res) => {
-  res.render("favorite");
+// favorites page
+app.get("/favorites", (req, res) => {
+  res.render("favorites");
 });
+
+app.post('/favorites/remove/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $pull: { my_fav: id } }
+    )
+    res.status(200).send("Removed favorite");
+    console.log("Removed favorite:", id);
+  }catch(err){
+    console.error("Failed to remove favorite:", err);
+    res.status(500).send("Failed to remove favorite.");
+  }
+  
+})
+app.post('/favorites/add/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $push: { my_fav: id } }
+    )
+    res.status(200).send("Added favorite");
+    console.log("Added favorite:", id);
+  }catch(err){
+      console.error("Failed to add favorite:", err);
+      res.status(500).send("Failed to add favorite.");
+    }
+  
+  })
 
 // my preference page
 app.get("/my_preference", (req, res) => {
