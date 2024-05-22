@@ -725,7 +725,6 @@ app.get('/order/:orderId', async (req, res) => {
   }
 });
 
-
 app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
