@@ -505,6 +505,9 @@ const getRecommendation = async (preferenceList, recipeList, res) => {
           let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
           let imgUrl = recipes[index].recipe.image;
           let recipeTitle = recipes[index].recipe.label;
+          if (recipeTitle.length > 40){
+            recipeTitle = recipeTitle.substring(0, 40) + "...";
+          }
           recipeList.push({ recipeId, imgUrl, recipeTitle });
         }
       });
