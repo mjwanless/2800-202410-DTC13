@@ -733,6 +733,22 @@ app.get('/my_preference', async (req, res) => {
   }
 });
 
+// Route to update user preferences
+app.post('/update_preference', async (req, res) => {
+  const { preferences } = req.body;
+  try {
+      const updatedUser = await User.findOneAndUpdate(
+          { username: req.session.username },
+          { $set: { preferences: preferences } },
+          { new: true }
+      );
+      res.json({ status: 'success' });
+  } catch (error) {
+      console.error('Error updating preferences:', error);
+      res.status(500).json({ status: 'error' });
+  }
+});
+
 // Route to render the local preferences page
 app.get('/local_preference', isAuthenticated, async (req, res) => {
   try {
