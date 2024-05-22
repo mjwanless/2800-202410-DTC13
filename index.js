@@ -529,12 +529,18 @@ app.post("/recipeInfo/:id", (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/recipeInfo/:id", (req, res) => {
+app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
   // get recipe details from the API by id
+  await fetch(
+    `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.recipe.label);
+    });
   res.render("recipeInfo");
 });
-
 
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
@@ -600,36 +606,34 @@ app.get("/favorites", (req, res) => {
   res.render("favorites");
 });
 
-app.post('/favorites/remove/:id', async (req, res) => {
+app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await User.findOneAndUpdate(
       { username: req.session.username },
       { $pull: { my_fav: id } }
-    )
+    );
     res.status(200).send("Removed favorite");
     console.log("Removed favorite:", id);
-  }catch(err){
+  } catch (err) {
     console.error("Failed to remove favorite:", err);
     res.status(500).send("Failed to remove favorite.");
   }
-  
-})
-app.post('/favorites/add/:id', async (req, res) => {
+});
+app.post("/favorites/add/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await User.findOneAndUpdate(
       { username: req.session.username },
       { $push: { my_fav: id } }
-    )
+    );
     res.status(200).send("Added favorite");
     console.log("Added favorite:", id);
-  }catch(err){
-      console.error("Failed to add favorite:", err);
-      res.status(500).send("Failed to add favorite.");
-    }
-  
-  })
+  } catch (err) {
+    console.error("Failed to add favorite:", err);
+    res.status(500).send("Failed to add favorite.");
+  }
+});
 
 // my preference page
 app.get("/my_preference", (req, res) => {
