@@ -771,9 +771,32 @@ app.post("/favorites/add/:id", async (req, res) => {
   }
 });
 
-// Route to render the preferences page
-app.get('/my_preference', (req, res) => {
-  res.render('my_preference');
+
+// Route to render the my preferences page
+app.get('/my_preference', async (req, res) => {
+  try {
+      const preferences = await Preference.find();
+      res.render('my_preference', { preferences });
+  } catch (error) {
+      console.error('Error fetching preferences:', error);
+      res.status(500).send('Error fetching preferences');
+  }
+});
+
+// Route to update user preferences
+app.post('/update_preference', async (req, res) => {
+  const { preferences } = req.body;
+  try {
+      const updatedUser = await User.findOneAndUpdate(
+          { username: req.session.username },
+          { $set: { preferences: preferences } },
+          { new: true }
+      );
+      res.json({ status: 'success' });
+  } catch (error) {
+      console.error('Error updating preferences:', error);
+      res.status(500).json({ status: 'error' });
+  }
 });
 
 // Route to render the local preferences page
