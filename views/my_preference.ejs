@@ -74,4 +74,18 @@
     });
 </script>
 
-
+<style>
+    .preference-bubble {
+        transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
+        position: relative;
+        background-color: rgba(255, 247, 237, 0.5); /* Light transparent orange */
+        overflow: hidden; /* Prevent bubbles from overlapping */
+    }
+    .preference-bubble:hover {
+        transform: scale(1.1);
+    }
+    .preference-bubble.selected {
+        background-color: rgba(239, 112, 44, 0.5); /* Darker transparent orange when selected */
+        border-color: rgba(234, 88, 12, 0.8); /* Darker orange border when selected */
+    }
+</style>
