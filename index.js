@@ -531,15 +531,33 @@ app.post("/recipeInfo/:id", (req, res) => {
 
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
+  let recipeDetails = {};
   // get recipe details from the API by id
   await fetch(
     `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log(data.recipe.label);
+      recipeDetails = {
+        recipeId:recipeId,
+        recipeTitle: data.recipe.label,
+        recipeImg: data.recipe.image,
+        recipeIngredients: data.recipe.ingredientLines,
+        recipeCuisineType: data.recipe.cuisineType,
+        recipeNutrients: {},
+      };
+      let count = 0;
+      for (let nutrient in data.recipe.totalNutrients){
+        if (count < 4){
+          recipeDetails.recipeNutrients[nutrient] =
+            data.recipe.totalNutrients[nutrient];
+            count++;
+        } else {
+          break;
+        }
+      };
     });
-  res.render("recipeInfo");
+  res.render("recipeInfo", { recipeDetails: recipeDetails });
 });
 
 // This is for testing, will be refactored as app.post("/payment")
