@@ -639,6 +639,11 @@ app.get("/recipeInfo/:id", async (req, res) => {
   res.render("recipeInfo", { recipeDetails: recipeDetails });
 });
 
+// GET request for the recipe_search_page
+app.get("/recipe_search_page", (req, res) => {
+  res.render("recipe_search_page");
+});
+
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
   res.render("payment");
