@@ -1,4 +1,20 @@
 <%- include('templates/header'); %>
 
+<div class="bg-indigo-50 min-h-screen flex flex-col items-center p-4 relative">
+    <h1 class="text-2xl font-bold text-center mb-4">Order Details</h1>
+    <div class="bg-white p-4 rounded-md shadow-md w-full max-w-lg">
+        <h2 class="text-lg font-semibold text-blue-950 mb-4">Order ID: <%= order.orderId %></h2>
+        <p class="text-md text-gray-600 mb-2">Order Date: <%= new Date(order.orde_date).toLocaleString() %></p>
+        <p class="text-md text-gray-600 mb-2">Amount: $<%= order.amount %></p>
+        <p class="text-md text-gray-600 mb-2">Delivery: <%= order.isDelivery ? 'Yes' : 'No' %></p>
+        <h3 class="text-lg font-semibold text-blue-950 mt-4 mb-2">Vendor</h3>
+        <p class="text-md text-gray-600 mb-2">Name: <%= order.vendor.name %></p>
+        <p class="text-md text-gray-600 mb-2">Address: <%= order.vendor.address %></p>
+        <h3 class="text-lg font-semibold text-blue-950 mt-4 mb-2">Info</h3>
+        <p class="text-md text-gray-600 mb-2">Recipe Title: <%= order.info.recipeTitle %></p>
+        <p class="text-md text-gray-600 mb-2">Description: <%= order.info.description %></p>
+    </div>
+</div>
+
 <%- include('templates/menuBar'); %>
 <%- include('templates/footer'); %>
