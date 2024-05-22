@@ -13,6 +13,7 @@ const cors = require("cors");
 const { google } = require("googleapis");
 const config = require("./config");
 const monthlyRecipe = require("./createData");
+const feedbacks = require("./createFeedback");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
@@ -708,6 +709,11 @@ app.get("/favorites", (req, res) => {
   res.render("favorites");
 });
 
+// get feedback page
+app.get("/feedback", (req, res) => {
+  res.render("feedback");
+});
+
 app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
@@ -734,6 +740,23 @@ app.post("/favorites/add/:id", async (req, res) => {
   } catch (err) {
     console.error("Failed to add favorite:", err);
     res.status(500).send("Failed to add favorite.");
+  }
+});
+
+// store feedback in the database
+app.post("/save_feedback", async (req, res) => {
+  const name = req.body.name;
+  const message = req.body.message;
+  const feedback = new feedbacks({
+    name: name,
+    message: message,
+  });
+  try {
+    await feedback.save();
+    res.redirect("/user_account");
+  } catch (err) {
+    console.error("Failed to save feedback:", err);
+    res.status(500).send("Failed to save feedback.");
   }
 });
 
