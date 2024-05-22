@@ -105,6 +105,13 @@ const orderSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const orders = mongoose.model("orders", orderSchema);
 
+// Define Mongoose model for preferences
+const preferenceSchema = new mongoose.Schema({
+  name: String,
+  category: String
+});
+const Preference = mongoose.model('Preference', preferenceSchema);
+
 // mongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
@@ -130,7 +137,7 @@ app.use(
 // // This is to be able to use html, css, and js files in the public folder
 // // ======================================
 app.use(express.static(__dirname + "/public"));
-
+app.use(express.json());
 // // ======================================
 // // Where the magic happens ================================================================
 // // ======================================
@@ -305,8 +312,32 @@ app.get("/reset_password", (req, res) => {
 });
 
 // After successful signup
-app.post("/signup", createUser, (req, res) => {
-  res.redirect("/home"); // Changed from "/test" to "/user_account"
+app.post('/signup', createUser, (req, res) => {
+  req.session.username = req.body.username;
+  req.session.email = req.body.email;
+  res.redirect('/my_preference');
+});
+app.post('/signup', async (req, res) => {
+  const { username, email, password, security_question, security_answer } = req.body;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  
+  const newUser = new User({
+    username,
+    email,
+    password: hashedPassword,
+    security_question,
+    security_answer
+  });
+  
+  try {
+    await newUser.save();
+    req.session.username = username;
+    req.session.email = email;
+    res.redirect('/my_preference');
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).send('Error creating user');
+  }
 });
 
 // After successful login
@@ -505,6 +536,9 @@ const getRecommendation = async (preferenceList, recipeList, res) => {
           let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
           let imgUrl = recipes[index].recipe.image;
           let recipeTitle = recipes[index].recipe.label;
+          if (recipeTitle.length > 40){
+            recipeTitle = recipeTitle.substring(0, 40) + "...";
+          }
           recipeList.push({ recipeId, imgUrl, recipeTitle });
         }
       });
@@ -737,9 +771,36 @@ app.post("/favorites/add/:id", async (req, res) => {
   }
 });
 
-// my preference page
-app.get("/my_preference", (req, res) => {
-  res.render("my_preference");
+// Route to render the preferences page
+app.get('/my_preference', (req, res) => {
+  res.render('my_preference');
+});
+
+// Route to render the local preferences page
+app.get('/local_preference', isAuthenticated, async (req, res) => {
+  try {
+      const user = await User.findOne({ username: req.session.username });
+      res.render('local_preference', { user });
+  } catch (error) {
+      console.error('Error fetching user preferences:', error);
+      res.status(500).send('Error fetching user preferences');
+  }
+});
+
+// Route to save the preferences
+app.post('/save_preferences', async (req, res) => {
+  const preferences = req.body.preferences;
+  try {
+      const updatedUser = await User.findOneAndUpdate(
+          { username: req.session.username },
+          { $set: { preferences: preferences } },
+          { new: true }
+      );
+      res.sendStatus(200);
+  } catch (error) {
+      console.error('Error saving preferences:', error);
+      res.status(500).send('Error saving preferences');
+  }
 });
 
 // Logout page

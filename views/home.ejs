@@ -17,7 +17,7 @@
   class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10"
 >
   <% recipeList.forEach((recipe) => { %>
-  <div id="<%= recipe.recipeId %>" class="relative snap-center shrink-0 first:pl-8 last:pr-8" onclick="goToRecipe(id)">
+  <div id="<%= recipe.recipeId %>" class="relative snap-center shrink-0 first:ml-8 last:mr-8" onclick="goToRecipe(id)">
     <img
       
       class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
@@ -25,7 +25,7 @@
       alt="Recipe Image"
     />
     <p
-      class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-1 rounded-b-lg bg-lime-500/100 text-black"
+      class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-1 rounded-b-lg bg-indigo-950/70 text-white text-lg font-bold"
     >
       <%= recipe.recipeTitle %>
     </p>
