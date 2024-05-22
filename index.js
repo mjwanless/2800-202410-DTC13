@@ -664,6 +664,17 @@ app.post("/recipeInfo/:id", async (req, res) => {
   }
 });
 
+//Get request for number of items in the cart
+app.get('/getCartNumber', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    res.json(user.cart.length);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(0);
+  }
+});
+
 // GET request for the recipe_search_page
 app.get("/recipe_search_page", (req, res) => {
   res.render("recipe_search_page");
