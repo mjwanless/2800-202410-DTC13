@@ -1,33 +1,8 @@
 <%- include('templates/header') %>
     <%- include('templates/searchBar') %>
 
-        <div id="recipe-list" class="flex flex-col justify-center text-center"></div>
+        <div id="recipe-list" class="flex flex-col"></div>
 
-        <!--Old Layout-->
-        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
-            <div class="md:flex">
-                <div class="md:flex-shrink-0">
-                    <img id="recipe-image" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
-                </div>
-                <div class="p-8">
-                    <div class="flex items-center justify-between">
-                        <h1 id="recipe-name" class="text-2xl font-bold text-blue-800">Recipe Name</h1>
-                    </div>
-                    <p id="recipe-cuisine" class="mt-2 text-gray-600">Cuisine Type</p>
-                    <p id="recipe-dishType" class="mt-2 text-gray-600">Dish Type</p>
-                    <p id="recipe-mealType" class="mt-2 text-gray-600">Meal Type</p>
-
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
-                    </div>
-
-                    <div class="mt-4 bg-blue-100 p-4 rounded-xl">
-                        <ul id="ingredients-list" class="mt-2"></ul>
-                    </div>
-
-                </div>
-            </div>
-        </div>
         </div>
         <script>
             const appId = '2f8713ec';
@@ -54,37 +29,49 @@
                 data.hits.forEach(result => {
                     createRecipeCard(result.recipe);
                 })
-
-                //old code
-                if (data.hits && data.hits.length > 0) {
-                    const firstRecipe = data.hits[0].recipe;
-                    document.getElementById('recipe-image').src = firstRecipe.image;
-                    document.getElementById('recipe-name').textContent = firstRecipe.label;
-                    document.getElementById('recipe-cuisine').textContent = firstRecipe.cuisineType;
-                    document.getElementById('recipe-mealType').textContent = firstRecipe.mealType[0];
-                    document.getElementById('recipe-dishType').textContent = firstRecipe.dishType[0];
-
-                    const ingredientsList = document.getElementById('ingredients-list');
-                    ingredientsList.innerHTML = '';
-                    firstRecipe.ingredients.forEach(ingredient => {
-                        const listItem = document.createElement('li');
-                        listItem.className = 'flex items-center justify-between mt-2';
-                        listItem.innerHTML = `
-                        <div class="flex items-center">
-                            <span>${ingredient.text}</span>
-                        </div>
-                        `;
-                        ingredientsList.appendChild(listItem);
-                    });
-                }
             }
 
             function createRecipeCard(recipe) {
                 recipeCard = document.createElement('div');
-                recipe.className = 'flex flex-col justify-center text-center'
+                recipeCard.className = 'flex justify-center p-1'
+
+                let tagList = ""
+                let tagCount = 0;
+                let tagLimit = 6; //Arbitrary, just makes so we don't have too many tags
+                let lettersPerColumn = 8;
+
+                function addTag(tagText) {
+                    tagCount += 1;
+                    if (tagCount > tagLimit) return;
+
+                    let columnWidth = Math.ceil(tagText.length / lettersPerColumn);
+                    tag = `
+                        <p class="m-1 p-1 col-span-${columnWidth} bg-orange-500 text-sm
+                        text-white font-semibold rounded-lg">${tagText}</p>
+                    `;
+                    tagList += tag;
+                }
+
+                addTag(recipe.cuisineType);
+                recipe.mealType.forEach(tag => {
+                    addTag(tag)
+                });
+                recipe.dishType.forEach(tag => {
+                    addTag(tag)
+                });
 
                 recipeCard.innerHTML = `
-                <p>${recipe.label}</p>
+                <div class="flex w-11/12 justify-center text-center bg-sky-100 p-3">
+                    <div class="w-1/3 flex flex-col content-center">
+                        <div>
+                            <img class="" src=${recipe.image}>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center p-1 text-center w-2/3">
+                        <p class="font-bold">${recipe.label}</p>
+                        <div class='grid grid-cols-3 text-center'>${tagList}</div>
+                    </div>
+                </div>
                 `
 
                 recipeList.appendChild(recipeCard);
