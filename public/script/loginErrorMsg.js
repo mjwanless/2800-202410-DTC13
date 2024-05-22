@@ -6,5 +6,7 @@ window.onload = async () => {
             errorMessage.classList.add('fadeOut')
         }, 3000)
     }
-    errorMessage.classList.remove('fadeOut')
+    if (errorMessage !== null) {
+        errorMessage.classList.remove('fadeOut')
+    }
 }
