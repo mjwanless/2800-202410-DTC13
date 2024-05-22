@@ -9,4 +9,4 @@ window.onload = async () => {
     if (errorMessage !== null) {
         errorMessage.classList.remove('fadeOut')
     }
-}
+} 
