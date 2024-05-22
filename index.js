@@ -112,17 +112,6 @@ const preferenceSchema = new mongoose.Schema({
 });
 const Preference = mongoose.model('Preference', preferenceSchema);
 
-// Route to fetch and display preferences
-app.get('/my_preference', async (req, res) => {
-  try {
-    const preferences = await Preference.find();  // Use Mongoose to fetch preferences
-    res.render('my_preference', { preferences }); // Render page with preferences data
-  } catch (error) {
-    console.error('Failed to fetch preferences:', error);
-    res.status(500).send('Error fetching preferences');
-  }
-});
-
 // mongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
@@ -321,8 +310,32 @@ app.get("/reset_password", (req, res) => {
 });
 
 // After successful signup
-app.post("/signup", createUser, (req, res) => {
-  res.redirect("/home"); // Changed from "/test" to "/user_account"
+app.post('/signup', createUser, (req, res) => {
+  req.session.username = req.body.username;
+  req.session.email = req.body.email;
+  res.redirect('/my_preference');
+});
+app.post('/signup', async (req, res) => {
+  const { username, email, password, security_question, security_answer } = req.body;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  
+  const newUser = new User({
+    username,
+    email,
+    password: hashedPassword,
+    security_question,
+    security_answer
+  });
+  
+  try {
+    await newUser.save();
+    req.session.username = username;
+    req.session.email = email;
+    res.redirect('/my_preference');
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).send('Error creating user');
+  }
 });
 
 // After successful login
@@ -708,29 +721,24 @@ app.post("/favorites/add/:id", async (req, res) => {
   }
 });
 
-// my preference page
-
-app.get('/my_preference', async (req, res) => {
-  try {
-      const preferences = await Preference.find();  // Use Mongoose to fetch preferences
-      res.render('my_preference', { preferences }); // Render page with preferences data
-  } catch (error) {
-      console.error('Failed to fetch preferences:', error);
-      res.status(500).send('Error fetching preferences');
-  }
+// Route to render the preferences page
+app.get('/my_preference', (req, res) => {
+  res.render('my_preference');
 });
 
-app.post('/update_preference', async (req, res) => {
-  const { preference } = req.body;
+// Route to save the preferences
+app.post('/save_preferences', async (req, res) => {
+  const preferences = req.body.preferences;
   try {
-      await User.updateOne(
-          { username: req.session.username },
-          { $addToSet: { preferences: preference } } // Use $addToSet to avoid duplicates
+      const updatedUser = await User.findOneAndUpdate(
+          { email: req.session.email },
+          { $set: { preferences: preferences } },
+          { new: true }
       );
-      res.json({ status: 'success', message: 'Preference updated successfully' });
+      res.sendStatus(200);
   } catch (error) {
-      console.error('Error updating preference:', error);
-      res.status(500).json({ status: 'error', message: 'Error updating preference' });
+      console.error('Error saving preferences:', error);
+      res.status(500).send('Error saving preferences');
   }
 });
 

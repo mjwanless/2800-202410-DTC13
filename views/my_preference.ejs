@@ -1,62 +1,64 @@
-<%- include('templates/header'); %>
-
-<div class="bg-indigo-50 min-h-screen flex flex-col items-center p-4">
-    <h1 class="text-2xl font-bold text-center mb-4">My Preference</h1>
-    <div class="grid grid-cols-2 gap-4 w-full max-w-xs">
-        <% preferences.forEach(function(preference) { %>
-            <div 
-                class="bg-orange-100 rounded-full p-3 text-center cursor-pointer hover:bg-orange-200 transition-transform transform hover:scale-105"
-                onclick="selectPreference('<%= preference.name %>')">
-                <%= preference.name %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Your Preferences</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto mt-10">
+        <div class="bg-white p-8 rounded shadow-md">
+            <h1 class="text-2xl font-bold mb-5">Set Your Preferences</h1>
+            <div class="mb-4">
+                <input type="text" id="preferenceInput" class="p-2 border rounded w-full" placeholder="Enter a preference">
             </div>
-        <% }); %>
+            <div class="mb-4 flex space-x-2">
+                <button onclick="addPreference()" class="bg-blue-500 text-white px-4 py-2 rounded">Add</button>
+                <button onclick="completePreferences()" class="bg-green-500 text-white px-4 py-2 rounded">Complete</button>
+                <button onclick="skipPreferences()" class="bg-gray-500 text-white px-4 py-2 rounded">Skip</button>
+            </div>
+            <div id="preferenceList" class="flex flex-wrap space-x-2"></div>
+        </div>
     </div>
-</div>
+    <script>
+        let preferences = [];
 
-<%- include('templates/menuBar'); %>
-<%- include('templates/footer'); %>
-
-<script>
-function selectPreference(preferenceName) {
-    fetch('/update_preference', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ preference: preferenceName }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Preference updated successfully');
-        } else {
-            alert('Failed to update preference');
+        function addPreference() {
+            const input = document.getElementById('preferenceInput');
+            const value = input.value.trim();
+            if (value && !preferences.includes(value)) {
+                preferences.push(value);
+                updatePreferenceList();
+                input.value = '';
+            }
         }
-    })
-    .catch((error) => {
-        console.error('Error updating preference:', error);
-    });
-}
-</script>
 
-<style>
-    .bubble {
-        background-color: rgba(234, 88, 12, 0.1); /* Light orange with transparency */
-        border: 2px solid rgba(234, 88, 12, 0.5); /* Slightly darker border */
-        border-radius: 50%;
-        padding: 10px 20px;
-        text-align: center;
-        cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-    }
+        function updatePreferenceList() {
+            const list = document.getElementById('preferenceList');
+            list.innerHTML = '';
+            preferences.forEach(pref => {
+                const chip = document.createElement('span');
+                chip.className = 'bg-blue-200 text-blue-700 px-3 py-1 rounded-full';
+                chip.textContent = pref;
+                list.appendChild(chip);
+            });
+        }
 
-    .bubble:hover {
-        background-color: rgba(234, 88, 12, 0.2);
-        transform: scale(1.1); /* Slightly enlarge on hover */
-    }
+        function completePreferences() {
+            axios.post('/save_preferences', { preferences })
+                .then(response => {
+                    window.location.href = '/home';
+                })
+                .catch(error => {
+                    console.error('Error saving preferences:', error);
+                });
+        }
 
-    .selected {
-        background-color: rgba(234, 88, 12, 0.5);
-        color: white;
-    }
-</style>
+        function skipPreferences() {
+            window.location.href = '/home';
+        }
+    </script>
+</body>
+</html>
