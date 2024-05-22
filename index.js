@@ -85,6 +85,7 @@ const userSchema = new mongoose.Schema({
   address: String,
   phone: String,
   order: Array,
+  cart: Array,
 });
 
 const orderSchema = new mongoose.Schema({
@@ -614,11 +615,6 @@ app.get("/browse", (req, res) => {
   res.render("browse");
 });
 
-// GET request for the recipedisplaypage
-app.post("/recipeInfo/:id", (req, res) => {
-  res.sendStatus(200);
-});
-
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
   let recipeDetails = {};
@@ -672,6 +668,46 @@ app.get("/recipeInfo/:id", async (req, res) => {
   recipeDetails.recipePrice = getPrice(recipeId);
 
   res.render("recipeInfo", { recipeDetails: recipeDetails });
+});
+
+app.post("/recipeInfo/:id", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    let recipeId = req.body.recipeId;
+    userCart = user.cart;
+
+    userCart.push(recipeId);
+
+    try {
+      await User.findOneAndUpdate(
+        { email: req.session.email },
+        { $set: { cart: userCart } }
+      );
+
+      res.redirect(`/recipeInfo/${recipeId}`);
+    } catch (err) {
+      console.error("Failed to update password:", err);
+      res.status(500).send("Failed to update password.");
+    }
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+//Get request for number of items in the cart
+app.get('/getCartNumber', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    res.json(user.cart.length);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(0);
+  }
 });
 
 // GET request for the recipe_search_page
