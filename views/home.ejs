@@ -76,10 +76,10 @@
 <script>
   async function goToRecipe(id) {
     console.log(id);
-    fetch(`http://localhost:5000/recipeInfo/${id}`, {
+    fetch(`/recipeInfo/${id}`, {
       method: "POST",
     }).then((res) => {
-      window.location.href = `http://localhost:5000/recipeInfo/${id}`;
+      window.location.href = `/recipeInfo/${id}`;
     });
   }
 
