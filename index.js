@@ -726,6 +726,7 @@ app.get('/my_preference', (req, res) => {
   res.render('my_preference');
 });
 
+
 // Route to save the preferences
 app.post('/save_preferences', async (req, res) => {
   const preferences = req.body.preferences;
