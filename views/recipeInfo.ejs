@@ -30,7 +30,7 @@
                 </ul>
             </div>
             <div class="flex items-center justify-between mt-4">
-                <h2 class="text-2xl font-semibold text-blue-800">Price : $ <%= recipeDetails.recipePrice %></h2>
+                <h2 class="text-2xl font-semibold text-blue-800">Price : $ <span id="price"> <%= recipeDetails.recipePrice %></span> </h2>
             </div>
             <!-- Possibly look to change it to number of recipes that they need -->
             <div class="flex mt-4 justify-end">
@@ -54,7 +54,8 @@
 </div>
 <script>
     function addToCart(id) {
-        console.log(id);
+        const price = document.getElementById('price').innerText;
+        console.log("id: ", id, "price: ", price);
         // store id the cart, might need to store it into database amd retrieve it later
     }
 </script>
