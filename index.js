@@ -135,13 +135,10 @@ app.use(express.static(__dirname + "/public"));
 // // Where the magic happens ================================================================
 // // ======================================
 
-// // ======================================
-// // Commit to create dev branch
-// // ======================================
-
 // ======================================
 // functions and middleware
 // ======================================
+
 let emailSent = false;
 
 // Middleware to check if the user is authenticated
@@ -286,6 +283,11 @@ app.get("/", (req, res) => {
 // GET request for the login page
 app.get("/login", (req, res) => {
   res.render("login");
+});
+
+// Get request for the my_cart page
+app.get("/mycart", (req, res) => {
+  res.render("my_cart");
 });
 
 // Test for API data display

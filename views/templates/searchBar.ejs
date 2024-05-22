@@ -2,7 +2,7 @@
   <div class="container px-3 py-5">
     <form class="max-w-lg mx-auto">
       <div class="flex my-3">
-        <img src="logo.svg" alt="FleshPlate Logo" class="w-10 h-10 mx-2" />
+        <img src="logo.svg" alt="FreshPlate Logo" id="easter-egg-logo" class="w-10 h-10 mx-2" />
         <div class="relative w-full">
           <input
             type="search"
@@ -39,3 +39,21 @@
   </div>
 </div>
 <div class="h-28"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const logo = document.getElementById("easter-egg-logo");
+  const logos = ['logo.svg', 'logo2.svg', 'logo3.svg', 'logo4.svg'];
+  let clickCount = 0;
+  logo.addEventListener("click", function () {
+    if (clickCount < logos.length) {
+      logo.src = logos[clickCount];
+      clickCount++;
+    } else {
+      clickCount = 0;
+      logo.src = logo1; 
+    }
+    
+  });
+});
+</script>
