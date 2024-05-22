@@ -3,7 +3,7 @@
   ::-webkit-scrollbar {
     display: none;
   }
-  #v-gallery{
+  #v-gallery {
     content-visibility: auto;
     overflow: hidden;
   }
@@ -17,18 +17,20 @@
   class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10"
 >
   <% recipeList.forEach((recipe) => { %>
-    <div class="relative snap-center shrink-0 first:pl-8 last:pr-8">
-      <img
-        id="<%= recipe.recipeId %>"
-        class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
-        onclick="goToRecipe(id)"
-        src="<%= recipe.imgUrl %>"
-        alt="Recipe Image"
-      />
-      <p class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-1 rounded-b-lg bg-lime-500/100 text-black">
-        <%= recipe.recipeTitle %>
-      </p>
-    </div>
+  <div class="relative snap-center shrink-0 first:pl-8 last:pr-8">
+    <img
+      id="<%= recipe.recipeId %>"
+      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      onclick="goToRecipe(id)"
+      src="<%= recipe.imgUrl %>"
+      alt="Recipe Image"
+    />
+    <p
+      class="absolute bottom-0 left-10 right-0 bg-75 px-4 py-1 rounded-b-lg bg-lime-500/100 text-black"
+    >
+      <%= recipe.recipeTitle %>
+    </p>
+  </div>
   <% }) %>
 </div>
 <!--Below is horizontal gallery-->
@@ -56,21 +58,30 @@
 
 <div id="v-gallery" class="overflow-auto">
   <% monthlyRecipeList.forEach((recipe) => { %>
-    <div id="<%= recipe.recipeId %>" class="flex items-center gap-4 p-4" onclick="goToRecipe(id)">
-      <img  class="w-20 h-20 flex-shrink-0" src="<%= recipe.recipeImg %>"  />
-      <div class="flex flex-col">
-        <strong class="text-slate-900 text-sm font-medium dark:text-slate-200"
-          ><%= recipe.recipeTitle %></strong
-        >
-      </div>
+  <div
+    id="<%= recipe.recipeId %>"
+    class="flex items-center gap-4 p-4"
+    onclick="goToRecipe(id)"
+  >
+    <img class="w-20 h-20 flex-shrink-0" src="<%= recipe.recipeImg %>" />
+    <div class="flex flex-col">
+      <strong class="text-slate-900 text-sm font-medium dark:text-slate-200"
+        ><%= recipe.recipeTitle %></strong
+      >
     </div>
+  </div>
   <% }) %>
 </div>
 <div id="bottom" class="h-1"></div>
 
 <script>
-  function goToRecipe(id) {
-    window.location.href = `/recipedisplaypage/`;
+  async function goToRecipe(id) {
+    console.log(id);
+    fetch(`http://localhost:5000/recipeInfo/${id}`, {
+      method: "POST",
+    }).then((res) => {
+      window.location.href = `http://localhost:5000/recipeInfo/${id}`;
+    });
   }
 
   // Below is the codes from the youtube video teaching how to make a horizontal gallery with dragging and touch effect
@@ -107,7 +118,5 @@
 
   carousel.addEventListener("mouseup", draggingStop);
   carousel.addEventListener("touched", draggingStop);
-
-
 </script>
 <%- include('templates/menuBar') %> <%- include('templates/footer') %>

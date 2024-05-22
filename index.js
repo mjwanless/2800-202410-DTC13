@@ -9,6 +9,7 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const dateFormat = require("date-fns");
 const nodeMailer = require("nodemailer");
+const cors = require("cors");
 const { google } = require("googleapis");
 const config = require("./config");
 const monthlyRecipe = require("./createData");
@@ -26,6 +27,7 @@ const { is, fr, ht, tr, el } = require("date-fns/locale");
 // Create a new express app and set up the port for .env variables
 // ======================================
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
@@ -523,9 +525,17 @@ app.get("/browse", (req, res) => {
 });
 
 // GET request for the recipedisplaypage
-app.get("/recipedisplaypage", (req, res) => {
-  res.render("recipedisplaypage");
+app.post("/recipeInfo/:id", (req, res) => {
+  
+  res.sendStatus(200);
 });
+
+app.get("/recipeInfo/:id", (req, res) => {
+  const recipeId = req.params.id;
+  console.log(recipeId);
+  res.render("recipeInfo");
+});
+
 
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
