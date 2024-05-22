@@ -25,10 +25,10 @@ const { is, fr, ht, tr, el } = require("date-fns/locale");
 let globalAccessToken;
 
 async function getAccessToken() {
-  if(!globalAccessToken){
+  if (!globalAccessToken) {
     const accessToken = await OAuth2Client.getAccessToken();
     return accessToken;
-}
+  }
 }
 // ======================================
 // Create a new express app and set up the port for .env variables
@@ -317,7 +317,7 @@ app.post("/reset_password", resetPassword, async (req, res) => {
   const accessToken = getAccessToken();
   // const accessToken = await OAuth2Client.getAccessToken();
 
-  const user = await User.findOne({ email: req.body.email})
+  const user = await User.findOne({ email: req.body.email });
   const recipient = user.email;
   const userName = user.username;
 
@@ -359,8 +359,6 @@ app.post("/reset_password", resetPassword, async (req, res) => {
   }
   resetPasswordEmail(recipient);
 
-
-
   res.redirect("/login");
 });
 
@@ -396,7 +394,7 @@ app.post("/orderconfirm", async (req, res) => {
   const formattedAmount = currencyFormater.format(amount);
 
   // send email
-const accessToken = await getAccessToken();
+  const accessToken = await getAccessToken();
   // const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
 
   const user = await User.findOne({ email: req.session.email });
@@ -594,7 +592,7 @@ app.get("/recipeInfo/:id", async (req, res) => {
     .then((response) => response.json())
     .then((data) => {
       recipeDetails = {
-        recipeId:recipeId,
+        recipeId: recipeId,
         recipeTitle: data.recipe.label,
         recipeImg: data.recipe.image,
         recipeIngredients: data.recipe.ingredientLines,
@@ -602,16 +600,40 @@ app.get("/recipeInfo/:id", async (req, res) => {
         recipeNutrients: {},
       };
       let count = 0;
-      for (let nutrient in data.recipe.totalNutrients){
-        if (count < 4){
+      for (let nutrient in data.recipe.totalNutrients) {
+        if (count < 4) {
           recipeDetails.recipeNutrients[nutrient] =
             data.recipe.totalNutrients[nutrient];
-            count++;
+          count++;
         } else {
           break;
         }
-      };
+      }
     });
+  // hash function to hash recipe price
+  // ideas from ChatGPT openAI
+  function getPrice(recipeId, minVal = 10, maxVal = 20) {
+    let hash = 0;
+    for (let i = 0; i < recipeId.length; i++) {
+      let char = recipeId.charCodeAt(i);
+      hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
+      hash |= 0; // make sure it's a 32-bit integer
+    }
+
+    // Convert hash to a positive value
+    let decimalValue = Math.abs(hash);
+
+    // Map the decimal value to the desired range
+    let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+
+    // Ensure it has exactly two decimal places
+    let finalValue = Math.round(mappedValue * 100) / 100;
+
+    return finalValue;
+  }
+
+  recipeDetails.recipePrice = getPrice(recipeId);
+
   res.render("recipeInfo", { recipeDetails: recipeDetails });
 });
 
