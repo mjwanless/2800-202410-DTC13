@@ -40,7 +40,8 @@
         </div> -->
       </div>
     </div>
-    <%- include('templates/menuBar'); %> <%- include('templates/footer'); %>
+    <%- include('templates/menuBar'); %> 
+    <%- include('templates/footer'); %>
 
         <script>
           function confirmSave() {
@@ -49,7 +50,7 @@
             }
           }
 
-          async function confirmSignOut() {
+          // async function confirmSignOut() {
             //     if (confirm("Are you sure you want to sign out?")) {
             //         try {
             //             response = await fetch('/signout', {
@@ -65,8 +66,8 @@
             //             alert("An error occurred. Please try again later.")
             //     }
             // }
-            if (confirm("Are you sure you want to sign out?")) {
-              window.location.href = "/signout";
-            }
-          }
+            // if (confirm("Are you sure you want to sign out?")) {
+            //   window.location.href = "/signout";
+            // }
+          // }
         </script>
