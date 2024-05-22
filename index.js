@@ -526,13 +526,12 @@ app.get("/browse", (req, res) => {
 
 // GET request for the recipedisplaypage
 app.post("/recipeInfo/:id", (req, res) => {
-  
   res.sendStatus(200);
 });
 
 app.get("/recipeInfo/:id", (req, res) => {
   const recipeId = req.params.id;
-  console.log(recipeId);
+  // get recipe details from the API by id
   res.render("recipeInfo");
 });
 
