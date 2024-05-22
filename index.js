@@ -432,6 +432,11 @@ app.get("/recipedisplaypage", (req, res) => {
   res.render("recipedisplaypage");
 });
 
+// GET request for the recipe_search_page
+app.get("/recipe_search_page", (req, res) => {
+  res.render("recipe_search_page");
+});
+
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
   res.render("payment");
@@ -505,11 +510,11 @@ app.post('/favorites/remove/:id', async (req, res) => {
     )
     res.status(200).send("Removed favorite");
     console.log("Removed favorite:", id);
-  }catch(err){
+  } catch (err) {
     console.error("Failed to remove favorite:", err);
     res.status(500).send("Failed to remove favorite.");
   }
-  
+
 })
 app.post('/favorites/add/:id', async (req, res) => {
   const id = req.params.id;
@@ -520,12 +525,12 @@ app.post('/favorites/add/:id', async (req, res) => {
     )
     res.status(200).send("Added favorite");
     console.log("Added favorite:", id);
-  }catch(err){
-      console.error("Failed to add favorite:", err);
-      res.status(500).send("Failed to add favorite.");
-    }
-  
-  })
+  } catch (err) {
+    console.error("Failed to add favorite:", err);
+    res.status(500).send("Failed to add favorite.");
+  }
+
+})
 
 // my preference page
 app.get("/my_preference", (req, res) => {

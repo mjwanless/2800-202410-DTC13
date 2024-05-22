@@ -1,0 +1,99 @@
+<%- include('templates/header') %>
+    <%- include('templates/searchBar') %>
+        <div>
+            <p>search for a recipe to display on this place</p>
+            <input type="text" id="query" placeholder="Search for recipes...">
+            <button onclick="getRecipes()">Search</button>
+        </div>
+
+        <div id="recipe-list" class="flex flex-col justify-center text-center">
+
+        </div>
+
+        <!--Old code-->
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+            <div class="md:flex">
+                <div class="md:flex-shrink-0">
+                    <img id="recipe-image" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
+                </div>
+                <div class="p-8">
+                    <div class="flex items-center justify-between">
+                        <h1 id="recipe-name" class="text-2xl font-bold text-blue-800">Recipe Name</h1>
+                    </div>
+                    <p id="recipe-cuisine" class="mt-2 text-gray-600">Cuisine Type</p>
+                    <p id="recipe-dishType" class="mt-2 text-gray-600">Dish Type</p>
+                    <p id="recipe-mealType" class="mt-2 text-gray-600">Meal Type</p>
+
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
+                    </div>
+
+                    <div class="mt-4 bg-blue-100 p-4 rounded-xl">
+                        <ul id="ingredients-list" class="mt-2"></ul>
+                    </div>
+
+                    <div class="flex mt-4 justify-end">
+                        <button class="bg-white text-orange-500 px-4 py-2 rounded-md border border-orange-300">Select
+                            Default</button>
+                        <button class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+        <script>
+            const appId = '2f8713ec';
+            const appKey = '7393ce8d980bb01c8359857c74dd0f56';
+
+            async function getRecipes() {
+                const query = document.getElementById('query').value;
+                const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log(data);
+                console.log(data.hits);
+
+                recipeList = document.getElementById('recipe-list')
+
+                recipeList.innerHTML = ""
+
+                data.hits.forEach(result => {
+                    let recipe = result.recipe;
+
+                    recipeCard = document.createElement('div');
+                    recipe.className = 'flex flex-col justify-center text-center'
+                    recipeCard.innerHTML = `
+                    <p>${recipe.label}</p>
+                    `
+
+                    recipeList.appendChild(recipeCard);
+                })
+
+                //old code
+                if (data.hits && data.hits.length > 0) {
+                    const firstRecipe = data.hits[0].recipe;
+                    document.getElementById('recipe-image').src = firstRecipe.image;
+                    document.getElementById('recipe-name').textContent = firstRecipe.label;
+                    document.getElementById('recipe-cuisine').textContent = firstRecipe.cuisineType;
+                    document.getElementById('recipe-mealType').textContent = firstRecipe.mealType[0];
+                    document.getElementById('recipe-dishType').textContent = firstRecipe.dishType[0];
+
+                    const ingredientsList = document.getElementById('ingredients-list');
+                    ingredientsList.innerHTML = '';
+                    firstRecipe.ingredients.forEach(ingredient => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'flex items-center justify-between mt-2';
+                        listItem.innerHTML = `
+                        <div class="flex items-center">
+                            <span>${ingredient.text}</span>
+                        </div>
+                        `;
+                        ingredientsList.appendChild(listItem);
+                    });
+                }
+            }
+
+        </script>
+        <%- include('templates/menuBar') %>
+            <%- include('templates/footer') %>
