@@ -22,7 +22,14 @@ const saltRounds = 10;
 const joi = require("joi");
 const { Double } = require("mongodb");
 const { is, fr, ht, tr, el } = require("date-fns/locale");
+let globalAccessToken;
 
+async function getAccessToken() {
+  if(!globalAccessToken){
+    const accessToken = await OAuth2Client.getAccessToken();
+    return accessToken;
+}
+}
 // ======================================
 // Create a new express app and set up the port for .env variables
 // ======================================
@@ -306,7 +313,54 @@ app.post("/login", loginValidation, (req, res) => {
 });
 
 // After successful password reset
-app.post("/reset_password", resetPassword, (req, res) => {
+app.post("/reset_password", resetPassword, async (req, res) => {
+  const accessToken = getAccessToken();
+  // const accessToken = await OAuth2Client.getAccessToken();
+
+  const user = await User.findOne({ email: req.body.email})
+  const recipient = user.email;
+  const userName = user.username;
+
+  function resetPasswordEmail(recipient) {
+    const transporter = nodeMailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: config.user,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        refreshToken: config.refreshToken,
+        accessToken: accessToken,
+      },
+    });
+
+    const mailOptions = {
+      from: `Fresh Plate <${config.user}>`,
+      to: recipient,
+      subject: "Password Has Been Reset Successfully",
+      html: resetPasswordInfo(),
+    };
+
+    transporter.sendMail(mailOptions, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Email sent: " + result);
+      }
+      transporter.close();
+    });
+  }
+
+  function resetPasswordInfo() {
+    return `
+    <h1>Hello ${userName} ! </h1>
+    <p>Your password has been reset successfully.</p>
+    `;
+  }
+  resetPasswordEmail(recipient);
+
+
+
   res.redirect("/login");
 });
 
@@ -342,7 +396,8 @@ app.post("/orderconfirm", async (req, res) => {
   const formattedAmount = currencyFormater.format(amount);
 
   // send email
-  const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
+const accessToken = await getAccessToken();
+  // const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
 
   const user = await User.findOne({ email: req.session.email });
   const recipient = user.email;
