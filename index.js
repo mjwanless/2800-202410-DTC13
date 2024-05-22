@@ -274,6 +274,11 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
+// Get request for the my_cart page
+app.get("/mycart", (req, res) => {
+  res.render("my_cart");
+});
+
 // Test for API data display
 app.get("/apitest", (req, res) => {
   res.render("api_practice");
