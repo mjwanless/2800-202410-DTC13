@@ -51,19 +51,29 @@
                 recipeCard.className = 'flex justify-center p-1'
 
                 let tagList = ""
+
+                //Logic that stops tags from going beyond the card height
+                const tagLimit = 12;
+                const lettersPerColumn = 4;
+                const columnsPerRow = 6;
                 let tagCount = 0;
-                let tagLimit = 12; //Arbitrary, just makes so we don't go beyond the card size
-                let lettersPerColumn = 4;
+                let currentColumnsInRow = 0;
 
                 function addTag(tagText) {
-                    if (tagCount > tagLimit) return;
+                    if (tagCount >= tagLimit) return;
 
                     let columnWidth = Math.ceil(tagText.length / lettersPerColumn);
                     if (tagCount + columnWidth > tagLimit) {
                         tagText = "..."
                         columnWidth = 1;
                     }
+
                     tagCount += columnWidth;
+                    currentColumnsInRow += columnWidth;
+                    if (currentColumnsInRow >= columnsPerRow) {
+                        tagCount += currentColumnsInRow - columnsPerRow;
+                        currentTagsInRow = 0;
+                    }
 
                     tag = `
                         <p class="m-1 p-1 col-span-${columnWidth} bg-orange-500 text-sm
