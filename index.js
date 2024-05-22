@@ -9,8 +9,10 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const dateFormat = require("date-fns");
 const nodeMailer = require("nodemailer");
+const cors = require("cors");
 const { google } = require("googleapis");
 const config = require("./config");
+const monthlyRecipe = require("./createData");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
@@ -20,11 +22,19 @@ const saltRounds = 10;
 const joi = require("joi");
 const { Double } = require("mongodb");
 const { is, fr, ht, tr, el } = require("date-fns/locale");
+let globalAccessToken;
 
+async function getAccessToken() {
+  if(!globalAccessToken){
+    const accessToken = await OAuth2Client.getAccessToken();
+    return accessToken;
+}
+}
 // ======================================
 // Create a new express app and set up the port for .env variables
 // ======================================
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
@@ -117,7 +127,7 @@ app.get('/my_preference', async (req, res) => {
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
-  autoRemove: 'native'
+  autoRemove: "native",
 });
 
 // // Catch errors
@@ -321,7 +331,54 @@ app.post("/login", loginValidation, (req, res) => {
 });
 
 // After successful password reset
-app.post("/reset_password", resetPassword, (req, res) => {
+app.post("/reset_password", resetPassword, async (req, res) => {
+  const accessToken = getAccessToken();
+  // const accessToken = await OAuth2Client.getAccessToken();
+
+  const user = await User.findOne({ email: req.body.email})
+  const recipient = user.email;
+  const userName = user.username;
+
+  function resetPasswordEmail(recipient) {
+    const transporter = nodeMailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: config.user,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        refreshToken: config.refreshToken,
+        accessToken: accessToken,
+      },
+    });
+
+    const mailOptions = {
+      from: `Fresh Plate <${config.user}>`,
+      to: recipient,
+      subject: "Password Has Been Reset Successfully",
+      html: resetPasswordInfo(),
+    };
+
+    transporter.sendMail(mailOptions, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Email sent: " + result);
+      }
+      transporter.close();
+    });
+  }
+
+  function resetPasswordInfo() {
+    return `
+    <h1>Hello ${userName} ! </h1>
+    <p>Your password has been reset successfully.</p>
+    `;
+  }
+  resetPasswordEmail(recipient);
+
+
+
   res.redirect("/login");
 });
 
@@ -357,8 +414,8 @@ app.post("/orderconfirm", async (req, res) => {
   const formattedAmount = currencyFormater.format(amount);
 
   // send email
-  const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
-
+const accessToken = await getAccessToken();
+  // const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
 
   const user = await User.findOne({ email: req.session.email });
   const recipient = user.email;
@@ -397,7 +454,7 @@ app.post("/orderconfirm", async (req, res) => {
     return `
     <h1>Hello ${userName} ! </h1>
     <h3>Order Confirmation: ${orderNumber}</h3>
-    <h3>Total amount: ${amount}</h3>
+    <h3>Total amount: $ ${amount}</h3>
     <p>Thank you for your order. Your order has been confirmed.</p>
     <p>Thank you for choosing Fresh Plate</p>
     `;
@@ -433,14 +490,107 @@ app.post("/orderconfirm", async (req, res) => {
   });
 });
 
-// This is for testing, will be refactored as app.post("/payment")
-app.get("/payment", async (req, res) => {
-  res.render("payment");
+app.use(isAuthenticated);
+
+// the code snippets for using the cached recipes to store the recipes for 2 days are from ChatGPT openAI
+let cachedRecipes = {
+  timestamp: null,
+  data: [],
+};
+
+const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+
+function isCacheExpired() {
+  if (!cachedRecipes.timestamp) return true; // if there is no timestamp, cache is expired
+  const currentTime = new Date().getTime();
+  return currentTime - cachedRecipes.timestamp > TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
+}
+
+// function to get the recommendation from the API
+const getRecommendation = async (preferenceList, recipeList, res) => {
+  // a for loop to qurey each preference from the API and store the recipes ids in recipeList
+  for (let i = 0; i < preferenceList.length; i++) {
+    const preference = preferenceList[i];
+    const response = await fetch(
+      `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const recipes = data.hits;
+        // only get two recipes for each preference
+        for (let j = 1; j < 3; j++) {
+          let index = Math.floor(Math.random() * 10);
+          let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+          let imgUrl = recipes[index].recipe.image;
+          let recipeTitle = recipes[index].recipe.label;
+          recipeList.push({ recipeId, imgUrl, recipeTitle });
+        }
+      });
+  }
+};
+
+async function fetchAndCacheRecommendations(preferenceList) {
+  cachedRecipes.timestamp = new Date().getTime(); // update the timestamp
+  cachedRecipes.data = []; // clear the cache
+  await getRecommendation(preferenceList, cachedRecipes.data);
+}
+
+app.get("/home", async (req, res) => {
+  let preferenceList = [];
+  let recipeList = [];
+  let monthlyRecipeList = [];
+
+  // get user's preferences from database
+  const getPreference = async (email) => {
+    try {
+      const user = await User.findOne({ email: email });
+      if (user) {
+        preferenceList = user.preferences;
+      } else {
+        console.log("User not found");
+      }
+    } catch (error) {
+      console.error("Error fetching user preferences:", error);
+    }
+  };
+
+  await getPreference(req.session.email);
+
+  // if user has no preferences, use default preferences
+  if (preferenceList.length == 0) {
+    preferenceList = ["chicken", "beef", "pork", "vegetarian"];
+  } else if (preferenceList.length < 2) {
+    preferenceList.push("vegetarian", "crab");
+  } else if (preferenceList.length < 3) {
+    preferenceList.push("crab");
+  }
+
+  if (isCacheExpired()) {
+    await fetchAndCacheRecommendations(preferenceList);
+  }
+  recipeList = cachedRecipes.data;
+
+  // monthlyRecipe
+  monthlyRecipes = await monthlyRecipe.find({});
+  if (monthlyRecipes) {
+    for (let i = 0; i < 6; i++) {
+      let recipeId = monthlyRecipes[i].recipeId;
+      let recipeImg = monthlyRecipes[i].recipeImg;
+      let recipeTitle = monthlyRecipes[i].recipeTitle;
+      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle });
+    }
+  } else {
+    console.log("No monthly recipe found");
+  }
+
+  res.render("home", {
+    recipeList: recipeList,
+    monthlyRecipeList: monthlyRecipeList,
+  });
 });
 
-app.use(isAuthenticated);
-app.get("/home", (req, res) => {
-  res.render("home");
+app.get("/cart", (req, res) => {
+  res.render("cart");
 });
 
 app.get("/browse", (req, res) => {
@@ -448,12 +598,30 @@ app.get("/browse", (req, res) => {
 });
 
 // GET request for the recipedisplaypage
-app.get("/recipedisplaypage", (req, res) => {
-  res.render("recipedisplaypage");
+app.post("/recipeInfo/:id", (req, res) => {
+  res.sendStatus(200);
+});
+
+app.get("/recipeInfo/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  // get recipe details from the API by id
+  await fetch(
+    `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.recipe.label);
+    });
+  res.render("recipeInfo");
+});
+
+// This is for testing, will be refactored as app.post("/payment")
+app.get("/payment", async (req, res) => {
+  res.render("payment");
 });
 
 // User Account page
-app.get("/user_account", isAuthenticated, async (req, res) => {
+app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
       const user = await User.findOne({ username: req.session.username });
@@ -470,8 +638,7 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
   }
 });
 
-// User profile page
-app.get("/user_profile", isAuthenticated, async (req, res) => {
+app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
       const user = await User.findOne({ username: req.session.username });
@@ -489,8 +656,7 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// Update user profile
-app.post("/update_profile", isAuthenticated, async (req, res) => {
+app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
@@ -508,9 +674,38 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// favorite page
-app.get("/favorite", (req, res) => {
-  res.render("favorite");
+// favorites page
+app.get("/favorites", (req, res) => {
+  res.render("favorites");
+});
+
+app.post("/favorites/remove/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $pull: { my_fav: id } }
+    );
+    res.status(200).send("Removed favorite");
+    console.log("Removed favorite:", id);
+  } catch (err) {
+    console.error("Failed to remove favorite:", err);
+    res.status(500).send("Failed to remove favorite.");
+  }
+});
+app.post("/favorites/add/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $push: { my_fav: id } }
+    );
+    res.status(200).send("Added favorite");
+    console.log("Added favorite:", id);
+  } catch (err) {
+    console.error("Failed to add favorite:", err);
+    res.status(500).send("Failed to add favorite.");
+  }
 });
 
 // my preference page
