@@ -37,14 +37,19 @@
 
                 let tagList = ""
                 let tagCount = 0;
-                let tagLimit = 6; //Arbitrary, just makes so we don't have too many tags
+                let tagLimit = 6; //Arbitrary, just makes so we don't go beyond the card size
                 let lettersPerColumn = 8;
 
                 function addTag(tagText) {
-                    tagCount += 1;
                     if (tagCount > tagLimit) return;
 
                     let columnWidth = Math.ceil(tagText.length / lettersPerColumn);
+                    if (tagCount + columnWidth > tagLimit) {
+                        tagText = "..."
+                        columnWidth = 1;
+                    }
+                    tagCount += columnWidth;
+
                     tag = `
                         <p class="m-1 p-1 col-span-${columnWidth} bg-orange-500 text-sm
                         text-white font-semibold rounded-lg">${tagText}</p>
