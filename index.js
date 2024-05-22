@@ -726,11 +726,20 @@ app.get('/my_preference', (req, res) => {
   res.render('my_preference');
 });
 
+// Route to render the local preferences page
+app.get('/local_preference', isAuthenticated, async (req, res) => {
+  try {
+      const user = await User.findOne({ username: req.session.username });
+      res.render('local_preference', { user });
+  } catch (error) {
+      console.error('Error fetching user preferences:', error);
+      res.status(500).send('Error fetching user preferences');
+  }
+});
 
 // Route to save the preferences
 app.post('/save_preferences', async (req, res) => {
   const preferences = req.body.preferences;
-  // console.log("test : ",  req.body.preferences);
   try {
       const updatedUser = await User.findOneAndUpdate(
           { username: req.session.username },
