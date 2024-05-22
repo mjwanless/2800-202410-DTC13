@@ -27,3 +27,45 @@
 
 <%- include('templates/footer'); %>
 
+<script>
+    const preferences = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize preferences from server-rendered data
+        const prefElements = document.querySelectorAll('#preferenceList span');
+        prefElements.forEach(element => {
+            preferences.push(element.textContent);
+        });
+    });
+
+    function addPreference() {
+        const input = document.getElementById('preferenceInput');
+        const value = input.value.trim();
+        if (value && !preferences.includes(value)) {
+            preferences.push(value);
+            updatePreferenceList();
+            input.value = '';
+        }
+    }
+
+    function updatePreferenceList() {
+        const list = document.getElementById('preferenceList');
+        list.innerHTML = '';
+        preferences.forEach(pref => {
+            const chip = document.createElement('span');
+            chip.className = 'bg-indigo-50 text-blue-950 px-3 py-1 rounded-full';
+            chip.textContent = pref;
+            list.appendChild(chip);
+        });
+    }
+
+    function savePreferences() {
+        axios.post('/save_preferences', { preferences })
+            .then(response => {
+                window.location.href = '/user_account';
+            })
+            .catch(error => {
+                console.error('Error saving preferences:', error);
+            });
+    }
+</script>
