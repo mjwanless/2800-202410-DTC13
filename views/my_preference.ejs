@@ -34,7 +34,7 @@
                 input.value = '';
             }
         }
-
+        
         function updatePreferenceList() {
             const list = document.getElementById('preferenceList');
             list.innerHTML = '';
@@ -45,15 +45,18 @@
                 list.appendChild(chip);
             });
         }
-
-        function completePreferences() {
-            axios.post('/save_preferences', { preferences })
+        
+        function completePreferences() { 
+            console.log( preferences );
+            axios.post('http://localhost:3000/save_preferences', { preferences })
                 .then(response => {
                     window.location.href = '/home';
+                    console.log(response.data);
                 })
                 .catch(error => {
                     console.error('Error saving preferences:', error);
                 });
+                console.log( {preferences});
         }
 
         function skipPreferences() {

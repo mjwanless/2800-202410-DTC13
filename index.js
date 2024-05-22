@@ -137,7 +137,7 @@ app.use(
 // // This is to be able to use html, css, and js files in the public folder
 // // ======================================
 app.use(express.static(__dirname + "/public"));
-
+app.use(express.json());
 // // ======================================
 // // Where the magic happens ================================================================
 // // ======================================
@@ -729,9 +729,10 @@ app.get('/my_preference', (req, res) => {
 // Route to save the preferences
 app.post('/save_preferences', async (req, res) => {
   const preferences = req.body.preferences;
+  // console.log("test : ",  req.body.preferences);
   try {
       const updatedUser = await User.findOneAndUpdate(
-          { email: req.session.email },
+          { username: req.session.username },
           { $set: { preferences: preferences } },
           { new: true }
       );
