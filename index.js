@@ -313,7 +313,6 @@ app.get("/mycart", async (req, res) => {
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
         return null;
-        return null;
       }
     });
 
