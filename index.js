@@ -285,8 +285,13 @@ const resetPassword = async (req, res, next) => {
 };
 
 // GET request for the root URL/"Homepage"
-app.get("/", (req, res) => {
-  res.render("landing");
+app.get("/", async (req, res) => {
+  let reviews = await feedbacks.find({});
+  if (reviews) {
+    res.render("landing", { reviews: reviews });
+  } else {
+    res.render("landing", { reviews: [] });
+  }
 });
 
 // GET request for the login page
@@ -640,11 +645,12 @@ app.get("/recipeInfo/:id", async (req, res) => {
         recipeCuisineType: data.recipe.cuisineType,
         recipeNutrients: {},
       };
-      
+
       let count = 0;
       for (let nutrient in data.recipe.totalNutrients) {
         if (count < 4) {
-          recipeDetails.recipeNutrients[nutrient] = data.recipe.totalNutrients[nutrient];
+          recipeDetails.recipeNutrients[nutrient] =
+            data.recipe.totalNutrients[nutrient];
           count++;
         } else {
           break;
@@ -664,7 +670,8 @@ app.get("/recipeInfo/:id", async (req, res) => {
         let decimalValue = Math.abs(hash);
 
         // Map the decimal value to the desired range
-        let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+        let mappedValue =
+          (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
 
         // Ensure it has exactly two decimal places
         let finalValue = Math.round(mappedValue * 100) / 100;
