@@ -48,7 +48,7 @@
 
             function createRecipeCard(recipe) {
                 recipeCard = document.createElement('div');
-                recipeCard.className = 'flex justify-center p-1'
+                recipeCard.className = 'flex justify-center p-1 rounded-md'
 
                 let tagList = ""
 
@@ -91,7 +91,7 @@
                 });
 
                 recipeCard.innerHTML = `
-                <div class="flex w-11/12 justify-center text-center bg-sky-100 p-3">
+                <div class="flex w-11/12 justify-center text-center bg-indigo-50 p-3 rounded-md">
                     <div class="w-1/3 flex flex-col content-center">
                         <div>
                             <img class="" src=${recipe.image}>
