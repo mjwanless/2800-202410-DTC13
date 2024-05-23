@@ -12,10 +12,7 @@
   <span class="text-lg font-bold">Weekly Recommendation</span>
 </h2>
 
-<div
-  id="h-gallery"
-  class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10"
->
+<div id="h-gallery" class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10">
   <% recipeList.forEach((recipe) => { %>
   <div id="<%= recipe.recipeId %>" class="relative snap-center shrink-0 first:ml-8 last:mr-8" onclick="goToRecipe(id)">
     <img
