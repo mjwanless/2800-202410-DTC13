@@ -74,19 +74,6 @@
 <div id="bottom" class="h-1"></div>
 
 <script>
-  async function goToRecipe(id) {
-    console.log(id);
-    fetch(`/recipeInfo/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ recipeId: id }),
-    }).then((res) => {
-      window.location.href = `/recipeInfo/${id}`;
-      console.log(res);
-    });
-  }
 
   // Below is the codes from the youtube video teaching how to make a horizontal gallery with dragging and touch effect
   let carousel = document.querySelector("#h-gallery");

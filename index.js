@@ -645,6 +645,7 @@ app.get("/browse", (req, res) => {
 
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
+  req.session.recipeId = recipeId;
   let recipeDetails = {};
 
   try {
@@ -698,12 +699,16 @@ app.get("/recipeInfo/:id", async (req, res) => {
         // Ensure it has exactly two decimal places
         let finalValue = Math.round(mappedValue * 100) / 100;
 
-        return finalValue;
+    return finalValue;
+  }
+  user = await User.findOne({ email: req.session.email });
+  recipeDetails.recipePrice = getPrice(recipeId);
+      favoriteList = user.my_fav;
+      let isFavorite = false;
+      if (favoriteList.includes(recipeId)) {
+        isFavorite = true;
       }
-
-      recipeDetails.recipePrice = getPrice(recipeId);
-
-      res.render("recipeInfo", { recipeDetails: recipeDetails });
+      res.render("recipeInfo", { recipeDetails: recipeDetails, isFavorite: isFavorite });
     } else {
       // Handle the case where data.recipe is undefined
       res.status(404).send("Recipe not found");
@@ -761,7 +766,6 @@ app.post("/recipeInfo/:id", async (req, res) => {
   }
 });
 
-//Get request for number of items in the cart
 app.get("/getCartNumber", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.session.username });
@@ -771,6 +775,7 @@ app.get("/getCartNumber", async (req, res) => {
     res.json(0);
   }
 });
+
 
 // GET request for the recipe_search_page
 app.get("/recipe_search_page", (req, res) => {
@@ -898,9 +903,32 @@ app.post("/update_profile", async (req, res) => {
   }
 });
 
+
 // favorites page
-app.get("/favorites", (req, res) => {
-  res.render("favorites");
+app.get("/favorites", async (req, res) => {
+  const user = await User.findOne({ username: req.session.username });
+  const favoriteList = user.my_fav;
+  
+  let recipeDetailsArray = [];
+  await Promise.all(favoriteList.map(async (recipeId) => {
+    const response = await fetch(
+      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+    );
+    const data = await response.json();
+
+    recipeDetailsArray.push({
+      recipeId: recipeId,
+      recipeTitle: data.recipe.label,
+      recipeImg: data.recipe.image,
+    });
+  }));
+
+  res.render("favorites", { recipeDetails: recipeDetailsArray });
+});
+
+// get feedback page
+app.get("/feedback", (req, res) => {
+  res.render("feedback");
 });
 
 // get feedback page
