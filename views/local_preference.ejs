@@ -8,7 +8,7 @@
             <input type="text" id="preferenceInput" class="p-2 border rounded w-full" placeholder="Enter a preference">
         </div>
         <div class="mb-4 flex justify-center">
-            <button onclick="addPreference()" class="bg-blue-500 text-white px-4 py-2 rounded">Add</button>
+            <button onclick="addPreference()" class="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
         </div>
         <div id="preferenceList" class="flex flex-wrap gap-2 mb-4">
             <% if (user.preferences && user.preferences.length > 0) { %>
@@ -19,11 +19,9 @@
                 <% }) %>
             <% } %>
         </div>
-        <div class="mt-4 flex justify-center">
-            <button onclick="deleteSelectedPreferences()" class="bg-red-500 text-white px-4 py-2 rounded">Delete Selected</button>
-        </div>
-        <div class="mt-10 text-center">
-            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-2 rounded">Save</button>
+        <div class="mt-4 flex justify-center space-x-14">
+            <button onclick="deleteSelectedPreferences()" class="bg-gray-500 text-white px-4 py-1 rounded">Delete</button>
+            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-1 rounded">Comfirm</button>
         </div>
     </div>
 </div>
@@ -97,17 +95,3 @@
             });
     }
 </script>
-
-<style>
-    .preference-bubble {
-        transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
-        position: relative;
-        cursor: pointer;
-    }
-    .preference-bubble:hover {
-        transform: scale(1.1);
-    }
-    .preference-bubble.selected {
-        background-color: rgba(234, 88, 12, 0.8); /* Darker transparent orange when selected */
-    }
-</style>
