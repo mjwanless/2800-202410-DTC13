@@ -465,9 +465,8 @@ app.post("/orderconfirm", async (req, res) => {
   const amount = 55.0; // hard coded amount for now
   const formattedAmount = currencyFormater.format(amount);
 
-  // send email
+  //get a new access token to send email every time
   const accessToken = await getAccessToken();
-  // const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
 
   const user = await User.findOne({ email: req.session.email });
   const recipient = user.email;
@@ -532,7 +531,6 @@ app.post("/orderconfirm", async (req, res) => {
     })
     .then((order) => {
       order.save();
-      console.log("Order created: ", order);
     });
 
   res.render("orderconfirm", {
@@ -717,7 +715,10 @@ app.get("/recipeInfo/:id", async (req, res) => {
       if (favoriteList.includes(recipeId)) {
         isFavorite = true;
       }
-      res.render("recipeInfo", { recipeDetails: recipeDetails, isFavorite: isFavorite });
+      res.render("recipeInfo", {
+        recipeDetails: recipeDetails,
+        isFavorite: isFavorite,
+      });
     } else {
       // Handle the case where data.recipe is undefined
       res.status(404).send("Recipe not found");
@@ -748,7 +749,6 @@ app.post("/add-to-cart", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
-
 
 app.post("/recipeInfo/:id", async (req, res) => {
   console.log("aaa");
@@ -784,7 +784,7 @@ app.get("/getCartNumber", async (req, res) => {
     const user = await User.findOne({ username: req.session.username });
     cartCount = 0;
 
-    user.cart.forEach(recipe => {
+    user.cart.forEach((recipe) => {
       if (recipe) cartCount++;
     });
     res.json(cartCount);
@@ -793,7 +793,6 @@ app.get("/getCartNumber", async (req, res) => {
     res.json(0);
   }
 });
-
 
 // GET request for the recipe_search_page
 app.get("/recipe_search_page", (req, res) => {
@@ -873,7 +872,9 @@ app.get("/user_account", async (req, res) => {
 app.get("/user_orders", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.session.username });
-    const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orde_date: -1 }); // Sort by orde_date descending
+    const userOrders = await orders
+      .find({ orderId: { $in: user.order } })
+      .sort({ orde_date: -1 }); // Sort by orde_date descending
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -928,25 +929,26 @@ app.post("/update_profile", async (req, res) => {
   }
 });
 
-
 // favorites page
 app.get("/favorites", async (req, res) => {
   const user = await User.findOne({ username: req.session.username });
   const favoriteList = user.my_fav;
 
   let recipeDetailsArray = [];
-  await Promise.all(favoriteList.map(async (recipeId) => {
-    const response = await fetch(
-      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
-    );
-    const data = await response.json();
+  await Promise.all(
+    favoriteList.map(async (recipeId) => {
+      const response = await fetch(
+        `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+      );
+      const data = await response.json();
 
-    recipeDetailsArray.push({
-      recipeId: recipeId,
-      recipeTitle: data.recipe.label,
-      recipeImg: data.recipe.image,
-    });
-  }));
+      recipeDetailsArray.push({
+        recipeId: recipeId,
+        recipeTitle: data.recipe.label,
+        recipeImg: data.recipe.image,
+      });
+    })
+  );
 
   res.render("favorites", { recipeDetails: recipeDetailsArray });
 });
@@ -1079,17 +1081,17 @@ app.post("/save_preferences", async (req, res) => {
   }
 });
 
-app.post('/delete_preference', async (req, res) => {
+app.post("/delete_preference", async (req, res) => {
   const { preference } = req.body;
   try {
     await User.updateOne(
       { username: req.session.username },
       { $pull: { preferences: preference } }
     );
-    res.json({ status: 'success' });
+    res.json({ status: "success" });
   } catch (error) {
-    console.error('Error deleting preference:', error);
-    res.status(500).json({ status: 'error' });
+    console.error("Error deleting preference:", error);
+    res.status(500).json({ status: "error" });
   }
 });
 
