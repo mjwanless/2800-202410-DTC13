@@ -14,6 +14,7 @@ const { google } = require("googleapis");
 const config = require("./config");
 const monthlyRecipe = require("./createData");
 const feedbacks = require("./createFeedback");
+const calculator = require("./caloriesCalculator");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
@@ -147,6 +148,8 @@ app.use(express.json());
 // ======================================
 // functions and middleware
 // ======================================
+
+
 
 let emailSent = false;
 
@@ -1031,6 +1034,11 @@ app.post("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
+
+// Import the calculator routes and use them as middleware
+app.use(calculator);
+
+
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
