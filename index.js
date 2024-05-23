@@ -1025,6 +1025,20 @@ app.post("/save_preferences", async (req, res) => {
   }
 });
 
+app.post('/delete_preference', async (req, res) => {
+  const { preference } = req.body;
+  try {
+      await User.updateOne(
+          { username: req.session.username },
+          { $pull: { preferences: preference } }
+      );
+      res.json({ status: 'success' });
+  } catch (error) {
+      console.error('Error deleting preference:', error);
+      res.status(500).json({ status: 'error' });
+  }
+});
+
 // Logout page
 app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
