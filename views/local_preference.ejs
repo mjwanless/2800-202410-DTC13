@@ -87,3 +87,31 @@
     }
 </script>
 
+<style>
+    .preference-bubble {
+        transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
+        position: relative;
+        background-color: rgba(255, 247, 237, 0.5); /* Light transparent orange */
+        overflow: hidden; /* Prevent bubbles from overlapping */
+    }
+    .preference-bubble:hover {
+        transform: scale(1.1);
+    }
+    .preference-bubble .delete-button {
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        color: #EA580C; /* Orange color */
+        font-weight: bold;
+        font-size: 20px;
+        background: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid #EA580C; /* Optional: add border to the delete button */
+    }
+</style>
