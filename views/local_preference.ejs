@@ -13,7 +13,10 @@
         <div id="preferenceList" class="flex flex-wrap gap-2 mb-4">
             <% if (user.preferences && user.preferences.length > 0) { %>
                 <% user.preferences.forEach(function(pref) { %>
-                    <span class="bg-indigo-50 text-blue-950 px-3 py-1 rounded-full"><%= pref %></span>
+                    <div class="relative bg-indigo-50 text-blue-950 px-3 py-1 rounded-full">
+                        <button class="absolute top-0 left-0 text-orange-500 font-bold text-lg" style="transform: translate(-50%, -50%);" onclick="confirmDeletePreference('<%= pref %>')">&times;</button>
+                        <%= pref %>
+                    </div>
                 <% }) %>
             <% } %>
         </div>
@@ -28,13 +31,13 @@
 <%- include('templates/footer'); %>
 
 <script>
-    const preferences = [];
+    let preferences = [];
 
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize preferences from server-rendered data
-        const prefElements = document.querySelectorAll('#preferenceList span');
+        const prefElements = document.querySelectorAll('#preferenceList div');
         prefElements.forEach(element => {
-            preferences.push(element.textContent);
+            preferences.push(element.textContent.trim());
         });
     });
 
@@ -48,13 +51,27 @@
         }
     }
 
+    function confirmDeletePreference(preference) {
+        if (confirm(`Are you sure you want to delete the preference "${preference}"?`)) {
+            deletePreference(preference);
+        }
+    }
+
+    function deletePreference(preference) {
+        preferences = preferences.filter(p => p !== preference);
+        updatePreferenceList();
+    }
+
     function updatePreferenceList() {
         const list = document.getElementById('preferenceList');
         list.innerHTML = '';
         preferences.forEach(pref => {
-            const chip = document.createElement('span');
-            chip.className = 'bg-indigo-50 text-blue-950 px-3 py-1 rounded-full';
-            chip.textContent = pref;
+            const chip = document.createElement('div');
+            chip.className = 'relative bg-indigo-50 text-blue-950 px-3 py-1 rounded-full';
+            chip.innerHTML = `
+                <button class="absolute top-0 left-0 text-orange-500 font-bold text-lg" style="transform: translate(-50%, -50%);" onclick="confirmDeletePreference('${pref}')">&times;</button>
+                ${pref}
+            `;
             list.appendChild(chip);
         });
     }
@@ -69,3 +86,4 @@
             });
     }
 </script>
+
