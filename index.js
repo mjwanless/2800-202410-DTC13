@@ -619,13 +619,19 @@ app.get("/browse", (req, res) => {
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
   let recipeDetails = {};
-  console.log(recipeId);
-  // get recipe details from the API by id
-  await fetch(
-    `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
-  )
-    .then((response) => response.json())
-    .then((data) => {
+
+  try {
+    // Fetch recipe details from the API by id
+    const response = await fetch(
+      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+    );
+    const data = await response.json();
+
+    // Log the response for debugging
+    // console.log('API Response:', data);
+
+    // Check if the data.recipe exists
+    if (data.recipe) {
       recipeDetails = {
         recipeId: recipeId,
         recipeTitle: data.recipe.label,
@@ -634,42 +640,49 @@ app.get("/recipeInfo/:id", async (req, res) => {
         recipeCuisineType: data.recipe.cuisineType,
         recipeNutrients: {},
       };
+      
       let count = 0;
       for (let nutrient in data.recipe.totalNutrients) {
         if (count < 4) {
-          recipeDetails.recipeNutrients[nutrient] =
-            data.recipe.totalNutrients[nutrient];
+          recipeDetails.recipeNutrients[nutrient] = data.recipe.totalNutrients[nutrient];
           count++;
         } else {
           break;
         }
       }
-    });
-  // hash function to hash recipe price
-  // ideas from ChatGPT openAI
-  function getPrice(recipeId, minVal = 10, maxVal = 20) {
-    let hash = 0;
-    for (let i = 0; i < recipeId.length; i++) {
-      let char = recipeId.charCodeAt(i);
-      hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
-      hash |= 0; // make sure it's a 32-bit integer
+
+      // Hash function to hash recipe price
+      function getPrice(recipeId, minVal = 10, maxVal = 20) {
+        let hash = 0;
+        for (let i = 0; i < recipeId.length; i++) {
+          let char = recipeId.charCodeAt(i);
+          hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
+          hash |= 0; // make sure it's a 32-bit integer
+        }
+
+        // Convert hash to a positive value
+        let decimalValue = Math.abs(hash);
+
+        // Map the decimal value to the desired range
+        let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+
+        // Ensure it has exactly two decimal places
+        let finalValue = Math.round(mappedValue * 100) / 100;
+
+        return finalValue;
+      }
+
+      recipeDetails.recipePrice = getPrice(recipeId);
+
+      res.render("recipeInfo", { recipeDetails: recipeDetails });
+    } else {
+      // Handle the case where data.recipe is undefined
+      res.status(404).send("Recipe not found");
     }
-
-    // Convert hash to a positive value
-    let decimalValue = Math.abs(hash);
-
-    // Map the decimal value to the desired range
-    let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
-
-    // Ensure it has exactly two decimal places
-    let finalValue = Math.round(mappedValue * 100) / 100;
-
-    return finalValue;
+  } catch (error) {
+    console.error("Error fetching recipe details:", error);
+    res.status(500).send("Internal server error");
   }
-
-  recipeDetails.recipePrice = getPrice(recipeId);
-
-  res.render("recipeInfo", { recipeDetails: recipeDetails });
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
