@@ -799,7 +799,6 @@ app.get("/payment", async (req, res) => {
 app.post("/update-cart", async (req, res) => {
   try {
     const { recipeLabel, action } = req.body;
-    const { recipeLabel, action } = req.body;
 
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
