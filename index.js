@@ -222,6 +222,7 @@ const loginValidation = async (req, res, next) => {
         req.session.authenticated = true;
         req.session.username = user.username;
         req.session.cookie.maxAge = sessionExpireTime;
+        req.session.my_fav = user.my_fav;
         next();
       } else {
         return res.render("login", { wrongPassword: true });
@@ -620,6 +621,7 @@ app.post("/recipeInfo/:id", (req, res) => {
 
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
+  req.session.recipeId = recipeId;
   let recipeDetails = {};
   // get recipe details from the API by id
   await fetch(
@@ -667,10 +669,14 @@ app.get("/recipeInfo/:id", async (req, res) => {
 
     return finalValue;
   }
-
+  user = await User.findOne({ email: req.session.email });
   recipeDetails.recipePrice = getPrice(recipeId);
-
-  res.render("recipeInfo", { recipeDetails: recipeDetails });
+  favoriteList = user.my_fav;
+  let isFavorite = false;
+  if (favoriteList.includes(recipeId)) {
+    isFavorite = true;
+  }
+  res.render("recipeInfo", { recipeDetails: recipeDetails, isFavorite: isFavorite });
 });
 
 // GET request for the recipe_search_page
@@ -737,9 +743,27 @@ app.post("/update_profile", async (req, res) => {
   }
 });
 
+
 // favorites page
-app.get("/favorites", (req, res) => {
-  res.render("favorites");
+app.get("/favorites", async (req, res) => {
+  const user = await User.findOne({ username: req.session.username });
+  const favoriteList = user.my_fav;
+  
+  let recipeDetailsArray = [];
+  await Promise.all(favoriteList.map(async (recipeId) => {
+    const response = await fetch(
+      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+    );
+    const data = await response.json();
+
+    recipeDetailsArray.push({
+      recipeId: recipeId,
+      recipeTitle: data.recipe.label,
+      recipeImg: data.recipe.image,
+    });
+  }));
+
+  res.render("favorites", { recipeDetails: recipeDetailsArray });
 });
 
 app.post("/favorites/remove/:id", async (req, res) => {
