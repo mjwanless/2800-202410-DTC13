@@ -149,8 +149,6 @@ app.use(express.json());
 // functions and middleware
 // ======================================
 
-
-
 let emailSent = false;
 
 // Middleware to check if the user is authenticated
@@ -319,12 +317,12 @@ app.get("/mycart", async (req, res) => {
         return data.recipe;
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
-        return null; 
+        return null;
       }
     });
 
     const recipeDetails = await Promise.all(recipeDetailsPromises);
-    const filteredRecipes = recipeDetails.filter(recipe => recipe !== null); 
+    const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
 
     res.render("my_cart", { recipeDetails: filteredRecipes });
   } catch (err) {
@@ -785,44 +783,48 @@ app.get("/payment", async (req, res) => {
   res.render("payment");
 });
 
-app.post('/update-cart', async (req, res) => {
+app.post("/update-cart", async (req, res) => {
   try {
-      const { recipeLabel, action } = req.body;
+    const { recipeLabel, action } = req.body;
 
-      const user = await User.findOne({ username: req.session.username });
-      if (!user) {
-          console.error('User not found');
-          return res.status(404).json({ success: false, message: 'User not found.' });
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      console.error("User not found");
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    if (!user.cart) {
+      user.cart = [];
+    }
+
+    let item = user.cart.find((item) => item.label === recipeLabel);
+
+    if (item) {
+      if (action === "increment") {
+        item.count += 1;
+      } else if (action === "decrement" && item.count > 1) {
+        item.count -= 1;
+      } else if (action === "decrement" && item.count === 1) {
+        user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
       }
 
-      if (!user.cart) {
-          user.cart = [];
-      }
+      await User.updateOne(
+        { username: req.session.username },
+        { $set: { cart: user.cart } }
+      );
 
-      let item = user.cart.find(item => item.label === recipeLabel);
-
-      if (item) {
-          if (action === 'increment') {
-              item.count += 1;
-          } else if (action === 'decrement' && item.count > 1) {
-              item.count -= 1;
-          } else if (action === 'decrement' && item.count === 1) {
-              user.cart = user.cart.filter(item => item.label !== recipeLabel); // Remove item if count is 1
-          }
-
-          await User.updateOne({ username: req.session.username }, { $set: { cart: user.cart } });
-
-          res.json({ success: true });
-      } else {
-          console.error('Item not found in cart');
-          res.json({ success: false, message: 'Item not found in cart.' });
-      }
+      res.json({ success: true });
+    } else {
+      console.error("Item not found in cart");
+      res.json({ success: false, message: "Item not found in cart." });
+    }
   } catch (error) {
-      console.error('Error updating cart:', error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error("Error updating cart:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
 
 // User Account page
 app.get("/user_account", async (req, res) => {
@@ -843,25 +845,25 @@ app.get("/user_account", async (req, res) => {
 });
 
 // Route to get user orders
-app.get('/user_orders', async (req, res) => {
+app.get("/user_orders", async (req, res) => {
   try {
-      const user = await User.findOne({ username: req.session.username });
-      const userOrders = await orders.find({ orderId: { $in: user.order } });
-      res.json(userOrders);
+    const user = await User.findOne({ username: req.session.username });
+    const userOrders = await orders.find({ orderId: { $in: user.order } });
+    res.json(userOrders);
   } catch (error) {
-      console.error('Error fetching orders:', error);
-      res.status(500).send('Error fetching orders');
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Error fetching orders");
   }
 });
 
 // Route to render order details page
-app.get('/order/:orderId', async (req, res) => {
+app.get("/order/:orderId", async (req, res) => {
   try {
-      const order = await orders.findOne({ orderId: req.params.orderId });
-      res.render('order_details', { order });
+    const order = await orders.findOne({ orderId: req.params.orderId });
+    res.render("order_details", { order });
   } catch (error) {
-      console.error('Error fetching order:', error);
-      res.status(500).send('Error fetching order');
+    console.error("Error fetching order:", error);
+    res.status(500).send("Error fetching order");
   }
 });
 
@@ -1037,8 +1039,6 @@ app.post("/logout", (req, res) => {
 
 // Import the calculator routes and use them as middleware
 app.use(calculator);
-
-
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
