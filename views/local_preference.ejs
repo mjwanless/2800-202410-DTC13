@@ -7,8 +7,9 @@
         <div class="mb-4">
             <input type="text" id="preferenceInput" class="p-2 border rounded w-full" placeholder="Enter a preference">
         </div>
-        <div class="mb-4 flex justify-center">
+        <div class="mb-4 flex justify-center space-x-12">
             <button onclick="addPreference()" class="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
+            <button onclick="deleteSelectedPreferences()" class="bg-gray-500 text-white px-3 py-1 rounded">Delete</button>
         </div>
         <div id="preferenceList" class="flex flex-wrap gap-2 mb-4">
             <% if (user.preferences && user.preferences.length > 0) { %>
@@ -19,9 +20,8 @@
                 <% }) %>
             <% } %>
         </div>
-        <div class="mt-4 flex justify-center space-x-14">
-            <button onclick="deleteSelectedPreferences()" class="bg-gray-500 text-white px-4 py-1 rounded">Delete</button>
-            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-1 rounded">Comfirm</button>
+        <div class="mt-4 flex justify-center">
+            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-1 rounded">Save</button>
         </div>
     </div>
 </div>
