@@ -1,128 +1,93 @@
 <%- include('templates/header') %>
-    <%- include('templates/backBtn') %>
-        <div class="fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9"
-            onclick="favoritesToggleInfoPage()">
-            <i class="<% if(isFavorite){ %>fas<% }else{ %>far<% } %> fa-heart icon text-red-500 text-lg"></i>
+<%- include('templates/backBtn') %>
+<div class="fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9" onclick="favoritesToggleInfoPage()">
+    <i class="<% if(isFavorite){ %>fas<% }else{ %>far<% } %> fa-heart icon text-red-500 text-lg"></i>
+</div>
+
+<div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+    <div class="md:flex">
+        <div class="md:flex-shrink-0">
+            <img id="recipe-image" src="<%= recipeDetails.recipeImg %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
         </div>
+        <div class="p-8">
+            <div class="flex items-center justify-between">
+                <h1 id="recipe-name" class="text-2xl font-bold text-blue-800">
+                    <%= recipeDetails.recipeTitle %>
+                </h1>
+            </div>
+            <% let i=0 %>
+            <% recipeDetails.recipeCuisineType.forEach((cuisine)=> { %>
+            <p id="recipe-cuisine" class="mt-2 text-gray-600">
+                <%= cuisine %>
+            </p>
+            <% }) %>
 
-        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
-            <div class="md:flex">
-                <div class="md:flex-shrink-0">
-                    <img id="recipe-image" src="<%= recipeDetails.recipeImg %>" class="h-48 w-full object-cover md:w-48"
-                        alt="Recipe image">
-                </div>
-                <div class="p-8">
-                    <div class="flex items-center justify-between">
-                        <h1 id="recipe-name" class="text-2xl font-bold text-blue-800">
-                            <%= recipeDetails.recipeTitle %>
-                        </h1>
-                    </div>
-                    <% let i=0 %>
-                        <% recipeDetails.recipeCuisineType.forEach((cuisine)=> { %>
+            <div class="flex items-center justify-between mt-4">
+                <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
+            </div>
 
-                            <p id="recipe-cuisine" class="mt-2 text-gray-600">
-                                <%= cuisine %>
-                            </p>
-                            <% }) %>
+            <div class="mt-4 bg-blue-100 p-4 rounded-xl">
+                <ul id="ingredients-list" class="mt-2">
+                    <% recipeDetails.recipeIngredients.forEach((ingredient)=> { %>
+                    <li class="items-center mt-2 w-full">
+                        <div class="flex items-center justify-between">
+                            <span>
+                                <%= ingredient %>
+                            </span>
 
-                                <div class="flex items-center justify-between mt-4">
-                                    <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
+                            <!-- plus and minus buttons -->
+                            <form class="max-w-xs">
+                                <div class="relative flex items-center">
+                                    <button type="button" id="decrement-button<%=i%>" data-input-counter-decrement="counter-input" class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5">
+                                        <svg class="w-2.5 h-2.5 text-orange-500 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16" />
+                                        </svg>
+                                    </button>
+                                    <input type="text" id="counter-input" data-input-counter class="flex-shrink-0 text-gray-900 dark:text-white border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center" placeholder="" value="1" required />
+                                    <button type="button" id="increment-button<%=i%>" data-input-counter-increment="counter-input" class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5">
+                                        <svg class="w-2.5 h-2.5 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16" />
+                                        </svg>
+                                    </button>
                                 </div>
+                            </form>
+                            <!-- plus and minus buttons -->
+                        </div>
+                    </li>
+                    <% i++ %>
+                    <% }) %>
+                </ul>
+            </div>
 
-                                <div class="mt-4 bg-blue-100 p-4 rounded-xl">
-                                    <ul id="ingredients-list" class="mt-2">
-                                        <% recipeDetails.recipeIngredients.forEach((ingredient)=> { %>
-                                            <li class="items-center mt-2 w-full">
-                                                <div class="flex items-center justify-between">
-                                                    <span>
-                                                        <%= ingredient %>
-                                                    </span>
+            <div class="flex items-center justify-between mt-4">
+                <h2 class="text-2xl font-semibold text-blue-800">Price : $ <span id="price"><%= recipeDetails.recipePrice %></span></h2>
+            </div>
 
-                                                    <!-- plus and minus buttons -->
+            <div class="flex mt-4 justify-end">
+                <form id="add-to-cart-form" action="/add-to-cart" method="POST">
+                    <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
+                    <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
+                </form>
+            </div>
 
-                                                    <form class="max-w-xs">
-                                                        <div class="relative flex items-center">
-                                                            <button type="button" id="decrement-button<%=i%>"
-                                                                data-input-counter-decrement="counter-input"
-                                                                class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5 ">
-                                                                <svg class="w-2.5 h-2.5 text-orange-500 dark:text-white"
-                                                                    aria-hidden="true"
-                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                    viewBox="0 0 18 2">
-                                                                    <path stroke="currentColor" stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M1 1h16" />
-                                                                </svg>
-                                                            </button>
-                                                            <input type="text" id="counter-input" data-input-counter
-                                                                class="flex-shrink-0 text-gray-900 dark:text-white border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center"
-                                                                placeholder="" value="1" required />
-                                                            <button type="button" id="increment-button<%=i%>"
-                                                                data-input-counter-increment="counter-input"
-                                                                class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5">
-                                                                <svg class="w-2.5 h-2.5 text-white dark:text-white"
-                                                                    aria-hidden="true"
-                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                    viewBox="0 0 18 18">
-                                                                    <path stroke="currentColor" stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M9 1v16M1 9h16" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </form>
-
-                                                    <!-- plus and minus buttons -->
-
-
-                                                </div>
-                                            </li>
-                                            <% i++ %>
-                                                <% }) %>
-                                    </ul>
-                                </div>
-                                <div class="flex items-center justify-between mt-4">
-                                    <h2 class="text-2xl font-semibold text-blue-800">Price : $ <span id="price">
-                                            <%= recipeDetails.recipePrice %>
-                                        </span>
-                                    </h2>
-                                </div>
-
-                                <div class="flex mt-4 justify-end">
-                                    <form id="add-to-cart-form" action="/add-to-cart" method="POST">
-                                        <input class="hidden" name="recipeId" type="data"
-                                            value="<%= recipeDetails.recipeId %>">
-                                        <button type="submit"
-                                            class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to
-                                            Cart</button>
-                                    </form>
-                                </div>
-
-                                <div class="mt-6">
-                                    <h2 class="text-2xl font-semibold text-blue-800">Nutritional Information</h2>
-                                    <ul id="nutritional-info" class="list-disc list-inside mt-2 text-gray-700">
-                                        <% for (let nutrient in recipeDetails.recipeNutrients) { %>
-                                            <li>
-                                                <%= recipeDetails.recipeNutrients[nutrient].label %>: <%=
-                                                        recipeDetails.recipeNutrients[nutrient].quantity.toFixed(2) %>
-                                                        <%= recipeDetails.recipeNutrients[nutrient].unit %>
-                                            </li>
-                                            <% } %>
-                                    </ul>
-                                </div>
-                </div>
+            <div class="mt-6">
+                <h2 class="text-2xl font-semibold text-blue-800">Nutritional Information</h2>
+                <ul id="nutritional-info" class="list-disc list-inside mt-2 text-gray-700">
+                    <% for (let nutrient in recipeDetails.recipeNutrients) { %>
+                    <li>
+                        <%= recipeDetails.recipeNutrients[nutrient].label %>: <%= recipeDetails.recipeNutrients[nutrient].quantity.toFixed(2) %> <%= recipeDetails.recipeNutrients[nutrient].unit %>
+                    </li>
+                    <% } %>
+                </ul>
             </div>
         </div>
-        <!--
-<script>
-    function addToCart(id) {
-        const price = document.getElementById('price').innerText;
-        console.log("id: ", id, "price: ", price);
-        // store id the cart, might need to store it into database amd retrieve it later
-    }
-</script>
--->
+    </div>
+</div>
 
-        <%- include('templates/menuBar') %>
-            <script src="/script/plusAndMinus.js"></script>
-            <%- include('templates/footer') %>
+<script>
+
+</script>
+
+<%- include('templates/menuBar') %>
+<script src="/script/plusAndMinus.js"></script>
+<%- include('templates/footer') %>

@@ -736,16 +736,19 @@ app.post("/add-to-cart", async (req, res) => {
     }
 
     const recipeId = req.body.recipeId;
+    const currentUrl = req.headers.referer;
+
     user.cart.push(recipeId);
 
     await user.save();
 
-    res.redirect(`/mycart`);
+    res.redirect(currentUrl);
   } catch (err) {
     console.error("Failed to add to cart:", err);
     res.status(500).send("Internal server error");
   }
 });
+
 
 app.post("/recipeInfo/:id", async (req, res) => {
   console.log("aaa");
