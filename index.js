@@ -295,8 +295,34 @@ app.get("/login", (req, res) => {
 });
 
 // Get request for the my_cart page
-app.get("/mycart", (req, res) => {
-  res.render("my_cart");
+app.get("/mycart", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const recipeDetailsPromises = user.cart.map(async (recipeId) => {
+      try {
+        const response = await fetch(
+          `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+        );
+        const data = await response.json();
+        return data.recipe;
+      } catch (error) {
+        console.error(`Error fetching recipe ${recipeId}:`, error);
+        return null; 
+      }
+    });
+
+    const recipeDetails = await Promise.all(recipeDetailsPromises);
+    const filteredRecipes = recipeDetails.filter(recipe => recipe !== null); 
+
+    res.render("my_cart", { recipeDetails: filteredRecipes });
+  } catch (err) {
+    console.error("Failed to retrieve cart items:", err);
+    res.status(500).send("Internal server error");
+  }
 });
 
 // Test for API data display
@@ -697,7 +723,7 @@ app.post("/add-to-cart", async (req, res) => {
 
     await user.save();
 
-    res.redirect(`/mycart?recipeId=${recipeId}`);
+    res.redirect(`/mycart`);
   } catch (err) {
     console.error("Failed to add to cart:", err);
     res.status(500).send("Internal server error");
