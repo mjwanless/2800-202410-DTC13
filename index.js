@@ -85,6 +85,7 @@ const userSchema = new mongoose.Schema({
   address: String,
   phone: String,
   order: Array,
+  cart: Array,
 });
 
 const orderSchema = new mongoose.Schema({
@@ -109,9 +110,9 @@ const orders = mongoose.model("orders", orderSchema);
 // Define Mongoose model for preferences
 const preferenceSchema = new mongoose.Schema({
   name: String,
-  category: String
+  category: String,
 });
-const Preference = mongoose.model('Preference', preferenceSchema);
+const Preference = mongoose.model("Preference", preferenceSchema);
 
 // mongoDB session
 var store = new MongoDBStore({
@@ -313,31 +314,32 @@ app.get("/reset_password", (req, res) => {
 });
 
 // After successful signup
-app.post('/signup', createUser, (req, res) => {
+app.post("/signup", createUser, (req, res) => {
   req.session.username = req.body.username;
   req.session.email = req.body.email;
-  res.redirect('/my_preference');
+  res.redirect("/my_preference");
 });
-app.post('/signup', async (req, res) => {
-  const { username, email, password, security_question, security_answer } = req.body;
+app.post("/signup", async (req, res) => {
+  const { username, email, password, security_question, security_answer } =
+    req.body;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  
+
   const newUser = new User({
     username,
     email,
     password: hashedPassword,
     security_question,
-    security_answer
+    security_answer,
   });
-  
+
   try {
     await newUser.save();
     req.session.username = username;
     req.session.email = email;
-    res.redirect('/my_preference');
+    res.redirect("/my_preference");
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).send('Error creating user');
+    console.error("Error creating user:", error);
+    res.status(500).send("Error creating user");
   }
 });
 
@@ -537,7 +539,7 @@ const getRecommendation = async (preferenceList, recipeList, res) => {
           let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
           let imgUrl = recipes[index].recipe.image;
           let recipeTitle = recipes[index].recipe.label;
-          if (recipeTitle.length > 40){
+          if (recipeTitle.length > 40) {
             recipeTitle = recipeTitle.substring(0, 40) + "...";
           }
           recipeList.push({ recipeId, imgUrl, recipeTitle });
@@ -614,20 +616,22 @@ app.get("/browse", (req, res) => {
   res.render("browse");
 });
 
-// GET request for the recipedisplaypage
-app.post("/recipeInfo/:id", (req, res) => {
-  res.sendStatus(200);
-});
-
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
   let recipeDetails = {};
-  // get recipe details from the API by id
-  await fetch(
-    `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
-  )
-    .then((response) => response.json())
-    .then((data) => {
+
+  try {
+    // Fetch recipe details from the API by id
+    const response = await fetch(
+      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+    );
+    const data = await response.json();
+
+    // Log the response for debugging
+    // console.log('API Response:', data);
+
+    // Check if the data.recipe exists
+    if (data.recipe) {
       recipeDetails = {
         recipeId: recipeId,
         recipeTitle: data.recipe.label,
@@ -636,42 +640,88 @@ app.get("/recipeInfo/:id", async (req, res) => {
         recipeCuisineType: data.recipe.cuisineType,
         recipeNutrients: {},
       };
+      
       let count = 0;
       for (let nutrient in data.recipe.totalNutrients) {
         if (count < 4) {
-          recipeDetails.recipeNutrients[nutrient] =
-            data.recipe.totalNutrients[nutrient];
+          recipeDetails.recipeNutrients[nutrient] = data.recipe.totalNutrients[nutrient];
           count++;
         } else {
           break;
         }
       }
-    });
-  // hash function to hash recipe price
-  // ideas from ChatGPT openAI
-  function getPrice(recipeId, minVal = 10, maxVal = 20) {
-    let hash = 0;
-    for (let i = 0; i < recipeId.length; i++) {
-      let char = recipeId.charCodeAt(i);
-      hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
-      hash |= 0; // make sure it's a 32-bit integer
+
+      // Hash function to hash recipe price
+      function getPrice(recipeId, minVal = 10, maxVal = 20) {
+        let hash = 0;
+        for (let i = 0; i < recipeId.length; i++) {
+          let char = recipeId.charCodeAt(i);
+          hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
+          hash |= 0; // make sure it's a 32-bit integer
+        }
+
+        // Convert hash to a positive value
+        let decimalValue = Math.abs(hash);
+
+        // Map the decimal value to the desired range
+        let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+
+        // Ensure it has exactly two decimal places
+        let finalValue = Math.round(mappedValue * 100) / 100;
+
+        return finalValue;
+      }
+
+      recipeDetails.recipePrice = getPrice(recipeId);
+
+      res.render("recipeInfo", { recipeDetails: recipeDetails });
+    } else {
+      // Handle the case where data.recipe is undefined
+      res.status(404).send("Recipe not found");
+    }
+  } catch (error) {
+    console.error("Error fetching recipe details:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.post("/recipeInfo/:id", async (req, res) => {
+  let recipeId = req.body.recipeId;
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
     }
 
-    // Convert hash to a positive value
-    let decimalValue = Math.abs(hash);
+    userCart = user.cart;
 
-    // Map the decimal value to the desired range
-    let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+    userCart.push(recipeId);
 
-    // Ensure it has exactly two decimal places
-    let finalValue = Math.round(mappedValue * 100) / 100;
-
-    return finalValue;
+    try {
+      await User.findOneAndUpdate(
+        { email: req.session.email },
+        { $set: { cart: userCart } }
+      );
+      res.sendStatus(200);
+    } catch (err) {
+      console.error("Failed to update password:", err);
+      res.status(500).send("Failed to update password.");
+    }
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.status(500).send("Internal server error");
   }
+});
 
-  recipeDetails.recipePrice = getPrice(recipeId);
-
-  res.render("recipeInfo", { recipeDetails: recipeDetails });
+//Get request for number of items in the cart
+app.get("/getCartNumber", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    res.json(user.cart.length);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(0);
+  }
 });
 
 // GET request for the recipe_search_page
@@ -835,56 +885,56 @@ app.post("/save_feedback", async (req, res) => {
 });
 
 // Route to render the my preferences page
-app.get('/my_preference', async (req, res) => {
+app.get("/my_preference", async (req, res) => {
   try {
-      const preferences = await Preference.find();
-      res.render('my_preference', { preferences });
+    const preferences = await Preference.find();
+    res.render("my_preference", { preferences });
   } catch (error) {
-      console.error('Error fetching preferences:', error);
-      res.status(500).send('Error fetching preferences');
+    console.error("Error fetching preferences:", error);
+    res.status(500).send("Error fetching preferences");
   }
 });
 
 // Route to update user preferences
-app.post('/update_preference', async (req, res) => {
+app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
-      const updatedUser = await User.findOneAndUpdate(
-          { username: req.session.username },
-          { $set: { preferences: preferences } },
-          { new: true }
-      );
-      res.json({ status: 'success' });
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { preferences: preferences } },
+      { new: true }
+    );
+    res.json({ status: "success" });
   } catch (error) {
-      console.error('Error updating preferences:', error);
-      res.status(500).json({ status: 'error' });
+    console.error("Error updating preferences:", error);
+    res.status(500).json({ status: "error" });
   }
 });
 
 // Route to render the local preferences page
-app.get('/local_preference', isAuthenticated, async (req, res) => {
+app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
-      const user = await User.findOne({ username: req.session.username });
-      res.render('local_preference', { user });
+    const user = await User.findOne({ username: req.session.username });
+    res.render("local_preference", { user });
   } catch (error) {
-      console.error('Error fetching user preferences:', error);
-      res.status(500).send('Error fetching user preferences');
+    console.error("Error fetching user preferences:", error);
+    res.status(500).send("Error fetching user preferences");
   }
 });
 
 // Route to save the preferences
-app.post('/save_preferences', async (req, res) => {
+app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-      const updatedUser = await User.findOneAndUpdate(
-          { username: req.session.username },
-          { $set: { preferences: preferences } },
-          { new: true }
-      );
-      res.sendStatus(200);
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { preferences: preferences } },
+      { new: true }
+    );
+    res.sendStatus(200);
   } catch (error) {
-      console.error('Error saving preferences:', error);
-      res.status(500).send('Error saving preferences');
+    console.error("Error saving preferences:", error);
+    res.status(500).send("Error saving preferences");
   }
 });
 
