@@ -252,15 +252,10 @@ const resetPassword = async (req, res, next) => {
   try {
     user = await User.findOne({ email: req.body.email });
     if (user) {
-      const outputQuestion = user.security_question;
-      const inputQuestion = req.body.security_question;
       const outputAnswer = user.security_answer;
       const inputAnswer = req.body.security_answer;
 
-      if (
-        inputQuestion != outputQuestion ||
-        !(await bcrypt.compare(inputAnswer, outputAnswer))
-      ) {
+      if (!(await bcrypt.compare(inputAnswer, outputAnswer))) {
         return res.render("reset_password", { wrongAnswer: true });
       }
 
@@ -318,6 +313,7 @@ app.get("/mycart", async (req, res) => {
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
         return null;
+        return null;
       }
     });
 
@@ -374,6 +370,18 @@ app.post("/signup", async (req, res) => {
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
   res.redirect("/home"); // Changed from "/test" to "/user_account"
+});
+
+//Gets security question based on the email
+app.get("/getSecurityQuestion/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const requestedUser = await User.findOne({ email: email });
+    res.json(requestedUser.security_question);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(null);
+  }
 });
 
 // After successful password reset
@@ -700,10 +708,10 @@ app.get("/recipeInfo/:id", async (req, res) => {
         // Ensure it has exactly two decimal places
         let finalValue = Math.round(mappedValue * 100) / 100;
 
-    return finalValue;
-  }
-  user = await User.findOne({ email: req.session.email });
-  recipeDetails.recipePrice = getPrice(recipeId);
+        return finalValue;
+      }
+      user = await User.findOne({ email: req.session.email });
+      recipeDetails.recipePrice = getPrice(recipeId);
       favoriteList = user.my_fav;
       let isFavorite = false;
       if (favoriteList.includes(recipeId)) {
@@ -791,6 +799,7 @@ app.get("/payment", async (req, res) => {
 app.post("/update-cart", async (req, res) => {
   try {
     const { recipeLabel, action } = req.body;
+    const { recipeLabel, action } = req.body;
 
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
@@ -800,6 +809,9 @@ app.post("/update-cart", async (req, res) => {
         .json({ success: false, message: "User not found." });
     }
 
+    if (!user.cart) {
+      user.cart = [];
+    }
     if (!user.cart) {
       user.cart = [];
     }
@@ -852,9 +864,9 @@ app.get("/user_account", async (req, res) => {
 // Route to get user orders
 app.get("/user_orders", async (req, res) => {
   try {
-      const user = await User.findOne({ username: req.session.username });
-      const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orde_date: -1 }); // Sort by orde_date descending
-      res.json(userOrders);
+    const user = await User.findOne({ username: req.session.username });
+    const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orde_date: -1 }); // Sort by orde_date descending
+    res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
     res.status(500).send("Error fetching orders");
@@ -913,7 +925,7 @@ app.post("/update_profile", async (req, res) => {
 app.get("/favorites", async (req, res) => {
   const user = await User.findOne({ username: req.session.username });
   const favoriteList = user.my_fav;
-  
+
   let recipeDetailsArray = [];
   await Promise.all(favoriteList.map(async (recipeId) => {
     const response = await fetch(
@@ -1061,14 +1073,14 @@ app.post("/save_preferences", async (req, res) => {
 app.post('/delete_preference', async (req, res) => {
   const { preference } = req.body;
   try {
-      await User.updateOne(
-          { username: req.session.username },
-          { $pull: { preferences: preference } }
-      );
-      res.json({ status: 'success' });
+    await User.updateOne(
+      { username: req.session.username },
+      { $pull: { preferences: preference } }
+    );
+    res.json({ status: 'success' });
   } catch (error) {
-      console.error('Error deleting preference:', error);
-      res.status(500).json({ status: 'error' });
+    console.error('Error deleting preference:', error);
+    res.status(500).json({ status: 'error' });
   }
 });
 
