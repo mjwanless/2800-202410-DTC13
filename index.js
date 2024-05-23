@@ -736,18 +736,22 @@ app.post("/add-to-cart", async (req, res) => {
     }
 
     const recipeId = req.body.recipeId;
+    const currentUrl = req.headers.referer;
+
     user.cart.push(recipeId);
 
     await user.save();
 
-    res.redirect(`/mycart`);
+    res.redirect(currentUrl);
   } catch (err) {
     console.error("Failed to add to cart:", err);
     res.status(500).send("Internal server error");
   }
 });
 
+
 app.post("/recipeInfo/:id", async (req, res) => {
+  console.log("aaa");
   let recipeId = req.body.recipeId;
   try {
     const user = await User.findOne({ username: req.session.username });
@@ -755,9 +759,9 @@ app.post("/recipeInfo/:id", async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    userCart = user.cart;
+    //userCart = user.cart;
 
-    userCart.push(recipeId);
+    //userCart.push(recipeId);
 
     try {
       await User.findOneAndUpdate(
@@ -778,7 +782,12 @@ app.post("/recipeInfo/:id", async (req, res) => {
 app.get("/getCartNumber", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.session.username });
-    res.json(user.cart.length);
+    cartCount = 0;
+
+    user.cart.forEach(recipe => {
+      if (recipe) cartCount++;
+    });
+    res.json(cartCount);
   } catch (err) {
     console.error("Failed to retrieve user:", err);
     res.json(0);
@@ -966,6 +975,7 @@ app.post("/favorites/remove/:id", async (req, res) => {
     res.status(500).send("Failed to remove favorite.");
   }
 });
+
 app.post("/favorites/add/:id", async (req, res) => {
   const id = req.params.id;
   try {
