@@ -325,11 +325,6 @@ app.get("/mycart", async (req, res) => {
   }
 });
 
-// Test for API data display
-app.get("/apitest", (req, res) => {
-  res.render("api_practice");
-});
-
 // GET request for the signup page
 app.get("/signup", (req, res) => {
   res.render("signup");
@@ -345,6 +340,7 @@ app.post("/signup", createUser, (req, res) => {
   req.session.email = req.body.email;
   res.redirect("/my_preference");
 });
+
 app.post("/signup", async (req, res) => {
   const { username, email, password, security_question, security_answer } =
     req.body;
@@ -778,6 +774,45 @@ app.get("/recipe_search_page", (req, res) => {
 app.get("/payment", async (req, res) => {
   res.render("payment");
 });
+
+app.post('/update-cart', async (req, res) => {
+  try {
+      const { recipeLabel, action } = req.body;
+
+      const user = await User.findOne({ username: req.session.username });
+      if (!user) {
+          console.error('User not found');
+          return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      if (!user.cart) {
+          user.cart = [];
+      }
+
+      let item = user.cart.find(item => item.label === recipeLabel);
+
+      if (item) {
+          if (action === 'increment') {
+              item.count += 1;
+          } else if (action === 'decrement' && item.count > 1) {
+              item.count -= 1;
+          } else if (action === 'decrement' && item.count === 1) {
+              user.cart = user.cart.filter(item => item.label !== recipeLabel); // Remove item if count is 1
+          }
+
+          await User.updateOne({ username: req.session.username }, { $set: { cart: user.cart } });
+
+          res.json({ success: true });
+      } else {
+          console.error('Item not found in cart');
+          res.json({ success: false, message: 'Item not found in cart.' });
+      }
+  } catch (error) {
+      console.error('Error updating cart:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 
 // User Account page
 app.get("/user_account", async (req, res) => {

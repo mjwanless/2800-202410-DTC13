@@ -42,9 +42,9 @@
                         <span class="font-bold text-blue-600 text-lg">$<%= (recipe.totalNutrients.ENERC_KCAL.quantity * recipe.count).toFixed(2) %></span>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button class="bg-gray-200 text-gray-800 rounded px-2">-</button>
+                        <button class="bg-gray-200 text-gray-800 rounded px-2" data-recipe-label="<%= recipe.label %>">-</button>
                         <span><%= recipe.count %></span>
-                        <button class="bg-red-500 text-white rounded px-2">+</button>
+                        <button class="bg-red-500 text-white rounded px-2" data-recipe-label="<%= recipe.label %>">+</button>
                     </div>
                 </div>
             </div>
