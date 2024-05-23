@@ -222,7 +222,6 @@ const loginValidation = async (req, res, next) => {
         req.session.authenticated = true;
         req.session.username = user.username;
         req.session.cookie.maxAge = sessionExpireTime;
-        req.session.my_fav = user.my_fav;
         next();
       } else {
         return res.render("login", { wrongPassword: true });
