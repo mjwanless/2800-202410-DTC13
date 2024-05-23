@@ -63,15 +63,17 @@
       </div>
     </div>
     <div id="calculator" class="flex items-center hidden">
-      <form action="/calculate" method="post">
+      <form method="post">
         <input
           type="text"
+          id="query"
+          name="query"
           class="border-2 border-orange-500 p-2 rounded-md w-64"
           placeholder=" - ran 1 hour"
         />
         <button
-          type="submit"
-          class="bg-orange-500 text-white p-2 rounded-md ml-2"
+          type="button"
+          class="bg-orange-500 text-white p-2 rounded-md ml-2" onclick="getResults()"
         >
           Calculate
         </button>
@@ -120,6 +122,25 @@
       calculator.style.display = "none";
     }
   });
+
+  function getResults() {
+    const query = document.getElementById("query").value;
+    fetch("/calculate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(" Calories burned: ", data);
+        // TODP - Display the result
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
 
   function confirmSignOut() {
     if (confirm("Are you sure you want to sign out?")) {
