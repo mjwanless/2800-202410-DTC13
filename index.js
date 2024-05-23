@@ -251,15 +251,10 @@ const resetPassword = async (req, res, next) => {
   try {
     user = await User.findOne({ email: req.body.email });
     if (user) {
-      const outputQuestion = user.security_question;
-      const inputQuestion = req.body.security_question;
       const outputAnswer = user.security_answer;
       const inputAnswer = req.body.security_answer;
 
-      if (
-        inputQuestion != outputQuestion ||
-        !(await bcrypt.compare(inputAnswer, outputAnswer))
-      ) {
+      if (!(await bcrypt.compare(inputAnswer, outputAnswer))) {
         return res.render("reset_password", { wrongAnswer: true });
       }
 
@@ -316,12 +311,12 @@ app.get("/mycart", async (req, res) => {
         return data.recipe;
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
-        return null; 
+        return null;
       }
     });
 
     const recipeDetails = await Promise.all(recipeDetailsPromises);
-    const filteredRecipes = recipeDetails.filter(recipe => recipe !== null); 
+    const filteredRecipes = recipeDetails.filter(recipe => recipe !== null);
 
     res.render("my_cart", { recipeDetails: filteredRecipes });
   } catch (err) {
@@ -373,6 +368,18 @@ app.post("/signup", async (req, res) => {
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
   res.redirect("/home"); // Changed from "/test" to "/user_account"
+});
+
+//Gets security question based on the email
+app.get("/getSecurityQuestion/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const requestedUser = await User.findOne({ email: email });
+    res.json(requestedUser.security_question);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(null);
+  }
 });
 
 // After successful password reset
@@ -699,10 +706,10 @@ app.get("/recipeInfo/:id", async (req, res) => {
         // Ensure it has exactly two decimal places
         let finalValue = Math.round(mappedValue * 100) / 100;
 
-    return finalValue;
-  }
-  user = await User.findOne({ email: req.session.email });
-  recipeDetails.recipePrice = getPrice(recipeId);
+        return finalValue;
+      }
+      user = await User.findOne({ email: req.session.email });
+      recipeDetails.recipePrice = getPrice(recipeId);
       favoriteList = user.my_fav;
       let isFavorite = false;
       if (favoriteList.includes(recipeId)) {
@@ -789,39 +796,39 @@ app.get("/payment", async (req, res) => {
 
 app.post('/update-cart', async (req, res) => {
   try {
-      const { recipeLabel, action } = req.body;
+    const { recipeLabel, action } = req.body;
 
-      const user = await User.findOne({ username: req.session.username });
-      if (!user) {
-          console.error('User not found');
-          return res.status(404).json({ success: false, message: 'User not found.' });
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      console.error('User not found');
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (!user.cart) {
+      user.cart = [];
+    }
+
+    let item = user.cart.find(item => item.label === recipeLabel);
+
+    if (item) {
+      if (action === 'increment') {
+        item.count += 1;
+      } else if (action === 'decrement' && item.count > 1) {
+        item.count -= 1;
+      } else if (action === 'decrement' && item.count === 1) {
+        user.cart = user.cart.filter(item => item.label !== recipeLabel); // Remove item if count is 1
       }
 
-      if (!user.cart) {
-          user.cart = [];
-      }
+      await User.updateOne({ username: req.session.username }, { $set: { cart: user.cart } });
 
-      let item = user.cart.find(item => item.label === recipeLabel);
-
-      if (item) {
-          if (action === 'increment') {
-              item.count += 1;
-          } else if (action === 'decrement' && item.count > 1) {
-              item.count -= 1;
-          } else if (action === 'decrement' && item.count === 1) {
-              user.cart = user.cart.filter(item => item.label !== recipeLabel); // Remove item if count is 1
-          }
-
-          await User.updateOne({ username: req.session.username }, { $set: { cart: user.cart } });
-
-          res.json({ success: true });
-      } else {
-          console.error('Item not found in cart');
-          res.json({ success: false, message: 'Item not found in cart.' });
-      }
+      res.json({ success: true });
+    } else {
+      console.error('Item not found in cart');
+      res.json({ success: false, message: 'Item not found in cart.' });
+    }
   } catch (error) {
-      console.error('Error updating cart:', error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error('Error updating cart:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -847,23 +854,23 @@ app.get("/user_account", async (req, res) => {
 // Route to get user orders
 app.get('/user_orders', async (req, res) => {
   try {
-      const user = await User.findOne({ username: req.session.username });
-      const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orde_date: -1 }); // Sort by orde_date descending
-      res.json(userOrders);
+    const user = await User.findOne({ username: req.session.username });
+    const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orde_date: -1 }); // Sort by orde_date descending
+    res.json(userOrders);
   } catch (error) {
-      console.error('Error fetching orders:', error);
-      res.status(500).send('Error fetching orders');
+    console.error('Error fetching orders:', error);
+    res.status(500).send('Error fetching orders');
   }
 });
 
 // Route to render order details page
 app.get('/order/:orderId', async (req, res) => {
   try {
-      const order = await orders.findOne({ orderId: req.params.orderId });
-      res.render('order_details', { order });
+    const order = await orders.findOne({ orderId: req.params.orderId });
+    res.render('order_details', { order });
   } catch (error) {
-      console.error('Error fetching order:', error);
-      res.status(500).send('Error fetching order');
+    console.error('Error fetching order:', error);
+    res.status(500).send('Error fetching order');
   }
 });
 
@@ -908,7 +915,7 @@ app.post("/update_profile", async (req, res) => {
 app.get("/favorites", async (req, res) => {
   const user = await User.findOne({ username: req.session.username });
   const favoriteList = user.my_fav;
-  
+
   let recipeDetailsArray = [];
   await Promise.all(favoriteList.map(async (recipeId) => {
     const response = await fetch(
