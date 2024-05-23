@@ -43,12 +43,11 @@
                             </div>
                             <!-- Possibly look to change it to number of recipes that they need -->
                             <div class="flex mt-4 justify-end">
-                                <form action="" method="POST">
-                                    <input class="hidden" name="recipeId" type="data"
-                                        value='<%=recipeDetails.recipeId %>'>
-                                    <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add
-                                        to Cart</button>
-                                </form>
+                              <form id="add-to-cart-form" action="/add-to-cart" method="POST">
+                                <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
+                                <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
+                            </form>
+                            
 
                             </div>
                             <!-- This will have to be nutritional information/important to know things (Dietary restrictions)/ Make a card of each thing to display -->

@@ -685,6 +685,25 @@ app.get("/recipeInfo/:id", async (req, res) => {
   }
 });
 
+app.post("/add-to-cart", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const recipeId = req.body.recipeId;
+    user.cart.push(recipeId);
+
+    await user.save();
+
+    res.redirect(`/mycart?recipeId=${recipeId}`);
+  } catch (err) {
+    console.error("Failed to add to cart:", err);
+    res.status(500).send("Internal server error");
+  }
+});
+
 app.post("/recipeInfo/:id", async (req, res) => {
   let recipeId = req.body.recipeId;
   try {
