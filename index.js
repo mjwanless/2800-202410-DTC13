@@ -771,6 +771,29 @@ app.get("/user_account", async (req, res) => {
   }
 });
 
+// Route to get user orders
+app.get('/user_orders', async (req, res) => {
+  try {
+      const user = await User.findOne({ username: req.session.username });
+      const userOrders = await orders.find({ orderId: { $in: user.order } });
+      res.json(userOrders);
+  } catch (error) {
+      console.error('Error fetching orders:', error);
+      res.status(500).send('Error fetching orders');
+  }
+});
+
+// Route to render order details page
+app.get('/order/:orderId', async (req, res) => {
+  try {
+      const order = await orders.findOne({ orderId: req.params.orderId });
+      res.render('order_details', { order });
+  } catch (error) {
+      console.error('Error fetching order:', error);
+      res.status(500).send('Error fetching order');
+  }
+});
+
 app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
