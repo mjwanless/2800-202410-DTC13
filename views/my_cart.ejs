@@ -10,6 +10,9 @@
         <% recipeDetails.forEach(recipe => { %>
             <% if (recipe) { %> <!-- Check if recipe is not null -->
                 <div class="md:flex bg-red-100 rounded-xl overflow-hidden mb-4">
+                    <div class="md:flex-shrink-0">
+                        <img src="<%= recipe.image %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
+                    </div>
                     <div class="p-8 flex-grow">
                         <div class="flex items-center justify-between">
                             <h2 class="font-bold text-xl text-blue-800"><%= recipe.label %></h2>
@@ -30,7 +33,6 @@
                 </div>
             <% } %>
         <% }) %>
-        <!-- Button to go to the payment page -->
         <div class="flex justify-center my-4">
             <a href="/payment" class="bg-blue-600 text-white px-4 py-2 rounded-md">Proceed to Payment</a>
         </div>
