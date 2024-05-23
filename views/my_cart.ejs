@@ -1,67 +1,60 @@
-<%- include('templates/header') %>
+<%- include('templates/header'); %>
+<%- include('templates/backBtn'); %>
 
 <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl mt-10">
     <h1 class="text-center text-2xl font-bold text-blue-800 my-4">My Cart</h1>
 
-    <!-- Need to change this to dynamically load based on what has been added to cart -->
-    
-    <div class="md:flex bg-red-100 rounded-xl overflow-hidden mb-4">
-        <div class="p-8 flex-grow">
-            <div class="flex items-center justify-between">
-                <h2 class="font-bold text-xl text-blue-800">French Toast</h2>
-            </div>
-            <p class="mt-2 text-gray-600">White Buns - $0.99</p>
-            <p class="mt-2 text-gray-600">Toast Ham - $0.99</p>
-            <div class="flex justify-between items-center my-4">
-                <span class="font-bold text-lg">Total:</span>
-                <span class="font-bold text-blue-600 text-lg">$1.98</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button class="bg-gray-200 text-gray-800 rounded px-2">-</button>
-                <span>1</span>
-                <button class="bg-red-500 text-white rounded px-2">+</button>
-            </div>
-        </div>
-    </div>
+    <% if (!recipeDetails || recipeDetails.length === 0) { %>
+        <p class="text-center text-red-500">Your cart is empty.</p>
+    <% } else { 
+        let recipeTally = {};
+        recipeDetails.forEach(recipe => {
+            if (recipe && recipe.label) {
+                if (recipeTally[recipe.label]) {
+                    recipeTally[recipe.label].count++;
+                } else {
+                    recipeTally[recipe.label] = {
+                        ...recipe,
+                        count: 1
+                    };
+                }
+            }
+        });
+    %>
 
-    <div class="md:flex bg-red-100 rounded-xl overflow-hidden mb-4 border-2 border-purple-400">
-        <div class="p-8 flex-grow">
-            <div class="flex items-center justify-between">
-                <h2 class="font-bold text-xl text-blue-800">French Toast</h2>
+        <% Object.keys(recipeTally).forEach(recipeLabel => {
+            let recipe = recipeTally[recipeLabel];
+        %>
+            <div class="md:flex bg-red-100 rounded-xl overflow-hidden mb-4">
+                <div class="md:flex-shrink-0">
+                    <img src="<%= recipe.image %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
+                </div>
+                <div class="p-8 flex-grow">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-bold text-xl text-blue-800"><%= recipe.label %></h2>
+                        <span class="font-bold text-gray-800">x<%= recipe.count %></span>
+                    </div>
+                    <% recipe.ingredientLines.forEach(ingredient => { %>
+                        <p class="mt-2 text-gray-600"><%= ingredient %></p>
+                    <% }) %>
+                    <div class="flex justify-between items-center my-4">
+                        <span class="font-bold text-lg">Total:</span>
+                        <span class="font-bold text-blue-600 text-lg">$<%= (recipe.totalNutrients.ENERC_KCAL.quantity * recipe.count).toFixed(2) %></span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="bg-gray-200 text-gray-800 rounded px-2" data-recipe-label="<%= recipe.label %>">-</button>
+                        <span><%= recipe.count %></span>
+                        <button class="bg-red-500 text-white rounded px-2" data-recipe-label="<%= recipe.label %>">+</button>
+                    </div>
+                </div>
             </div>
-            <p class="mt-2 text-gray-600">White Buns - $0.99</p>
-            <p class="mt-2 text-gray-600">Toast Ham - $0.99</p>
-            <div class="flex justify-between items-center my-4">
-                <span class="font-bold text-lg">Total:</span>
-                <span class="font-bold text-blue-600 text-lg">$1.98</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button class="bg-gray-200 text-gray-800 rounded px-2">-</button>
-                <span>1</span>
-                <button class="bg-red-500 text-white rounded px-2">+</button>
-            </div>
+        <% }); %>
+        
+        <div class="flex justify-center my-4">
+            <a href="/payment" class="bg-blue-600 text-white px-4 py-2 rounded-md">Proceed to Payment</a>
         </div>
-    </div>
-
-    <div class="md:flex bg-red-100 rounded-xl overflow-hidden mb-4">
-        <div class="p-8 flex-grow">
-            <div class="flex items-center justify-between">
-                <h2 class="font-bold text-xl text-blue-800">French Toast</h2>
-            </div>
-            <p class="mt-2 text-gray-600">White Buns - $0.99</p>
-            <p class="mt-2 text-gray-600">Toast Ham - $0.99</p>
-            <div class="flex justify-between items-center my-4">
-                <span class="font-bold text-lg">Total:</span>
-                <span class="font-bold text-blue-600 text-lg">$1.98</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button class="bg-gray-200 text-gray-800 rounded px-2">-</button>
-                <span>1</span>
-                <button class="bg-red-500 text-white rounded px-2">+</button>
-                <button class="bg-blue-600 text-white rounded px-4 py-2 ml-auto">Buy It Now</button>
-            </div>
-        </div>
-    </div>
+    <% } %>
 </div>
-<%- include('templates/menuBar') %>
-<%- include('templates/footer') %>
+
+<%- include('templates/menuBar'); %>
+<%- include('templates/footer'); %>
