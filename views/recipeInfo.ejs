@@ -12,7 +12,9 @@
                     <%= recipeDetails.recipeTitle %>
                 </h1>
             </div>
+            <% let i = 0 %>
             <% recipeDetails.recipeCuisineType.forEach((cuisine) => { %>
+                
                 <p id="recipe-cuisine" class="mt-2 text-gray-600">
                     <%= cuisine %>
                 </p>
@@ -25,13 +27,44 @@
             <div class="mt-4 bg-blue-100 p-4 rounded-xl">
                 <ul id="ingredients-list" class="mt-2">
                     <% recipeDetails.recipeIngredients.forEach((ingredient) => { %>
-                        <li class="flex items-center justify-between mt-2">
-                            <div class="flex items-center">
+                        <li class="items-center mt-2 w-full">
+                            <div class="flex items-center justify-between">
                                 <span>
                                     <%= ingredient %>
                                 </span>
+                                
+                                <!-- plus and minus buttons -->
+
+                                <form class="max-w-xs">
+                                    <div class="relative flex items-center">
+                                        <button type="button" id="decrement-button<%=i%>" data-input-counter-decrement="counter-input"
+                                            class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5 ">
+                                            <svg class="w-2.5 h-2.5 text-orange-500 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 18 2">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M1 1h16" />
+                                            </svg>
+                                        </button>
+                                        <input type="text" id="counter-input" data-input-counter
+                                            class="flex-shrink-0 text-gray-900 dark:text-white border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center"
+                                            placeholder="" value="1" required />
+                                        <button type="button" id="increment-button<%=i%>" data-input-counter-increment="counter-input"
+                                            class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5">
+                                            <svg class="w-2.5 h-2.5 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 18 18">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 1v16M1 9h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- plus and minus buttons -->
+
+
                             </div>
                         </li>
+                        <% i++ %>
                     <% }) %>
                 </ul>
             </div>
@@ -72,4 +105,5 @@
 </script>
 
 <%- include('templates/menuBar') %>
+<script src="/script/plusAndMinus.js"></script>
 <%- include('templates/footer') %>
