@@ -282,7 +282,7 @@ const resetPassword = async (req, res, next) => {
 
 // GET request for the root URL/"Homepage"
 app.get("/", async (req, res) => {
-  let reviews = await feedbacks.find({});
+  let reviews = await feedbacks.find({}).sort({ time: -1 }).limit(3);
   if (reviews) {
     res.render("landing", { reviews: reviews });
   } else {
@@ -957,11 +957,6 @@ app.get("/feedback", (req, res) => {
   res.render("feedback");
 });
 
-// get feedback page
-app.get("/feedback", (req, res) => {
-  res.render("feedback");
-});
-
 app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
@@ -996,9 +991,11 @@ app.post("/favorites/add/:id", async (req, res) => {
 app.post("/save_feedback", async (req, res) => {
   const name = req.body.name;
   const message = req.body.message;
+  const timestamp = new Date();
   const feedback = new feedbacks({
     name: name,
     message: message,
+    time: timestamp,
   });
   try {
     await feedback.save();
