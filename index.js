@@ -110,9 +110,9 @@ const orders = mongoose.model("orders", orderSchema);
 // Define Mongoose model for preferences
 const preferenceSchema = new mongoose.Schema({
   name: String,
-  category: String
+  category: String,
 });
-const Preference = mongoose.model('Preference', preferenceSchema);
+const Preference = mongoose.model("Preference", preferenceSchema);
 
 // mongoDB session
 var store = new MongoDBStore({
@@ -314,31 +314,32 @@ app.get("/reset_password", (req, res) => {
 });
 
 // After successful signup
-app.post('/signup', createUser, (req, res) => {
+app.post("/signup", createUser, (req, res) => {
   req.session.username = req.body.username;
   req.session.email = req.body.email;
-  res.redirect('/my_preference');
+  res.redirect("/my_preference");
 });
-app.post('/signup', async (req, res) => {
-  const { username, email, password, security_question, security_answer } = req.body;
+app.post("/signup", async (req, res) => {
+  const { username, email, password, security_question, security_answer } =
+    req.body;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  
+
   const newUser = new User({
     username,
     email,
     password: hashedPassword,
     security_question,
-    security_answer
+    security_answer,
   });
-  
+
   try {
     await newUser.save();
     req.session.username = username;
     req.session.email = email;
-    res.redirect('/my_preference');
+    res.redirect("/my_preference");
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).send('Error creating user');
+    console.error("Error creating user:", error);
+    res.status(500).send("Error creating user");
   }
 });
 
@@ -538,7 +539,7 @@ const getRecommendation = async (preferenceList, recipeList, res) => {
           let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
           let imgUrl = recipes[index].recipe.image;
           let recipeTitle = recipes[index].recipe.label;
-          if (recipeTitle.length > 40){
+          if (recipeTitle.length > 40) {
             recipeTitle = recipeTitle.substring(0, 40) + "...";
           }
           recipeList.push({ recipeId, imgUrl, recipeTitle });
@@ -618,6 +619,7 @@ app.get("/browse", (req, res) => {
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
   let recipeDetails = {};
+  console.log(recipeId);
   // get recipe details from the API by id
   await fetch(
     `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
@@ -671,13 +673,13 @@ app.get("/recipeInfo/:id", async (req, res) => {
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
+  let recipeId = req.body.recipeId;
   try {
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    let recipeId = req.body.recipeId;
     userCart = user.cart;
 
     userCart.push(recipeId);
@@ -687,8 +689,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
         { email: req.session.email },
         { $set: { cart: userCart } }
       );
-
-      res.redirect(`/recipeInfo/${recipeId}`);
+      res.sendStatus(200);
     } catch (err) {
       console.error("Failed to update password:", err);
       res.status(500).send("Failed to update password.");
@@ -700,7 +701,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
 });
 
 //Get request for number of items in the cart
-app.get('/getCartNumber', async (req, res) => {
+app.get("/getCartNumber", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.session.username });
     res.json(user.cart.length);
@@ -848,56 +849,56 @@ app.post("/save_feedback", async (req, res) => {
 });
 
 // Route to render the my preferences page
-app.get('/my_preference', async (req, res) => {
+app.get("/my_preference", async (req, res) => {
   try {
-      const preferences = await Preference.find();
-      res.render('my_preference', { preferences });
+    const preferences = await Preference.find();
+    res.render("my_preference", { preferences });
   } catch (error) {
-      console.error('Error fetching preferences:', error);
-      res.status(500).send('Error fetching preferences');
+    console.error("Error fetching preferences:", error);
+    res.status(500).send("Error fetching preferences");
   }
 });
 
 // Route to update user preferences
-app.post('/update_preference', async (req, res) => {
+app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
-      const updatedUser = await User.findOneAndUpdate(
-          { username: req.session.username },
-          { $set: { preferences: preferences } },
-          { new: true }
-      );
-      res.json({ status: 'success' });
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { preferences: preferences } },
+      { new: true }
+    );
+    res.json({ status: "success" });
   } catch (error) {
-      console.error('Error updating preferences:', error);
-      res.status(500).json({ status: 'error' });
+    console.error("Error updating preferences:", error);
+    res.status(500).json({ status: "error" });
   }
 });
 
 // Route to render the local preferences page
-app.get('/local_preference', isAuthenticated, async (req, res) => {
+app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
-      const user = await User.findOne({ username: req.session.username });
-      res.render('local_preference', { user });
+    const user = await User.findOne({ username: req.session.username });
+    res.render("local_preference", { user });
   } catch (error) {
-      console.error('Error fetching user preferences:', error);
-      res.status(500).send('Error fetching user preferences');
+    console.error("Error fetching user preferences:", error);
+    res.status(500).send("Error fetching user preferences");
   }
 });
 
 // Route to save the preferences
-app.post('/save_preferences', async (req, res) => {
+app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-      const updatedUser = await User.findOneAndUpdate(
-          { username: req.session.username },
-          { $set: { preferences: preferences } },
-          { new: true }
-      );
-      res.sendStatus(200);
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { preferences: preferences } },
+      { new: true }
+    );
+    res.sendStatus(200);
   } catch (error) {
-      console.error('Error saving preferences:', error);
-      res.status(500).send('Error saving preferences');
+    console.error("Error saving preferences:", error);
+    res.status(500).send("Error saving preferences");
   }
 });
 
