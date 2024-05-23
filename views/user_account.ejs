@@ -105,12 +105,12 @@
                         </div>
                     </div>
                     <a href="/order/${order.orderId}" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
-                `;
-                                orderHistory.appendChild(orderCard);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching order history:', error);
-                        });
+                    `;
+                    orderHistory.appendChild(orderCard);
+                    });
+                    })
+                    .catch(error => {
+                    console.error('Error fetching order history:', error);
+                    });
                 });
             </script>
