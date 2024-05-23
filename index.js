@@ -751,7 +751,6 @@ app.post("/add-to-cart", async (req, res) => {
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
-  console.log("aaa");
   let recipeId = req.body.recipeId;
   try {
     const user = await User.findOne({ username: req.session.username });
@@ -759,7 +758,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    //userCart = user.cart;
+    userCart = user.cart;
 
     //userCart.push(recipeId);
 
