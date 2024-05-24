@@ -66,6 +66,7 @@
             <div class="flex mt-4 justify-end">
                 <form id="add-to-cart-form" action="/add-to-cart" method="POST">
                     <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
+                    <input class="hidden" name="recipePrice" type="data" value="<%= recipeDetails.recipePrice %>">
                     <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
                 </form>
             </div>

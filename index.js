@@ -86,7 +86,14 @@ const userSchema = new mongoose.Schema({
   address: String,
   phone: String,
   order: Array,
-  cart: Array,
+  cart: {
+    type: Map,
+    of: {
+      recipePrice: String,
+      quantity: String,
+    },
+  
+  },
 });
 
 const orderSchema = new mongoose.Schema({
@@ -736,17 +743,30 @@ app.post("/add-to-cart", async (req, res) => {
     }
 
     const recipeId = req.body.recipeId;
-    const currentUrl = req.headers.referer;
+    const recipePrice = req.body.recipePrice;
 
-    user.cart.push(recipeId);
+    let recipeInCart = Object.keys(user.cart).some((key) => key === recipeId);
+
+    if (!user.cart.has(recipeId)) {
+      user.cart.set(recipeId,
+      {
+        recipePrice: recipePrice,
+        quantity: 1,
+      });
+      console.log("Added to cart:", user.cart.get(recipeId));
+
+    } else {
+      user.cart.get(recipeId).quantity += 1;
+    }
+    console.log("User cart:", user.cart);
 
     await user.save();
-
+    const currentUrl = req.headers.referer;
     res.redirect(currentUrl);
-  } catch (err) {
-    console.error("Failed to add to cart:", err);
+  } catch (error) { 
+    console.error("Error adding to cart:", error);
     res.status(500).send("Internal server error");
-  }
+  } 
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
