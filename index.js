@@ -22,7 +22,7 @@ OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
-const { Double} = require("mongodb");
+const { Double } = require("mongodb");
 const { is, fr, ht, tr, el } = require("date-fns/locale");
 let globalAccessToken;
 
@@ -92,7 +92,6 @@ const userSchema = new mongoose.Schema({
       recipePrice: Number,
       quantity: Number,
     },
-  
   },
 });
 
@@ -746,8 +745,7 @@ app.post("/add-to-cart", async (req, res) => {
     const recipePrice = parseFloat(req.body.recipePrice);
 
     if (!user.cart.has(recipeId)) {
-      user.cart.set(recipeId,
-      {
+      user.cart.set(recipeId, {
         recipePrice: recipePrice,
         quantity: 1,
       });
@@ -757,10 +755,10 @@ app.post("/add-to-cart", async (req, res) => {
     await user.save();
     const currentUrl = req.headers.referer;
     res.redirect(currentUrl);
-  } catch (error) { 
+  } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).send("Internal server error");
-  } 
+  }
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
@@ -794,8 +792,8 @@ app.get("/getCartNumber", async (req, res) => {
     const user = await User.findOne({ username: req.session.username });
     cartCount = 0;
 
-    user.cart.forEach((recipe) => {
-      if (recipe) cartCount++;
+    user.cart.forEach((item) => {
+      if (item) cartCount += item.quantity;
     });
     res.json(cartCount);
   } catch (err) {
