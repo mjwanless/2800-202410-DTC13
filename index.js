@@ -836,7 +836,15 @@ app.get("/recipe_search_page", (req, res) => {
 
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
-  res.render("payment");
+  const user = await User.findOne({ email: req.session.email });
+  const userCart = user.cart;
+  totalPrice = 0;
+  await userCart.forEach((item) => {
+    totalPrice += item.recipePrice * item.quantity;
+    console.log(totalPrice);
+  });
+
+  res.render("payment", { totalPrice: totalPrice });
 });
 
 app.post("/update-cart", async (req, res) => {
@@ -1167,6 +1175,11 @@ app.post("/quantity/increase/:id", async (req, res) => {
   res.status(200).send("Increased quantity");
 }
 )
+
+// app.post('/mycart', async (req, res) => {
+  
+//   res.status(200).redirect('/payment');
+// })
 // Logout page
 app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });

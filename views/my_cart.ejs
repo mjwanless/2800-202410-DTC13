@@ -60,4 +60,19 @@
 </div>
 
 <%- include('templates/menuBar'); %>
+
+<script>
+
+function processPayment(){
+    fetch("/mycart", {
+        method: 'POST',
+    }).then(response => {
+        if (response.ok) {
+            console.log('start payment');
+        }
+    }
+    )
+}
+</script>
+
 <%- include('templates/footer'); %>
