@@ -215,7 +215,7 @@
                     <p class="m-1 p-1 w-fit bg-orange-500 text-sm
                     text-white font-semibold rounded-lg">
                         ${tagText}
-                        <button class='mx-1'>X</button>
+                        <button class='mx-1' Onclick='removeFilter("${tagText}", "${type}")'>X</button>
                     </p>
                 `;
 
@@ -225,6 +225,19 @@
                     requiredIngredients.push(tagText);
                 else if (type == 'excluded')
                     excludedIngredients.push(tagText);
+
+                beginQuery();
+            }
+
+            function removeFilter(tagText, type) {
+                document.getElementById(`${tagText}-${type}`).remove();
+
+                if (type == 'required') {
+                    requiredIngredients.splice(requiredIngredients.indexOf(tagText), 1);
+                }
+                else if (type == 'excluded') {
+                    excludedIngredients.splice(excludedIngredients.indexOf(tagText), 1);
+                }
 
                 beginQuery();
             }
