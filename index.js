@@ -9,8 +9,12 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const dateFormat = require("date-fns");
 const nodeMailer = require("nodemailer");
+const cors = require("cors");
 const { google } = require("googleapis");
 const config = require("./config");
+const monthlyRecipe = require("./createData");
+const feedbacks = require("./createFeedback");
+const calculator = require("./caloriesCalculator");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
@@ -19,12 +23,20 @@ const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 const { Double } = require("mongodb");
-const { is, fr, ht, tr } = require("date-fns/locale");
+const { is, fr, ht, tr, el } = require("date-fns/locale");
+let globalAccessToken;
 
+async function getAccessToken() {
+  if (!globalAccessToken) {
+    const accessToken = await OAuth2Client.getAccessToken();
+    return accessToken;
+  }
+}
 // ======================================
 // Create a new express app and set up the port for .env variables
 // ======================================
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
@@ -74,6 +86,13 @@ const userSchema = new mongoose.Schema({
   address: String,
   phone: String,
   order: Array,
+  cart: {
+    type: Map,
+    of: {
+      recipePrice: Number,
+      quantity: Number,
+    },
+  },
 });
 
 const orderSchema = new mongoose.Schema({
@@ -95,11 +114,18 @@ const orderSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const orders = mongoose.model("orders", orderSchema);
 
+// Define Mongoose model for preferences
+const preferenceSchema = new mongoose.Schema({
+  name: String,
+  category: String,
+});
+const Preference = mongoose.model("Preference", preferenceSchema);
+
 // mongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
-  autoRemove: 'native'
+  autoRemove: "native",
 });
 
 // // Catch errors
@@ -120,18 +146,15 @@ app.use(
 // // This is to be able to use html, css, and js files in the public folder
 // // ======================================
 app.use(express.static(__dirname + "/public"));
-
+app.use(express.json());
 // // ======================================
 // // Where the magic happens ================================================================
-// // ======================================
-
-// // ======================================
-// // Commit to create dev branch
 // // ======================================
 
 // ======================================
 // functions and middleware
 // ======================================
+
 let emailSent = false;
 
 // Middleware to check if the user is authenticated
@@ -170,6 +193,7 @@ const createUser = async (req, res, next) => {
     password: hashedPassword,
     security_question: req.body.security_question,
     security_answer: hashedSecurityAnswer,
+    cart: new Map(),
   });
 
   try {
@@ -190,7 +214,8 @@ const loginValidation = async (req, res, next) => {
   const schema = joi.object({
     email: joi.string().max(200).required(),
   });
-  const validationResult = schema.validate({ email: req.body.email });
+  req.session.email = req.body.email;
+  const validationResult = schema.validate({ email: req.session.email });
   if (validationResult.error) {
     res.send("login validation result error", {
       error: validationResult.error,
@@ -234,15 +259,10 @@ const resetPassword = async (req, res, next) => {
   try {
     user = await User.findOne({ email: req.body.email });
     if (user) {
-      const outputQuestion = user.security_question;
-      const inputQuestion = req.body.security_question;
       const outputAnswer = user.security_answer;
       const inputAnswer = req.body.security_answer;
 
-      if (
-        inputQuestion != outputQuestion ||
-        !(await bcrypt.compare(inputAnswer, outputAnswer))
-      ) {
+      if (!(await bcrypt.compare(inputAnswer, outputAnswer))) {
         return res.render("reset_password", { wrongAnswer: true });
       }
 
@@ -268,8 +288,13 @@ const resetPassword = async (req, res, next) => {
 };
 
 // GET request for the root URL/"Homepage"
-app.get("/", (req, res) => {
-  res.render("landing");
+app.get("/", async (req, res) => {
+  let reviews = await feedbacks.find({}).sort({ time: -1 }).limit(3);
+  if (reviews) {
+    res.render("landing", { reviews: reviews });
+  } else {
+    res.render("landing", { reviews: [] });
+  }
 });
 
 // GET request for the login page
@@ -277,9 +302,58 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-// Test for API data display
-app.get("/apitest", (req, res) => {
-  res.render("api_practice");
+// Get request for the my_cart page
+app.get("/mycart", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Get the price list from the cart
+    // the priceList is an array of objects with recipeId, recipePrice, and quantity
+    let priceList = [];
+    user.cart.forEach((value, key) => {
+
+      priceList.push({
+        recipeId: key,
+        recipePrice: value.recipePrice,
+        quantity: value.quantity,
+        price: getPrice(key)
+      });
+
+    });
+
+    // form the recipeIds array from the user's cart
+    const recipeIds = Array.from(user.cart.keys());
+
+    // using map to create an array of promises
+    const recipeDetailsPromises = recipeIds.map(async (recipeId) => {
+      try {
+        const response = await fetch(
+          `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+        );
+        const data = await response.json();
+        
+        return data.recipe;
+      } catch (error) {
+        console.error(`Error fetching recipe ${recipeId}:`, error);
+        return null;
+      }
+    });
+
+    const recipeDetails = await Promise.all(recipeDetailsPromises);
+    const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
+
+
+    res.render("my_cart", {
+      recipeDetails: filteredRecipes,
+      priceList: priceList,
+    });
+  } catch (err) {
+    console.error("Failed to retrieve cart items:", err);
+    res.status(500).send("Internal server error");
+  }
 });
 
 // GET request for the signup page
@@ -293,7 +367,33 @@ app.get("/reset_password", (req, res) => {
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
-  res.redirect("/home"); // Changed from "/test" to "/user_account"
+  req.session.username = req.body.username;
+  req.session.email = req.body.email;
+  res.redirect("/my_preference");
+});
+
+app.post("/signup", async (req, res) => {
+  const { username, email, password, security_question, security_answer } =
+    req.body;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const newUser = new User({
+    username,
+    email,
+    password: hashedPassword,
+    security_question,
+    security_answer,
+  });
+
+  try {
+    await newUser.save();
+    req.session.username = username;
+    req.session.email = email;
+    res.redirect("/my_preference");
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).send("Error creating user");
+  }
 });
 
 // After successful login
@@ -301,8 +401,65 @@ app.post("/login", loginValidation, (req, res) => {
   res.redirect("/home"); // Changed from "/test" to "/user_account"
 });
 
+//Gets security question based on the email
+app.get("/getSecurityQuestion/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const requestedUser = await User.findOne({ email: email });
+    res.json(requestedUser.security_question);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(null);
+  }
+});
+
 // After successful password reset
-app.post("/reset_password", resetPassword, (req, res) => {
+app.post("/reset_password", resetPassword, async (req, res) => {
+  const accessToken = getAccessToken();
+  // const accessToken = await OAuth2Client.getAccessToken();
+
+  const user = await User.findOne({ email: req.body.email });
+  const recipient = user.email;
+  const userName = user.username;
+
+  function resetPasswordEmail(recipient) {
+    const transporter = nodeMailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: config.user,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        refreshToken: config.refreshToken,
+        accessToken: accessToken,
+      },
+    });
+
+    const mailOptions = {
+      from: `Fresh Plate <${config.user}>`,
+      to: recipient,
+      subject: "Password Has Been Reset Successfully",
+      html: resetPasswordInfo(),
+    };
+
+    transporter.sendMail(mailOptions, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Email sent: " + result);
+      }
+      transporter.close();
+    });
+  }
+
+  function resetPasswordInfo() {
+    return `
+    <h1>Hello ${userName} ! </h1>
+    <p>Your password has been reset successfully.</p>
+    `;
+  }
+  resetPasswordEmail(recipient);
+
   res.redirect("/login");
 });
 
@@ -337,10 +494,12 @@ app.post("/orderconfirm", async (req, res) => {
   const amount = 55.0; // hard coded amount for now
   const formattedAmount = currencyFormater.format(amount);
 
-  // send email
-  const accessToken = await OAuth2Client.getAccessToken(); //get a new access token to send email every time
+  //get a new access token to send email every time
+  const accessToken = await getAccessToken();
 
-  let recipient = "waxah66944@ahieh.com";
+  const user = await User.findOne({ email: req.session.email });
+  const recipient = user.email;
+  const userName = user.username;
   function sendConfirmationEmail(recipient) {
     const transporter = nodeMailer.createTransport({
       service: "gmail",
@@ -373,7 +532,9 @@ app.post("/orderconfirm", async (req, res) => {
 
   function confirmationInfo() {
     return `
-    <h1>Order Confirmation</h1>
+    <h1>Hello ${userName} ! </h1>
+    <h3>Order Confirmation: ${orderNumber}</h3>
+    <h3>Total amount: $ ${amount}</h3>
     <p>Thank you for your order. Your order has been confirmed.</p>
     <p>Thank you for choosing Fresh Plate</p>
     `;
@@ -399,7 +560,6 @@ app.post("/orderconfirm", async (req, res) => {
     })
     .then((order) => {
       order.save();
-      console.log("Order created: ", order);
     });
 
   res.render("orderconfirm", {
@@ -409,27 +569,332 @@ app.post("/orderconfirm", async (req, res) => {
   });
 });
 
-// This is for testing, will be refactored as app.post("/payment")
-app.get("/payment", async (req, res) => {
-  res.render("payment");
+app.use(isAuthenticated);
+
+// the code snippets for using the cached recipes to store the recipes for 2 days are from ChatGPT openAI
+let cachedRecipes = {
+  timestamp: null,
+  data: [],
+};
+
+const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+
+function isCacheExpired() {
+  if (!cachedRecipes.timestamp) return true; // if there is no timestamp, cache is expired
+  const currentTime = new Date().getTime();
+  return currentTime - cachedRecipes.timestamp > TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
+}
+
+// function to get the recommendation from the API
+const getRecommendation = async (preferenceList, recipeList, res) => {
+  // a for loop to qurey each preference from the API and store the recipes ids in recipeList
+  for (let i = 0; i < preferenceList.length; i++) {
+    const preference = preferenceList[i];
+    const response = await fetch(
+      `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const recipes = data.hits;
+        // only get two recipes for each preference
+        for (let j = 1; j < 3; j++) {
+          let index = Math.floor(Math.random() * 10);
+          let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+          let imgUrl = recipes[index].recipe.image;
+          let recipeTitle = recipes[index].recipe.label;
+          if (recipeTitle.length > 40) {
+            recipeTitle = recipeTitle.substring(0, 40) + "...";
+          }
+          recipeList.push({ recipeId, imgUrl, recipeTitle });
+        }
+      });
+  }
+};
+
+async function fetchAndCacheRecommendations(preferenceList) {
+  cachedRecipes.timestamp = new Date().getTime(); // update the timestamp
+  cachedRecipes.data = []; // clear the cache
+  await getRecommendation(preferenceList, cachedRecipes.data);
+}
+
+app.get("/home", async (req, res) => {
+  let preferenceList = [];
+  let recipeList = [];
+  let monthlyRecipeList = [];
+
+  // get user's preferences from database
+  const getPreference = async (email) => {
+    try {
+      const user = await User.findOne({ email: email });
+      if (user) {
+        preferenceList = user.preferences;
+      } else {
+        console.log("User not found");
+      }
+    } catch (error) {
+      console.error("Error fetching user preferences:", error);
+    }
+  };
+
+  await getPreference(req.session.email);
+
+  // if user has no preferences, use default preferences
+  if (preferenceList.length == 0) {
+    preferenceList = ["chicken", "beef", "pork", "vegetarian"];
+  } else if (preferenceList.length < 2) {
+    preferenceList.push("vegetarian", "crab");
+  } else if (preferenceList.length < 3) {
+    preferenceList.push("crab");
+  }
+
+  if (isCacheExpired()) {
+    await fetchAndCacheRecommendations(preferenceList);
+  }
+  recipeList = cachedRecipes.data;
+
+  // monthlyRecipe
+  monthlyRecipes = await monthlyRecipe.find({});
+  if (monthlyRecipes) {
+    for (let i = 0; i < 6; i++) {
+      let recipeId = monthlyRecipes[i].recipeId;
+      let recipeImg = monthlyRecipes[i].recipeImg;
+      let recipeTitle = monthlyRecipes[i].recipeTitle;
+      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle });
+    }
+  } else {
+    console.log("No monthly recipe found");
+  }
+
+  res.render("home", {
+    recipeList: recipeList,
+    monthlyRecipeList: monthlyRecipeList,
+  });
 });
 
-app.use(isAuthenticated);
-app.get("/home", (req, res) => {
-  res.render("home");
+app.get("/cart", (req, res) => {
+  res.render("cart");
 });
 
 app.get("/browse", (req, res) => {
   res.render("browse");
 });
 
-// GET request for the recipedisplaypage
-app.get("/recipedisplaypage", (req, res) => {
-  res.render("recipedisplaypage");
+function getPrice(recipeId, minVal = 10, maxVal = 20) {
+  let hash = 0;
+  for (let i = 0; i < recipeId.length; i++) {
+    let char = recipeId.charCodeAt(i);
+    hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
+    hash |= 0; // make sure it's a 32-bit integer
+  }
+
+  // Convert hash to a positive value
+  let decimalValue = Math.abs(hash);
+
+  // Map the decimal value to the desired range
+  let mappedValue =
+    (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+
+  // Ensure it has exactly two decimal places
+  let finalValue = Math.round(mappedValue * 100) / 100;
+
+  return finalValue;
+}
+
+
+app.get("/recipeInfo/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  req.session.recipeId = recipeId;
+  let recipeDetails = {};
+
+  try {
+    // Fetch recipe details from the API by id
+    const response = await fetch(
+      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+    );
+    const data = await response.json();
+
+    // Log the response for debugging
+    // console.log('API Response:', data);
+
+    // Check if the data.recipe exists
+    if (data.recipe) {
+      recipeDetails = {
+        recipeId: recipeId,
+        recipeTitle: data.recipe.label,
+        recipeImg: data.recipe.image,
+        recipeIngredients: data.recipe.ingredientLines,
+        recipeCuisineType: data.recipe.cuisineType,
+        recipeNutrients: {},
+      };
+
+      let count = 0;
+      for (let nutrient in data.recipe.totalNutrients) {
+        if (count < 4) {
+          recipeDetails.recipeNutrients[nutrient] =
+            data.recipe.totalNutrients[nutrient];
+          count++;
+        } else {
+          break;
+        }
+      }
+
+      // Hash function to hash recipe price
+      
+      user = await User.findOne({ email: req.session.email });
+      recipeDetails.recipePrice = getPrice(recipeId);
+      favoriteList = user.my_fav;
+      let isFavorite = false;
+      if (favoriteList.includes(recipeId)) {
+        isFavorite = true;
+      }
+      res.render("recipeInfo", {
+        recipeDetails: recipeDetails,
+        isFavorite: isFavorite,
+      });
+    } else {
+      // Handle the case where data.recipe is undefined
+      res.status(404).send("Recipe not found");
+    }
+  } catch (error) {
+    console.error("Error fetching recipe details:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.post("/add-to-cart", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const recipeId = req.body.recipeId;
+    const recipePrice = parseFloat(req.body.recipePrice);
+
+    if (!user.cart.has(recipeId)) {
+      user.cart.set(recipeId, {
+        recipePrice: recipePrice,
+        quantity: 1,
+      });
+    } else {
+      user.cart.get(recipeId).quantity += 1;
+    }
+    await user.save();
+    const currentUrl = req.headers.referer;
+    res.redirect(currentUrl);
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.post("/recipeInfo/:id", async (req, res) => {
+  let recipeId = req.body.recipeId;
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    userCart = user.cart;
+
+    try {
+      await User.findOneAndUpdate(
+        { email: req.session.email },
+        { $set: { cart: userCart } }
+      );
+      res.sendStatus(200);
+    } catch (err) {
+      console.error("Failed to update password:", err);
+      res.status(500).send("Failed to update password.");
+    }
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/getCartNumber", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    cartCount = 0;
+
+    user.cart.forEach((item) => {
+      if (item) cartCount += item.quantity;
+    });
+    res.json(cartCount);
+  } catch (err) {
+    console.error("Failed to retrieve user:", err);
+    res.json(0);
+  }
+});
+
+// GET request for the recipe_search_page
+app.get("/recipe_search_page", (req, res) => {
+  res.render("recipe_search_page");
+});
+
+// This is for testing, will be refactored as app.post("/payment")
+app.get("/payment", async (req, res) => {
+  const user = await User.findOne({ email: req.session.email });
+  const userCart = user.cart;
+  totalPrice = 0;
+  await userCart.forEach((item) => {
+    totalPrice += item.recipePrice * item.quantity;
+    console.log(totalPrice);
+  });
+
+  res.render("payment", { totalPrice: totalPrice });
+});
+
+app.post("/update-cart", async (req, res) => {
+  try {
+    const { recipeLabel, action } = req.body;
+
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      console.error("User not found");
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    }
+
+    if (!user.cart) {
+      user.cart = [];
+    }
+    if (!user.cart) {
+      user.cart = [];
+    }
+
+    let item = user.cart.find((item) => item.label === recipeLabel);
+
+    if (item) {
+      if (action === "increment") {
+        item.count += 1;
+      } else if (action === "decrement" && item.count > 1) {
+        item.count -= 1;
+      } else if (action === "decrement" && item.count === 1) {
+        user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
+      }
+
+      await User.updateOne(
+        { username: req.session.username },
+        { $set: { cart: user.cart } }
+      );
+
+      res.json({ success: true });
+    } else {
+      console.error("Item not found in cart");
+      res.json({ success: false, message: "Item not found in cart." });
+    }
+  } catch (error) {
+    console.error("Error updating cart:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 });
 
 // User Account page
-app.get("/user_account", isAuthenticated, async (req, res) => {
+app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
       const user = await User.findOne({ username: req.session.username });
@@ -446,8 +911,32 @@ app.get("/user_account", isAuthenticated, async (req, res) => {
   }
 });
 
-// User profile page
-app.get("/user_profile", isAuthenticated, async (req, res) => {
+// Route to get user orders
+app.get("/user_orders", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    const userOrders = await orders
+      .find({ orderId: { $in: user.order } })
+      .sort({ orde_date: -1 }); // Sort by orde_date descending
+    res.json(userOrders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Error fetching orders");
+  }
+});
+
+// Route to render order details page
+app.get("/order/:orderId", async (req, res) => {
+  try {
+    const order = await orders.findOne({ orderId: req.params.orderId });
+    res.render("order_details", { order });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).send("Error fetching order");
+  }
+});
+
+app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
       const user = await User.findOne({ username: req.session.username });
@@ -465,8 +954,7 @@ app.get("/user_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// Update user profile
-app.post("/update_profile", isAuthenticated, async (req, res) => {
+app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
@@ -484,22 +972,223 @@ app.post("/update_profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// favorite page
-app.get("/favorite", (req, res) => {
-  res.render("favorite");
+// favorites page
+app.get("/favorites", async (req, res) => {
+  const user = await User.findOne({ username: req.session.username });
+  const favoriteList = user.my_fav;
+
+  let recipeDetailsArray = [];
+  await Promise.all(
+    favoriteList.map(async (recipeId) => {
+      const response = await fetch(
+        `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
+      );
+      const data = await response.json();
+
+      recipeDetailsArray.push({
+        recipeId: recipeId,
+        recipeTitle: data.recipe.label,
+        recipeImg: data.recipe.image,
+      });
+    })
+  );
+
+  res.render("favorites", { recipeDetails: recipeDetailsArray });
 });
 
-// my preference page
-app.get("/my_preference", (req, res) => {
-  res.render("my_preference");
+// get feedback page
+app.get("/feedback", (req, res) => {
+  res.render("feedback");
 });
 
+app.post("/favorites/remove/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $pull: { my_fav: id } }
+    );
+    res.status(200).send("Removed favorite");
+    console.log("Removed favorite:", id);
+  } catch (err) {
+    console.error("Failed to remove favorite:", err);
+    res.status(500).send("Failed to remove favorite.");
+  }
+});
+
+app.post("/favorites/add/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $push: { my_fav: id } }
+    );
+    res.status(200).send("Added favorite");
+    console.log("Added favorite:", id);
+  } catch (err) {
+    console.error("Failed to add favorite:", err);
+    res.status(500).send("Failed to add favorite.");
+  }
+});
+
+// store feedback in the database
+app.post("/save_feedback", async (req, res) => {
+  const name = req.body.name;
+  const message = req.body.message;
+  const timestamp = new Date();
+  const feedback = new feedbacks({
+    name: name,
+    message: message,
+    time: timestamp,
+  });
+  try {
+    await feedback.save();
+    res.redirect("/user_account");
+  } catch (err) {
+    console.error("Failed to save feedback:", err);
+    res.status(500).send("Failed to save feedback.");
+  }
+});
+
+// store feedback in the database
+app.post("/save_feedback", async (req, res) => {
+  const name = req.body.name;
+  const message = req.body.message;
+  const feedback = new feedbacks({
+    name: name,
+    message: message,
+  });
+  try {
+    await feedback.save();
+    res.redirect("/user_account");
+  } catch (err) {
+    console.error("Failed to save feedback:", err);
+    res.status(500).send("Failed to save feedback.");
+  }
+});
+
+// Route to render the my preferences page
+app.get("/my_preference", async (req, res) => {
+  try {
+    const preferences = await Preference.find();
+    res.render("my_preference", { preferences });
+  } catch (error) {
+    console.error("Error fetching preferences:", error);
+    res.status(500).send("Error fetching preferences");
+  }
+});
+
+// Route to update user preferences
+app.post("/update_preference", async (req, res) => {
+  const { preferences } = req.body;
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { preferences: preferences } },
+      { new: true }
+    );
+    res.json({ status: "success" });
+  } catch (error) {
+    console.error("Error updating preferences:", error);
+    res.status(500).json({ status: "error" });
+  }
+});
+
+// Route to render the local preferences page
+app.get("/local_preference", isAuthenticated, async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    res.render("local_preference", { user });
+  } catch (error) {
+    console.error("Error fetching user preferences:", error);
+    res.status(500).send("Error fetching user preferences");
+  }
+});
+
+// Route to save the preferences
+app.post("/save_preferences", async (req, res) => {
+  const preferences = req.body.preferences;
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { username: req.session.username },
+      { $set: { preferences: preferences } },
+      { new: true }
+    );
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error saving preferences:", error);
+    res.status(500).send("Error saving preferences");
+  }
+});
+
+app.post("/delete_preference", async (req, res) => {
+  const { preference } = req.body;
+  try {
+    await User.updateOne(
+      { username: req.session.username },
+      { $pull: { preferences: preference } }
+    );
+    res.json({ status: "success" });
+  } catch (error) {
+    console.error("Error deleting preference:", error);
+    res.status(500).json({ status: "error" });
+  }
+});
+
+app.post("/quantity/decrease/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    await User.updateOne(
+      { email: req.session.email },
+      { $inc: { [`cart.${recipeId}.quantity`]: -1 }}
+    )
+    
+}catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
+  res.status(200).send("Decreased quantity");
+}
+  
+)
+
+app.post("/quantity/increase/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    await User.updateOne(
+      { email: req.session.email },
+      { $inc: { [`cart.${recipeId}.quantity`]: 1 } }
+    )
+
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
+  res.status(200).send("Increased quantity");
+}
+)
+
+// app.post('/mycart', async (req, res) => {
+  
+//   res.status(200).redirect('/payment');
+// })
 // Logout page
 app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
   req.session.destroy();
   res.redirect("/");
 });
+
+// Import the calculator routes and use them as middleware
+app.use(calculator);
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {

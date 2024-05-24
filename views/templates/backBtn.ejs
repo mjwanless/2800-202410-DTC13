@@ -1,5 +1,5 @@
 <a href="#"
-    class="fixed inline-flex bg-white items-center rounded-full m-4 px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+    class="z-10 fixed inline-flex bg-white items-center rounded-full m-4 px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
     <span class="sr-only">Previous</span>
     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path fill-rule="evenodd"
@@ -8,8 +8,8 @@
     </svg>
 </a>
 <script>
-    document.querySelector('a').addEventListener('click', function (e) {
+    document.querySelector('a').addEventListener('click', async function (e) {
         e.preventDefault();
-        window.history.back();
+        await window.history.back();
     });
 </script>

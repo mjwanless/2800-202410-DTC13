@@ -1,0 +1,257 @@
+<%- include('templates/header') %>
+    <%- include('templates/searchBar') %>
+
+        <div id="filter-div" class="px-5">
+            <button id="filter-button" onclick="openFilterMenu()"
+                class="flex w-fit justify-center rounded-full bg-gray-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-500">
+                Filters</button>
+        </div>
+
+        <div class="px-5 flex items-center">
+            <p class="text-lg font-bold">Search Results:</p>
+        </div>
+
+        <div id="recipe-list" class="flex flex-col"></div>
+
+        </div>
+        <script>
+            const appId = '2f8713ec';
+            const appKey = '7393ce8d980bb01c8359857c74dd0f56';
+
+            let requiredIngredients = [];
+            let excludedIngredients = [];
+
+            function beginQuery() {
+                let params = new URL(window.location.href);
+                query = params.searchParams.get("user_query");
+                document.getElementById("search-dropdown").value = query;
+
+                getRecipes(query);
+            }
+
+            async function getRecipes(query) {
+                const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                //Results are limited to 10 hits, need to find out how to get next page
+                //Getting more results is important so we can filter them
+
+                recipeList = document.getElementById('recipe-list')
+                recipeList.innerHTML = ""
+                data.hits.forEach(result => {
+                    let recipe = result.recipe;
+                    isValid = checkIfValidRecipe(recipe);
+
+                    if (isValid)
+                        createRecipeCard(recipe);
+                })
+
+                if (data.hits.length == 0) {
+                    errorMessage = document.createElement('div');
+                    errorMessage.className = 'flex justify-center p-1'
+
+                    errorMessage.innerHTML = `
+                    <div class="flex w-11/12 justify-center text-center bg-sky-100 p-3">
+                        <div class="flex flex-col content-center">
+                            <p>No recipes found!</p>
+                        </div>
+                    </div>
+                    `
+
+                    recipeList.appendChild(errorMessage);
+                }
+            }
+
+            function createRecipeCard(recipe) {
+                recipeCard = document.createElement('div');
+                recipeCard.className = 'flex justify-center p-1 rounded-md'
+
+                let tagList = ""
+
+                //Logic that stops tags from going beyond the card height
+                const tagLimit = 12;
+                const lettersPerColumn = 4;
+                const columnsPerRow = 6;
+                let tagCount = 0;
+                let currentColumnsInRow = 0;
+
+                function addTag(tagText) {
+                    if (tagCount >= tagLimit) return;
+
+                    let columnWidth = Math.ceil(tagText.length / lettersPerColumn);
+                    if (tagCount + columnWidth > tagLimit) {
+                        tagText = "..."
+                        columnWidth = 1;
+                    }
+
+                    tagCount += columnWidth;
+                    currentColumnsInRow += columnWidth;
+                    if (currentColumnsInRow >= columnsPerRow) {
+                        tagCount += currentColumnsInRow - columnsPerRow;
+                        currentTagsInRow = 0;
+                    }
+
+                    tag = `
+                        <p class="m-1 p-1 col-span-${columnWidth} bg-orange-500 text-sm
+                        text-white font-semibold rounded-lg">${tagText}</p>
+                    `;
+                    tagList += tag;
+                }
+
+                addTag(recipe.cuisineType[0]);
+                recipe.mealType.forEach(tag => {
+                    addTag(tag)
+                });
+                recipe.dishType.forEach(tag => {
+                    addTag(tag)
+                });
+
+                recipeCard.innerHTML = `
+                <div class="flex w-11/12 justify-center text-center bg-indigo-50 p-3 rounded-md">
+                    <div class="w-1/3 flex flex-col content-center">
+                        <div>
+                            <img class="" src=${recipe.image}>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center p-1 text-center w-2/3">
+                        <p class="font-bold">${recipe.label}</p>
+                        <div class='grid grid-cols-6 text-center'>${tagList}</div>
+                    </div>
+                </div>
+                `
+
+                recipeList.appendChild(recipeCard);
+            }
+
+            function checkIfValidRecipe(recipe) {
+                hasRequired = true;
+                hasExcluded = false;
+
+                //First checks for required ingredients
+                requiredIngredients.forEach(requirement => {
+                    included = false;
+                    recipe.ingredients.forEach(ingredient => {
+                        tag = ingredient.text;
+                        if (tag.includes(requirement)) {
+                            included = true;
+                        }
+                    });
+                    if (!included)
+                        hasRequired = false;
+                });
+
+                //Then checks for excluded ingredients
+                recipe.ingredients.forEach(ingredient => {
+                    tag = ingredient.text;
+                    excludedIngredients.forEach(exclusion => {
+                        if (tag.includes(exclusion)) {
+                            hasExcluded = true;
+                        }
+                    });
+                });
+
+                return hasRequired && !hasExcluded;
+            }
+
+            function openFilterMenu() {
+                document.getElementById('filter-button').classList.add('hidden');
+
+                filterDiv = document.getElementById('filter-div');
+
+                filtersCard = document.createElement('div');
+                filtersCard.className = `flex w-fit justify-center rounded-lg bg-gray-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm`
+                filtersCard.innerHTML = `
+                <div class='flex flex-col gap-1'>
+                    <p>Required ingredients:</p>
+                    <div class='flex flex-row'>
+                        <input id="newRequiredInput" type='text' class='rounded-lg px-1 m-1 h-7 text-gray-700'>
+                        <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500" hover:text-white
+                        onclick="addIngredient('required')">Add</button>
+                    </div>
+                    <div id='requiredTags' class='flex flex-initial flex-wrap w-64'></div>
+
+                    <p>Excluded ingredients:</p>
+                    <div class='flex flex-row'>
+                        <input id="newExcludedInput" type='text' class='rounded-lg px-1 m-1 h-7 text-gray-700'>
+                        <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500 hover:text-white"
+                        onclick="addIngredient('excluded')">Add</button>
+                    </div>
+                    <div id='excludedTags' class='flex flex-initial flex-wrap w-64'></div>
+                </div>
+                `
+
+                filterDiv.appendChild(filtersCard);
+            }
+
+            function addIngredient(type) {
+                tagText = null;
+                targetDiv = null;
+                targetArray = null;
+
+                if (type == 'required') {
+                    textField = document.getElementById('newRequiredInput');
+                    tagText = textField.value;
+                    textField.value = '';
+
+                    targetDiv = document.getElementById('requiredTags');
+                }
+                else if (type == 'excluded') {
+                    textField = document.getElementById('newExcludedInput');
+                    tagText = textField.value;
+                    textField.value = '';
+
+                    targetDiv = document.getElementById('excludedTags');
+                }
+
+                tagText = tagText.trim();
+
+                //stops empty tags
+                if (tagText == '')
+                    return;
+
+                //Stops duplicate tags
+                if (document.getElementById(`${tagText}-${type}`)) {
+                    window.alert('tag already added!');
+                    return;
+                }
+
+                let tag = document.createElement('div')
+                tag.id = `${tagText}-${type}`
+                tag.classList = 'flex flex-nowrap'
+                tag.innerHTML = `
+                    <p class="flex flex-nowrap m-1 p-1 w-fit bg-orange-500 text-sm
+                    text-white font-semibold rounded-lg">
+                        ${tagText}
+                        <button class='mx-1' Onclick='removeFilter("${tagText}", "${type}")'>X</button>
+                    </p>
+                `;
+
+                targetDiv.appendChild(tag);
+
+                if (type == 'required')
+                    requiredIngredients.push(tagText);
+                else if (type == 'excluded')
+                    excludedIngredients.push(tagText);
+
+                beginQuery();
+            }
+
+            function removeFilter(tagText, type) {
+                document.getElementById(`${tagText}-${type}`).remove();
+
+                if (type == 'required') {
+                    requiredIngredients.splice(requiredIngredients.indexOf(tagText), 1);
+                }
+                else if (type == 'excluded') {
+                    excludedIngredients.splice(excludedIngredients.indexOf(tagText), 1);
+                }
+
+                beginQuery();
+            }
+
+            beginQuery();
+
+        </script>
+        <%- include('templates/menuBar') %>
+            <%- include('templates/footer') %>

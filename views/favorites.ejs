@@ -1,0 +1,38 @@
+<%- include('templates/header'); %>
+    <div class="relative container">
+        <!-- back button -->
+        <div class="bg-white fixed z-10 w-full">
+            <%- include('templates/backBtn'); %>
+                <h1 class="text-4xl font-bold py-3 text-center w-full">My Favorites</h1>
+        </div>
+        <div class="h-20"></div>
+        <div id="favorites_list" class="px-5">
+            <% for(i=0; i< recipeDetails.length; i++) { %>
+
+
+                <div class="favorite_item_and_list relative bg-orange-50 mb-3 w-full">
+                    <div style="flex-direction: column" class="flex items-center gap-4 p-5 shadow-md rounded-lg"
+                        onclick="goToRecipe('<%= recipeDetails[i].recipeId %>')">
+                        <img class=" h-30 flex-shrink-0" src='<%= recipeDetails[i].recipeImg %>'>
+                        <div class="flex flex-col flex-wrap">
+                            <strong class="text-slate-900 text-lg font-bold dark:text-slate-200">
+                                <%= recipeDetails[i].recipeTitle %>
+                            </strong>
+
+                        </div>
+                    </div>
+
+
+                    <div class="absolute inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400
+                        hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9"
+                        onclick="favoritesToggle('<%= recipeDetails[i].recipeId %>')">
+                        <i class="fas fa-heart icon text-red-500 text-lg" id="fav_<%= recipeDetails[i].recipeId %>"></i>
+                    </div>
+                </div>
+                <%}%>
+
+
+        </div>
+
+        <%- include('templates/menuBar') %>
+            <%- include('templates/footer')%>
