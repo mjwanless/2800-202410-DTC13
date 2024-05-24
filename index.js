@@ -744,7 +744,6 @@ app.post("/add-to-cart", async (req, res) => {
 
     const recipeId = req.body.recipeId;
     const recipePrice = parseFloat(req.body.recipePrice);
-    console.log("Recipe price:", recipePrice);
 
     if (!user.cart.has(recipeId)) {
       user.cart.set(recipeId,
