@@ -752,13 +752,9 @@ app.post("/add-to-cart", async (req, res) => {
         recipePrice: recipePrice,
         quantity: 1,
       });
-      console.log("Added to cart:", user.cart.get(recipeId));
-
     } else {
       user.cart.get(recipeId).quantity += 1;
     }
-    console.log("User cart:", user.cart);
-
     await user.save();
     const currentUrl = req.headers.referer;
     res.redirect(currentUrl);
@@ -777,8 +773,6 @@ app.post("/recipeInfo/:id", async (req, res) => {
     }
 
     userCart = user.cart;
-
-    //userCart.push(recipeId);
 
     try {
       await User.findOneAndUpdate(
