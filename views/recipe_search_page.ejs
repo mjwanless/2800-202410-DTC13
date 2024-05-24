@@ -125,18 +125,25 @@
             }
 
             function checkIfValidRecipe(recipe) {
-                hasRequired = requiredIngredients.length == 0;
+                hasRequired = true;
                 hasExcluded = false;
 
-                recipe.ingredients.forEach(ingredient => {
-                    tag = ingredient.text;
-                    //First checks for required ingredients
-                    requiredIngredients.forEach(requirement => {
+                //First checks for required ingredients
+                requiredIngredients.forEach(requirement => {
+                    included = false;
+                    recipe.ingredients.forEach(ingredient => {
+                        tag = ingredient.text;
                         if (tag.includes(requirement)) {
-                            hasRequired = true;
+                            included = true;
                         }
                     });
-                    //Then checks for excluded ingredients
+                    if (!included)
+                        hasRequired = false;
+                });
+
+                //Then checks for excluded ingredients
+                recipe.ingredients.forEach(ingredient => {
+                    tag = ingredient.text;
                     excludedIngredients.forEach(exclusion => {
                         if (tag.includes(exclusion)) {
                             hasExcluded = true;
@@ -162,7 +169,7 @@
                         <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500" hover:text-white
                         onclick="addIngredient('required')">Add</button>
                     </div>
-                    <div id='requiredTags' class='flex flex-nowrap'></div>
+                    <div id='requiredTags' class='flex flex-initial flex-wrap w-64'></div>
 
                     <p>Excluded ingredients:</p>
                     <div class='flex flex-row'>
@@ -170,7 +177,7 @@
                         <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500 hover:text-white"
                         onclick="addIngredient('excluded')">Add</button>
                     </div>
-                    <div id='excludedTags' class='flex flex-nowrap'></div>
+                    <div id='excludedTags' class='flex flex-initial flex-wrap w-64'></div>
                 </div>
                 `
 
@@ -211,8 +218,9 @@
 
                 let tag = document.createElement('div')
                 tag.id = `${tagText}-${type}`
+                tag.classList = 'flex flex-nowrap'
                 tag.innerHTML = `
-                    <p class="m-1 p-1 w-fit bg-orange-500 text-sm
+                    <p class="flex flex-nowrap m-1 p-1 w-fit bg-orange-500 text-sm
                     text-white font-semibold rounded-lg">
                         ${tagText}
                         <button class='mx-1' Onclick='removeFilter("${tagText}", "${type}")'>X</button>
