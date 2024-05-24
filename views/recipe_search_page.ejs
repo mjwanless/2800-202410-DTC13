@@ -180,6 +180,7 @@
             function addIngredient(type) {
                 tagText = null;
                 targetDiv = null;
+                targetArray = null;
 
                 if (type == 'required') {
                     textField = document.getElementById('newRequiredInput');
@@ -219,6 +220,13 @@
                 `;
 
                 targetDiv.appendChild(tag);
+
+                if (type == 'required')
+                    requiredIngredients.push(tagText);
+                else if (type == 'excluded')
+                    excludedIngredients.push(tagText);
+
+                beginQuery();
             }
 
             beginQuery();
