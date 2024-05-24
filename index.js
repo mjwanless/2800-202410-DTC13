@@ -314,14 +314,12 @@ app.get("/mycart", async (req, res) => {
     // the priceList is an array of objects with recipeId, recipePrice, and quantity
     let priceList = [];
     user.cart.forEach((value, key) => {
-
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
         quantity: value.quantity,
-        price: getPrice(key)
+        price: getPrice(key),
       });
-
     });
 
     // form the recipeIds array from the user's cart
@@ -334,7 +332,7 @@ app.get("/mycart", async (req, res) => {
           `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
         );
         const data = await response.json();
-        
+
         return data.recipe;
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
@@ -344,7 +342,6 @@ app.get("/mycart", async (req, res) => {
 
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
-
 
     res.render("my_cart", {
       recipeDetails: filteredRecipes,
@@ -691,15 +688,13 @@ function getPrice(recipeId, minVal = 10, maxVal = 20) {
   let decimalValue = Math.abs(hash);
 
   // Map the decimal value to the desired range
-  let mappedValue =
-    (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+  let mappedValue = (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
 
   // Ensure it has exactly two decimal places
   let finalValue = Math.round(mappedValue * 100) / 100;
 
   return finalValue;
 }
-
 
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
@@ -739,7 +734,7 @@ app.get("/recipeInfo/:id", async (req, res) => {
       }
 
       // Hash function to hash recipe price
-      
+
       user = await User.findOne({ email: req.session.email });
       recipeDetails.recipePrice = getPrice(recipeId);
       favoriteList = user.my_fav;
@@ -838,13 +833,19 @@ app.get("/recipe_search_page", (req, res) => {
 app.get("/payment", async (req, res) => {
   const user = await User.findOne({ email: req.session.email });
   const userCart = user.cart;
-  totalPrice = 0;
+  let priceList = [];
+  let totalPrice = 0;
   await userCart.forEach((item) => {
     totalPrice += item.recipePrice * item.quantity;
-    console.log(totalPrice);
   });
 
-  res.render("payment", { totalPrice: totalPrice });
+  // tax calculation
+  const tax = totalPrice * 0.12;
+
+  // push the total price before tax, tax, and total price with tax to the priceList array
+  priceList.push(totalPrice, tax, totalPrice + tax);
+
+  res.render("payment", { priceList: priceList });
 });
 
 app.post("/update-cart", async (req, res) => {
@@ -1144,17 +1145,14 @@ app.post("/quantity/decrease/:id", async (req, res) => {
     }
     await User.updateOne(
       { email: req.session.email },
-      { $inc: { [`cart.${recipeId}.quantity`]: -1 }}
-    )
-    
-}catch (error) {
+      { $inc: { [`cart.${recipeId}.quantity`]: -1 } }
+    );
+  } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).send("Error fetching user");
   }
   res.status(200).send("Decreased quantity");
-}
-  
-)
+});
 
 app.post("/quantity/increase/:id", async (req, res) => {
   const recipeId = req.params.id;
@@ -1166,18 +1164,16 @@ app.post("/quantity/increase/:id", async (req, res) => {
     await User.updateOne(
       { email: req.session.email },
       { $inc: { [`cart.${recipeId}.quantity`]: 1 } }
-    )
-
+    );
   } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).send("Error fetching user");
   }
   res.status(200).send("Increased quantity");
-}
-)
+});
 
 // app.post('/mycart', async (req, res) => {
-  
+
 //   res.status(200).redirect('/payment');
 // })
 // Logout page
