@@ -143,7 +143,7 @@
       alert("Please enter a valid query");
       return;
     }
-    fetch("/calculate", {
+    fetch(`http://${window.location.hostname}:${window.location.port}/calculate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
