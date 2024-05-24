@@ -1,13 +1,13 @@
 <%- include('templates/header') %>
 <%- include('templates/backBtn') %>
-<div class="fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9" onclick="favoritesToggleInfoPage()">
+<div class="z-10 fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9" onclick="favoritesToggleInfoPage()">
     <i class="<% if(isFavorite){ %>fas<% }else{ %>far<% } %> fa-heart icon text-red-500 text-lg"></i>
 </div>
 
-<div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+<div class="max-w-md mx-auto bg-white overflow-hidden md:max-w-2xl"> <!-- Removed shadow-md -->
     <div class="md:flex">
         <div class="md:flex-shrink-0">
-            <img id="recipe-image" src="<%= recipeDetails.recipeImg %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
+            <img id="recipe-image" src="<%= recipeDetails.recipeImg %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image"> <!-- Removed rounding class -->
         </div>
         <div class="p-8">
             <div class="flex items-center justify-between">
@@ -38,13 +38,13 @@
                             <!-- plus and minus buttons -->
                             <form class="max-w-xs">
                                 <div class="relative flex items-center">
-                                    <button type="button" id="decrement-button<%=i%>" data-input-counter-decrement="counter-input" class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5">
-                                        <svg class="w-2.5 h-2.5 text-orange-500 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
+                                    <button type="button" id="decrement-button<%=i%>" data-input-counter-decrement="counter-input" class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center rounded-sm h-5 w-5"> <!-- Removed border classes -->
+                                        <svg class="w-2.5 h-2.5 text-black dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16" />
                                         </svg>
                                     </button>
                                     <input type="text" id="counter-input" data-input-counter class="flex-shrink-0 text-gray-900 dark:text-white border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center" placeholder="" value="1" required />
-                                    <button type="button" id="increment-button<%=i%>" data-input-counter-increment="counter-input" class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center border border-gray-300 rounded-sm h-5 w-5">
+                                    <button type="button" id="increment-button<%=i%>" data-input-counter-increment="counter-input" class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center rounded-sm h-5 w-5"> <!-- Removed border classes -->
                                         <svg class="w-2.5 h-2.5 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16" />
                                         </svg>
