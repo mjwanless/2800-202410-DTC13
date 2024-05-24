@@ -303,13 +303,26 @@ app.get("/login", (req, res) => {
 
 // Get request for the my_cart page
 app.get("/mycart", async (req, res) => {
+
   try {
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    const recipeDetailsPromises = user.cart.map(async (recipeId) => {
+    // Get the price list from the cart
+    // the priceList is an array of objects with recipeId, recipePrice, and quantity
+    let priceList = [];
+    user.cart.forEach((value, key) => {
+      priceList.push({ recipeId: key, recipePrice: value.recipePrice , quantity: value.quantity});
+    });
+    console.log(priceList);
+
+    // form the recipeIds array from the user's cart
+    const recipeIds = Array.from(user.cart.keys());
+
+    // using map to create an array of promises
+    const recipeDetailsPromises = recipeIds.map(async (recipeId) => {
       try {
         const response = await fetch(
           `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
@@ -321,11 +334,11 @@ app.get("/mycart", async (req, res) => {
         return null;
       }
     });
-
+  
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
 
-    res.render("my_cart", { recipeDetails: filteredRecipes });
+    res.render("my_cart", { recipeDetails: filteredRecipes, priceList: priceList });
   } catch (err) {
     console.error("Failed to retrieve cart items:", err);
     res.status(500).send("Internal server error");
