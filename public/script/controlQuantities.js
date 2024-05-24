@@ -14,7 +14,8 @@ function decreaseQuantity(product_id, price) {
         method: 'POST',
     }).then(response => {
         if (response.ok) {
-            console.log('Quantity reduced')
+            console.log('Quantity reduced');
+            window.location.reload();
         }
     }
     )
@@ -32,6 +33,7 @@ function increaseQuantity(product_id, price) {
     }).then(response => {
         if (response.ok) {
             console.log('Quantity added')
+            window.location.reload();
         }
     }
 )
