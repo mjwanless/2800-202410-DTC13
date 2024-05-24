@@ -54,7 +54,7 @@
 <script>
     getCartCount = async function () {
         const result = await fetch(
-            `http://${window.location.hostname}:${window.location.port}/getCartNumber`
+            `/getCartNumber`
         );
         let cartSize = await result.json(result);
 
