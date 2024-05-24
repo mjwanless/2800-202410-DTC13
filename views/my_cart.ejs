@@ -26,7 +26,7 @@
         <% Object.keys(recipeTally).forEach(recipeLabel => {
             let recipe = recipeTally[recipeLabel];
         %>
-            <div class="md:flex bg-orange-50  rounded-md overflow-hidden m-4">
+            <div class="md:flex bg-blue-100 rounded-md overflow-hidden m-4">
                 <div class="md:flex-shrink-0">
                     <img src="<%= recipe.image %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
                 </div>
@@ -41,7 +41,7 @@
                     <div class="flex justify-between items-center my-4">
                         <span class="font-bold text-lg">Total:</span>
                         <!-- <span class="font-bold text-blue-950 text-lg">$<%= (recipe.totalNutrients.ENERC_KCAL.quantity * recipe.count).toFixed(2) %></span> -->
-                        <span class="font-bold text-blue-950 text-lg"  id="price_<%= priceList[i].recipeId%>">$<%= (priceList[i].price * priceList[i].quantity).toFixed(2) %></span>
+                        <span class="font-bold text-blue-950 text-lg" id="price_<%= priceList[i].recipeId%>">$<%= (priceList[i].price * priceList[i].quantity).toFixed(2) %></span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <button class="bg-indigo-50 text-blue-950 rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="decreaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">-</button>
