@@ -22,7 +22,7 @@ OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
-const { Double } = require("mongodb");
+const { Double} = require("mongodb");
 const { is, fr, ht, tr, el } = require("date-fns/locale");
 let globalAccessToken;
 
@@ -89,8 +89,8 @@ const userSchema = new mongoose.Schema({
   cart: {
     type: Map,
     of: {
-      recipePrice: String,
-      quantity: String,
+      recipePrice: Number,
+      quantity: Number,
     },
   
   },
@@ -743,9 +743,8 @@ app.post("/add-to-cart", async (req, res) => {
     }
 
     const recipeId = req.body.recipeId;
-    const recipePrice = req.body.recipePrice;
-
-    let recipeInCart = Object.keys(user.cart).some((key) => key === recipeId);
+    const recipePrice = parseFloat(req.body.recipePrice);
+    console.log("Recipe price:", recipePrice);
 
     if (!user.cart.has(recipeId)) {
       user.cart.set(recipeId,
