@@ -22,9 +22,6 @@ function decreaseQuantity(product_id, price) {
 }
 function increaseQuantity(product_id, price) {
     increaseBtn = document.getElementById("text_" + product_id)
-    if (increaseBtn.innerText == 1) {
-        return
-    }
     increaseBtn.innerText++
 
     let priceElem = document.getElementById("price_" + product_id);
