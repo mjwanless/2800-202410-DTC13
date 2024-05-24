@@ -193,6 +193,7 @@ const createUser = async (req, res, next) => {
     password: hashedPassword,
     security_question: req.body.security_question,
     security_answer: hashedSecurityAnswer,
+    cart: new Map(),
   });
 
   try {
@@ -303,7 +304,6 @@ app.get("/login", (req, res) => {
 
 // Get request for the my_cart page
 app.get("/mycart", async (req, res) => {
-
   try {
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
@@ -314,7 +314,11 @@ app.get("/mycart", async (req, res) => {
     // the priceList is an array of objects with recipeId, recipePrice, and quantity
     let priceList = [];
     user.cart.forEach((value, key) => {
-      priceList.push({ recipeId: key, recipePrice: value.recipePrice , quantity: value.quantity});
+      priceList.push({
+        recipeId: key,
+        recipePrice: value.recipePrice,
+        quantity: value.quantity,
+      });
     });
 
     // form the recipeIds array from the user's cart
@@ -333,11 +337,14 @@ app.get("/mycart", async (req, res) => {
         return null;
       }
     });
-  
+
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
 
-    res.render("my_cart", { recipeDetails: filteredRecipes, priceList: priceList });
+    res.render("my_cart", {
+      recipeDetails: filteredRecipes,
+      priceList: priceList,
+    });
   } catch (err) {
     console.error("Failed to retrieve cart items:", err);
     res.status(500).send("Internal server error");
