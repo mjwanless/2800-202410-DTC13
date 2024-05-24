@@ -1,6 +1,12 @@
 <%- include('templates/header') %>
     <%- include('templates/searchBar') %>
 
+        <div id="filter-div" class="px-5">
+            <button id="filter-button" onclick="openFilterMenu()"
+                class="flex w-fit justify-center rounded-full bg-gray-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-500">
+                Filters</button>
+        </div>
+
         <div class="px-5 flex items-center">
             <p class="text-lg font-bold">Search Results:</p>
         </div>
@@ -36,7 +42,6 @@
                 data.hits.forEach(result => {
                     let recipe = result.recipe;
                     isValid = checkIfValidRecipe(recipe);
-                    console.log(`${recipe.label} isValid = ${isValid}!`)
 
                     if (isValid)
                         createRecipeCard(recipe);
@@ -140,6 +145,80 @@
                 });
 
                 return hasRequired && !hasExcluded;
+            }
+
+            function openFilterMenu() {
+                document.getElementById('filter-button').classList.add('hidden');
+
+                filterDiv = document.getElementById('filter-div');
+
+                filtersCard = document.createElement('div');
+                filtersCard.className = `flex w-fit justify-center rounded-lg bg-gray-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm`
+                filtersCard.innerHTML = `
+                <div class='flex flex-col gap-1'>
+                    <p>Required ingredients:</p>
+                    <div class='flex flex-row'>
+                        <input id="newRequiredInput" type='text' class='rounded-lg px-1 m-1 h-7 text-gray-700'>
+                        <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500" hover:text-white
+                        onclick="addIngredient('required')">Add</button>
+                    </div>
+                    <div id='requiredTags' class='flex flex-nowrap'></div>
+
+                    <p>Excluded ingredients:</p>
+                    <div class='flex flex-row'>
+                        <input id="newExcludedInput" type='text' class='rounded-lg px-1 m-1 h-7 text-gray-700'>
+                        <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500 hover:text-white"
+                        onclick="addIngredient('excluded')">Add</button>
+                    </div>
+                    <div id='excludedTags' class='flex flex-nowrap'></div>
+                </div>
+                `
+
+                filterDiv.appendChild(filtersCard);
+            }
+
+            function addIngredient(type) {
+                tagText = null;
+                targetDiv = null;
+
+                if (type == 'required') {
+                    textField = document.getElementById('newRequiredInput');
+                    tagText = textField.value;
+                    textField.value = '';
+
+                    targetDiv = document.getElementById('requiredTags');
+                }
+                else if (type == 'excluded') {
+                    textField = document.getElementById('newExcludedInput');
+                    tagText = textField.value;
+                    textField.value = '';
+
+                    targetDiv = document.getElementById('excludedTags');
+                }
+
+                tagText = tagText.trim();
+
+                //stops empty tags
+                if (tagText == '')
+                    return;
+
+                //Stops duplicate tags
+                if (document.getElementById(`${tagText}-${type}`)) {
+                    window.alert('tag already added!');
+                    return;
+                }
+
+                let tag = document.createElement('div')
+                tag.id = `${tagText}-${type}`
+                tag.innerHTML = `
+                    <p class="m-1 p-1 w-fit bg-orange-500 text-sm
+                    text-white font-semibold rounded-lg">
+                        ${tagText}
+                        <button class='mx-1'>X</button>
+                    </p>
+                `;
+
+                targetDiv.appendChild(tag);
             }
 
             beginQuery();
