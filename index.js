@@ -314,11 +314,14 @@ app.get("/mycart", async (req, res) => {
     // the priceList is an array of objects with recipeId, recipePrice, and quantity
     let priceList = [];
     user.cart.forEach((value, key) => {
+
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
         quantity: value.quantity,
+        price: getPrice(key)
       });
+
     });
 
     // form the recipeIds array from the user's cart
@@ -331,6 +334,7 @@ app.get("/mycart", async (req, res) => {
           `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
         );
         const data = await response.json();
+        
         return data.recipe;
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
@@ -340,6 +344,7 @@ app.get("/mycart", async (req, res) => {
 
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
+
 
     res.render("my_cart", {
       recipeDetails: filteredRecipes,
@@ -674,6 +679,28 @@ app.get("/browse", (req, res) => {
   res.render("browse");
 });
 
+function getPrice(recipeId, minVal = 10, maxVal = 20) {
+  let hash = 0;
+  for (let i = 0; i < recipeId.length; i++) {
+    let char = recipeId.charCodeAt(i);
+    hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
+    hash |= 0; // make sure it's a 32-bit integer
+  }
+
+  // Convert hash to a positive value
+  let decimalValue = Math.abs(hash);
+
+  // Map the decimal value to the desired range
+  let mappedValue =
+    (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
+
+  // Ensure it has exactly two decimal places
+  let finalValue = Math.round(mappedValue * 100) / 100;
+
+  return finalValue;
+}
+
+
 app.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
   req.session.recipeId = recipeId;
@@ -712,26 +739,7 @@ app.get("/recipeInfo/:id", async (req, res) => {
       }
 
       // Hash function to hash recipe price
-      function getPrice(recipeId, minVal = 10, maxVal = 20) {
-        let hash = 0;
-        for (let i = 0; i < recipeId.length; i++) {
-          let char = recipeId.charCodeAt(i);
-          hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
-          hash |= 0; // make sure it's a 32-bit integer
-        }
-
-        // Convert hash to a positive value
-        let decimalValue = Math.abs(hash);
-
-        // Map the decimal value to the desired range
-        let mappedValue =
-          (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
-
-        // Ensure it has exactly two decimal places
-        let finalValue = Math.round(mappedValue * 100) / 100;
-
-        return finalValue;
-      }
+      
       user = await User.findOne({ email: req.session.email });
       recipeDetails.recipePrice = getPrice(recipeId);
       favoriteList = user.my_fav;
@@ -1119,6 +1127,46 @@ app.post("/delete_preference", async (req, res) => {
   }
 });
 
+app.post("/quantity/decrease/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    await User.updateOne(
+      { email: req.session.email },
+      { $inc: { [`cart.${recipeId}.quantity`]: -1 }}
+    )
+    
+}catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
+  res.status(200).send("Decreased quantity");
+}
+  
+)
+
+app.post("/quantity/increase/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  try {
+    const user = await User.findOne({ username: req.session.username });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    await User.updateOne(
+      { email: req.session.email },
+      { $inc: { [`cart.${recipeId}.quantity`]: 1 } }
+    )
+
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
+  res.status(200).send("Increased quantity");
+}
+)
 // Logout page
 app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
