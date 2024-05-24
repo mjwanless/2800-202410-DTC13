@@ -1,12 +1,19 @@
 <%- include('templates/header') %>
     <%- include('templates/searchBar') %>
 
+        <div class="px-5 flex items-center">
+            <p class="text-lg font-bold">Search Results:</p>
+        </div>
+
         <div id="recipe-list" class="flex flex-col"></div>
 
         </div>
         <script>
             const appId = '2f8713ec';
             const appKey = '7393ce8d980bb01c8359857c74dd0f56';
+
+            let requiredIngredients = [];
+            let excludedIngredients = [];
 
             function beginQuery() {
                 let params = new URL(window.location.href);
@@ -27,7 +34,12 @@
                 recipeList = document.getElementById('recipe-list')
                 recipeList.innerHTML = ""
                 data.hits.forEach(result => {
-                    createRecipeCard(result.recipe);
+                    let recipe = result.recipe;
+                    isValid = checkIfValidRecipe(recipe);
+                    console.log(`${recipe.label} isValid = ${isValid}!`)
+
+                    if (isValid)
+                        createRecipeCard(recipe);
                 })
 
                 if (data.hits.length == 0) {
@@ -105,6 +117,29 @@
                 `
 
                 recipeList.appendChild(recipeCard);
+            }
+
+            function checkIfValidRecipe(recipe) {
+                hasRequired = requiredIngredients.length == 0;
+                hasExcluded = false;
+
+                recipe.ingredients.forEach(ingredient => {
+                    tag = ingredient.text;
+                    //First checks for required ingredients
+                    requiredIngredients.forEach(requirement => {
+                        if (tag.includes(requirement)) {
+                            hasRequired = true;
+                        }
+                    });
+                    //Then checks for excluded ingredients
+                    excludedIngredients.forEach(exclusion => {
+                        if (tag.includes(exclusion)) {
+                            hasExcluded = true;
+                        }
+                    });
+                });
+
+                return hasRequired && !hasExcluded;
             }
 
             beginQuery();
