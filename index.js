@@ -316,7 +316,6 @@ app.get("/mycart", async (req, res) => {
     user.cart.forEach((value, key) => {
       priceList.push({ recipeId: key, recipePrice: value.recipePrice , quantity: value.quantity});
     });
-    console.log(priceList);
 
     // form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
