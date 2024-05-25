@@ -11,22 +11,6 @@ const appId = process.env.EDAMAM_APP_ID;
 const appKey = process.env.EDAMAM_APP_KEY;
 
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
-const connectToDB = async () => {
-  try {
-    await mongoose.connect(atlasURI, {
-      autoIndex: true,
-      writeConcern: {
-        w: "majority",
-        j: true,
-        wtimeout: 1000,
-      },
-    });
-    console.log("Connected to Mongodb Atlas");
-  } catch (error) {
-    console.error(error);
-  }
-};
-connectToDB();
 
 const monthlyRecipesSchema = new mongoose.Schema({
   recipeTitle: String,
