@@ -7,10 +7,9 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
-const nodeMailer = require("nodemailer");
 const cors = require("cors");
-const { google } = require("googleapis");
-const config = require("./config");
+
+// import modules
 const monthlyRecipe = require("./monthlyRecipeSchema");
 const feedbacks = require("./createFeedback");
 const User = require("./userSchema");
@@ -20,13 +19,10 @@ const sendConfirmationEmail = require("./sendOrderConfirmationEmail");
 const sendResetPasswordEmail = require("./sendResetPasswordEmail");
 const getRecipeInfo = require("./getRecipeInfo");
 const getPrice = require("./getPrice");
-const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
-const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
-OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
+
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
-const { Double } = require("mongodb");
 
 
 // ======================================
