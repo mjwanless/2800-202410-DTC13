@@ -17,6 +17,7 @@ const User = require("./userSchema");
 const orders = require("./orderSchema");
 const calculator = require("./caloriesCalculator");
 const sendConfirmationEmail = require("./sendOrderConfirmationEmail");
+const sendResetPasswordEmail = require("./sendResetPasswordEmail");
 const getRecipeInfo = require("./getRecipeInfo");
 const getPrice = require("./getPrice");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
@@ -318,6 +319,8 @@ app.get("/getSecurityQuestion/:email", async (req, res) => {
     res.json(null);
   }
 });
+
+app.use(sendResetPasswordEmail);
 
 app.use(isAuthenticated);
 
