@@ -560,7 +560,6 @@ app.post("/add-to-cart", async (req, res) => {
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
-  let recipeId = req.body.recipeId;
   try {
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
