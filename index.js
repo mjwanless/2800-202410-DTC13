@@ -905,23 +905,6 @@ app.post("/save_feedback", async (req, res) => {
   }
 });
 
-// store feedback in the database
-app.post("/save_feedback", async (req, res) => {
-  const name = req.body.name;
-  const message = req.body.message;
-  const feedback = new feedbacks({
-    name: name,
-    message: message,
-  });
-  try {
-    await feedback.save();
-    res.redirect("/user_account");
-  } catch (err) {
-    console.error("Failed to save feedback:", err);
-    res.status(500).send("Failed to save feedback.");
-  }
-});
-
 // Route to render the my preferences page
 app.get("/my_preference", async (req, res) => {
   try {
