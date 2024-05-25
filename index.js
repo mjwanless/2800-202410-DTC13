@@ -14,6 +14,7 @@ const config = require("./config");
 const monthlyRecipe = require("./createData");
 const feedbacks = require("./createFeedback");
 const User = require("./userSchema");
+const orders = require("./orderSchema");
 const calculator = require("./caloriesCalculator");
 const sendConfirmationEmail = require("./sendOrderConfirmation");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
@@ -75,24 +76,6 @@ const connectToDB = async () => {
   }
 };
 connectToDB();
-
-const orderSchema = new mongoose.Schema({
-  orderId: String,
-  orde_date: Date,
-  isPickup: Boolean,
-  isDelivery: Boolean,
-  vendor: {
-    name: String,
-    address: String,
-  },
-  amount: Number,
-  info: {
-    recipeTitle: String,
-    description: String,
-  },
-});
-
-
 
 // Define Mongoose model for preferences
 const preferenceSchema = new mongoose.Schema({
