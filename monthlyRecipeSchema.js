@@ -10,8 +10,6 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const appId = process.env.EDAMAM_APP_ID;
 const appKey = process.env.EDAMAM_APP_KEY;
 
-const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
-
 const monthlyRecipesSchema = new mongoose.Schema({
   recipeTitle: String,
   recipeImg: String,
