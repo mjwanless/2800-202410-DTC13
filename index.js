@@ -14,6 +14,7 @@ const { google } = require("googleapis");
 const config = require("./config");
 const monthlyRecipe = require("./createData");
 const feedbacks = require("./createFeedback");
+const User = require("./userSchema");
 const calculator = require("./caloriesCalculator");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
@@ -75,26 +76,6 @@ const connectToDB = async () => {
 };
 connectToDB();
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
-  security_question: String,
-  security_answer: String,
-  preferences: Array,
-  my_fav: Array,
-  address: String,
-  phone: String,
-  order: Array,
-  cart: {
-    type: Map,
-    of: {
-      recipePrice: Number,
-      quantity: Number,
-    },
-  },
-});
-
 const orderSchema = new mongoose.Schema({
   orderId: String,
   orde_date: Date,
@@ -111,7 +92,6 @@ const orderSchema = new mongoose.Schema({
   },
 });
 
-const User = mongoose.model("User", userSchema);
 const orders = mongoose.model("orders", orderSchema);
 
 // Define Mongoose model for preferences
@@ -127,11 +107,6 @@ var store = new MongoDBStore({
   collection: "sessions",
   autoRemove: "native",
 });
-
-// // Catch errors
-// store.on("error", function (error) {
-//   console.log(error);
-// });
 
 app.use(
   session({
@@ -1185,6 +1160,9 @@ app.post("/logout", (req, res) => {
 
 // Import the calculator routes and use them as middleware
 app.use(calculator);
+
+// Route to handle the order confirmation
+// app.use(sendOrderConfirmation);
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
