@@ -487,8 +487,8 @@ app.post("/orderconfirm", async (req, res) => {
     style: "currency",
     currency: "CAD",
   });
-  //TO DO: get the amount from the cart
-  const amount = 55.0; // hard coded amount for now
+
+  const amount = req.body.amount;
   const formattedAmount = currencyFormater.format(amount);
 
   //get a new access token to send email every time
