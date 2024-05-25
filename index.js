@@ -22,20 +22,12 @@ const getPrice = require("./getPrice");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
-
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 const { Double } = require("mongodb");
 
-let globalAccessToken;
 
-async function getAccessToken() {
-  if (!globalAccessToken) {
-    const accessToken = await OAuth2Client.getAccessToken();
-    return accessToken;
-  }
-}
 // ======================================
 // Create a new express app and set up the port for .env variables
 // ======================================
@@ -183,7 +175,7 @@ const loginValidation = async (req, res, next) => {
     return;
   }
   try {
-    user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email });
     if (user) {
       const outputPassword = user.password;
       const inputPassword = req.body.password;
