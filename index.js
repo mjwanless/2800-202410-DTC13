@@ -559,7 +559,7 @@ app.post("/orderconfirm", async (req, res) => {
       order.save();
     });
 
-  res.render("orderconfirm", {
+  res.render("orderConfirm", {
     orderId: orderNumber,
     deliveryDate: formattedDate,
     amount: formattedAmount,
