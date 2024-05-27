@@ -10,20 +10,19 @@ var MongoDBStore = require("connect-mongodb-session")(session);
 const cors = require("cors");
 
 // import modules
-const monthlyRecipe = require("./monthlyRecipeSchema");
-const feedbacks = require("./createFeedback");
-const User = require("./userSchema");
-const orders = require("./orderSchema");
-const calculator = require("./caloriesCalculator");
-const sendConfirmationEmail = require("./sendOrderConfirmationEmail");
-const sendResetPasswordEmail = require("./sendResetPasswordEmail");
-const getRecipeInfo = require("./getRecipeInfo");
-const getPrice = require("./getPrice");
+const monthlyRecipe = require("./js/monthlyRecipeSchema");
+const feedbacks = require("./js/createFeedback");
+const User = require("./js/userSchema");
+const orders = require("./js/orderSchema");
+const calculator = require("./js/caloriesCalculator");
+const sendConfirmationEmail = require("./js/sendOrderConfirmationEmail");
+const sendResetPasswordEmail = require("./js/sendResetPasswordEmail");
+const getRecipeInfo = require("./js/getRecipeInfo");
+const getPrice = require("./js/getPrice");
 
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
-
 
 // ======================================
 // Create a new express app and set up the port for .env variables
