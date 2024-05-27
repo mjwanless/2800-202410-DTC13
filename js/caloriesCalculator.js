@@ -3,9 +3,9 @@ const request = require("request");
 const cors = require("cors");
 require("dotenv").config();
 
-const router = express.Router();
+const calculateRouter = express.Router();
 
-router.post("/calculate", async (req, res) => {
+calculateRouter.post("/calculate", async (req, res) => {
   let burnedCalories = 0;
 
   const { query } = req.body;
@@ -28,8 +28,8 @@ router.post("/calculate", async (req, res) => {
       burnedCalories += element.nf_calories;
     });
     console.log("Calories burned:", burnedCalories);
-    res.json({ result : burnedCalories });
+    res.json({ result: burnedCalories });
   });
 });
 
-module.exports = router;
+module.exports = calculateRouter;

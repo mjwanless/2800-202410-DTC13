@@ -7,31 +7,23 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
-const dateFormat = require("date-fns");
-const nodeMailer = require("nodemailer");
 const cors = require("cors");
-const { google } = require("googleapis");
-const config = require("./config");
-const monthlyRecipe = require("./createData");
-const feedbacks = require("./createFeedback");
-const calculator = require("./caloriesCalculator");
-const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
-const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
-OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
+
+// import modules
+const monthlyRecipe = require("./js/monthlyRecipeSchema");
+const feedbacks = require("./js/createFeedback");
+const User = require("./js/userSchema");
+const orders = require("./js/orderSchema");
+const calculator = require("./js/caloriesCalculator");
+const sendConfirmationEmail = require("./js/sendOrderConfirmationEmail");
+const sendResetPasswordEmail = require("./js/sendResetPasswordEmail");
+const getRecipeInfo = require("./js/getRecipeInfo");
+const getPrice = require("./js/getPrice");
 
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
-const { Double } = require("mongodb");
-const { is, fr, ht, tr, el } = require("date-fns/locale");
-let globalAccessToken;
 
-async function getAccessToken() {
-  if (!globalAccessToken) {
-    const accessToken = await OAuth2Client.getAccessToken();
-    return accessToken;
-  }
-}
 // ======================================
 // Create a new express app and set up the port for .env variables
 // ======================================
@@ -75,45 +67,6 @@ const connectToDB = async () => {
 };
 connectToDB();
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
-  security_question: String,
-  security_answer: String,
-  preferences: Array,
-  my_fav: Array,
-  address: String,
-  phone: String,
-  order: Array,
-  cart: {
-    type: Map,
-    of: {
-      recipePrice: Number,
-      quantity: Number,
-    },
-  },
-});
-
-const orderSchema = new mongoose.Schema({
-  orderId: String,
-  orde_date: Date,
-  isPickup: Boolean,
-  isDelivery: Boolean,
-  vendor: {
-    name: String,
-    address: String,
-  },
-  amount: Number,
-  info: {
-    recipeTitle: String,
-    description: String,
-  },
-});
-
-const User = mongoose.model("User", userSchema);
-const orders = mongoose.model("orders", orderSchema);
-
 // Define Mongoose model for preferences
 const preferenceSchema = new mongoose.Schema({
   name: String,
@@ -127,11 +80,6 @@ var store = new MongoDBStore({
   collection: "sessions",
   autoRemove: "native",
 });
-
-// // Catch errors
-// store.on("error", function (error) {
-//   console.log(error);
-// });
 
 app.use(
   session({
@@ -223,7 +171,7 @@ const loginValidation = async (req, res, next) => {
     return;
   }
   try {
-    user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email });
     if (user) {
       const outputPassword = user.password;
       const inputPassword = req.body.password;
@@ -238,49 +186,6 @@ const loginValidation = async (req, res, next) => {
       }
     } else {
       return res.render("login", { noUser: true });
-    }
-  } catch (err) {
-    console.log("fail to login", err);
-  }
-};
-
-// Middleware to reset a password
-const resetPassword = async (req, res, next) => {
-  const schema = joi.object({
-    email: joi.string().max(200).required(),
-  });
-  const validationResult = schema.validate({ email: req.body.email });
-  if (validationResult.error) {
-    res.send("login validation result error", {
-      error: validationResult.error,
-    });
-    return;
-  }
-  try {
-    user = await User.findOne({ email: req.body.email });
-    if (user) {
-      const outputAnswer = user.security_answer;
-      const inputAnswer = req.body.security_answer;
-
-      if (!(await bcrypt.compare(inputAnswer, outputAnswer))) {
-        return res.render("reset_password", { wrongAnswer: true });
-      }
-
-      var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
-
-      try {
-        await User.findOneAndUpdate(
-          { email: req.body.email },
-          { $set: { password: hashedPassword } }
-        );
-
-        next();
-      } catch (err) {
-        console.error("Failed to update password:", err);
-        res.status(500).send("Failed to update password.");
-      }
-    } else {
-      return res.render("reset_password", { noUser: true });
     }
   } catch (err) {
     console.log("fail to login", err);
@@ -314,14 +219,12 @@ app.get("/mycart", async (req, res) => {
     // the priceList is an array of objects with recipeId, recipePrice, and quantity
     let priceList = [];
     user.cart.forEach((value, key) => {
-
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
         quantity: value.quantity,
-        price: getPrice(key)
+        price: getPrice(key),
       });
-
     });
 
     // form the recipeIds array from the user's cart
@@ -334,7 +237,7 @@ app.get("/mycart", async (req, res) => {
           `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
         );
         const data = await response.json();
-        
+
         return data.recipe;
       } catch (error) {
         console.error(`Error fetching recipe ${recipeId}:`, error);
@@ -344,7 +247,6 @@ app.get("/mycart", async (req, res) => {
 
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
-
 
     res.render("my_cart", {
       recipeDetails: filteredRecipes,
@@ -413,161 +315,7 @@ app.get("/getSecurityQuestion/:email", async (req, res) => {
   }
 });
 
-// After successful password reset
-app.post("/reset_password", resetPassword, async (req, res) => {
-  const accessToken = getAccessToken();
-  // const accessToken = await OAuth2Client.getAccessToken();
-
-  const user = await User.findOne({ email: req.body.email });
-  const recipient = user.email;
-  const userName = user.username;
-
-  function resetPasswordEmail(recipient) {
-    const transporter = nodeMailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: config.user,
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-        refreshToken: config.refreshToken,
-        accessToken: accessToken,
-      },
-    });
-
-    const mailOptions = {
-      from: `Fresh Plate <${config.user}>`,
-      to: recipient,
-      subject: "Password Has Been Reset Successfully",
-      html: resetPasswordInfo(),
-    };
-
-    transporter.sendMail(mailOptions, (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Email sent: " + result);
-      }
-      transporter.close();
-    });
-  }
-
-  function resetPasswordInfo() {
-    return `
-    <h1>Hello ${userName} ! </h1>
-    <p>Your password has been reset successfully.</p>
-    `;
-  }
-  resetPasswordEmail(recipient);
-
-  res.redirect("/login");
-});
-
-//post request for the order confirmation page
-app.post("/orderconfirm", async (req, res) => {
-  //generate random order number
-  const number = (Math.floor(Math.random() * 1000) + 1).toString();
-  // generate random 3 letter code
-  let letter = "";
-  for (let i = 0; i < 3; i++) {
-    letter += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
-  }
-  const orderNumber = number + letter;
-
-  //update user's order list
-  await User.updateOne(
-    { username: req.session.username },
-    { $push: { order: orderNumber } }
-  );
-
-  // calculate delivery date
-  const now = new Date();
-  const deliveryDate = new Date(now.setDate(now.getDate() + 7));
-  const formattedDate = dateFormat.format(deliveryDate, "yyyy-MM-dd");
-
-  // format the amount
-  const currencyFormater = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  });
-  //TO DO: get the amount from the cart
-  const amount = 55.0; // hard coded amount for now
-  const formattedAmount = currencyFormater.format(amount);
-
-  //get a new access token to send email every time
-  const accessToken = await getAccessToken();
-
-  const user = await User.findOne({ email: req.session.email });
-  const recipient = user.email;
-  const userName = user.username;
-  function sendConfirmationEmail(recipient) {
-    const transporter = nodeMailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: config.user,
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-        refreshToken: config.refreshToken,
-        accessToken: accessToken,
-      },
-    });
-
-    const mailOptions = {
-      from: `Fresh Plate <${config.user}>`,
-      to: recipient,
-      subject: "Order Confirmation",
-      html: confirmationInfo(),
-    };
-
-    transporter.sendMail(mailOptions, (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Email sent: " + result);
-      }
-      transporter.close();
-    });
-  }
-
-  function confirmationInfo() {
-    return `
-    <h1>Hello ${userName} ! </h1>
-    <h3>Order Confirmation: ${orderNumber}</h3>
-    <h3>Total amount: $ ${amount}</h3>
-    <p>Thank you for your order. Your order has been confirmed.</p>
-    <p>Thank you for choosing Fresh Plate</p>
-    `;
-  }
-  sendConfirmationEmail(recipient);
-
-  //save the order to the database
-  await orders
-    .create({
-      orderId: orderNumber,
-      orde_date: new Date(),
-      isPickup: false,
-      isDelivery: true,
-      vendor: {
-        name: "Fresh Plate",
-        address: "1234 Fresh Plate Lane",
-      },
-      amount: amount,
-      info: {
-        recipeTitle: "Recipe Title",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      },
-    })
-    .then((order) => {
-      order.save();
-    });
-
-  res.render("orderconfirm", {
-    orderId: orderNumber,
-    deliveryDate: formattedDate,
-    amount: formattedAmount,
-  });
-});
+app.use(sendResetPasswordEmail);
 
 app.use(isAuthenticated);
 
@@ -679,87 +427,7 @@ app.get("/browse", (req, res) => {
   res.render("browse");
 });
 
-function getPrice(recipeId, minVal = 10, maxVal = 20) {
-  let hash = 0;
-  for (let i = 0; i < recipeId.length; i++) {
-    let char = recipeId.charCodeAt(i);
-    hash = (hash << 5) - hash + char; // multiply by 31 and add the char code
-    hash |= 0; // make sure it's a 32-bit integer
-  }
-
-  // Convert hash to a positive value
-  let decimalValue = Math.abs(hash);
-
-  // Map the decimal value to the desired range
-  let mappedValue =
-    (decimalValue % ((maxVal - minVal) * 100)) / 100 + minVal;
-
-  // Ensure it has exactly two decimal places
-  let finalValue = Math.round(mappedValue * 100) / 100;
-
-  return finalValue;
-}
-
-
-app.get("/recipeInfo/:id", async (req, res) => {
-  const recipeId = req.params.id;
-  req.session.recipeId = recipeId;
-  let recipeDetails = {};
-
-  try {
-    // Fetch recipe details from the API by id
-    const response = await fetch(
-      `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
-    );
-    const data = await response.json();
-
-    // Log the response for debugging
-    // console.log('API Response:', data);
-
-    // Check if the data.recipe exists
-    if (data.recipe) {
-      recipeDetails = {
-        recipeId: recipeId,
-        recipeTitle: data.recipe.label,
-        recipeImg: data.recipe.image,
-        recipeIngredients: data.recipe.ingredientLines,
-        recipeCuisineType: data.recipe.cuisineType,
-        recipeNutrients: {},
-      };
-
-      let count = 0;
-      for (let nutrient in data.recipe.totalNutrients) {
-        if (count < 4) {
-          recipeDetails.recipeNutrients[nutrient] =
-            data.recipe.totalNutrients[nutrient];
-          count++;
-        } else {
-          break;
-        }
-      }
-
-      // Hash function to hash recipe price
-      
-      user = await User.findOne({ email: req.session.email });
-      recipeDetails.recipePrice = getPrice(recipeId);
-      favoriteList = user.my_fav;
-      let isFavorite = false;
-      if (favoriteList.includes(recipeId)) {
-        isFavorite = true;
-      }
-      res.render("recipeInfo", {
-        recipeDetails: recipeDetails,
-        isFavorite: isFavorite,
-      });
-    } else {
-      // Handle the case where data.recipe is undefined
-      res.status(404).send("Recipe not found");
-    }
-  } catch (error) {
-    console.error("Error fetching recipe details:", error);
-    res.status(500).send("Internal server error");
-  }
-});
+app.use(getRecipeInfo);
 
 app.post("/add-to-cart", async (req, res) => {
   try {
@@ -789,7 +457,6 @@ app.post("/add-to-cart", async (req, res) => {
 });
 
 app.post("/recipeInfo/:id", async (req, res) => {
-  let recipeId = req.body.recipeId;
   try {
     const user = await User.findOne({ username: req.session.username });
     if (!user) {
@@ -838,13 +505,19 @@ app.get("/recipe_search_page", (req, res) => {
 app.get("/payment", async (req, res) => {
   const user = await User.findOne({ email: req.session.email });
   const userCart = user.cart;
-  totalPrice = 0;
+  let priceList = [];
+  let totalPrice = 0;
   await userCart.forEach((item) => {
     totalPrice += item.recipePrice * item.quantity;
-    console.log(totalPrice);
   });
 
-  res.render("payment", { totalPrice: totalPrice });
+  // tax calculation
+  const tax = totalPrice * 0.12;
+
+  // push the total price before tax, tax, and total price with tax to the priceList array
+  priceList.push(totalPrice, tax, totalPrice + tax);
+
+  res.render("payment", { priceList: priceList });
 });
 
 app.post("/update-cart", async (req, res) => {
@@ -882,6 +555,7 @@ app.post("/update-cart", async (req, res) => {
         { $set: { cart: user.cart } }
       );
 
+      console.log("Cart updated:", user.cart);
       res.json({ success: true });
     } else {
       console.error("Item not found in cart");
@@ -1050,23 +724,6 @@ app.post("/save_feedback", async (req, res) => {
   }
 });
 
-// store feedback in the database
-app.post("/save_feedback", async (req, res) => {
-  const name = req.body.name;
-  const message = req.body.message;
-  const feedback = new feedbacks({
-    name: name,
-    message: message,
-  });
-  try {
-    await feedback.save();
-    res.redirect("/user_account");
-  } catch (err) {
-    console.error("Failed to save feedback:", err);
-    res.status(500).send("Failed to save feedback.");
-  }
-});
-
 // Route to render the my preferences page
 app.get("/my_preference", async (req, res) => {
   try {
@@ -1135,6 +792,7 @@ app.post("/delete_preference", async (req, res) => {
   }
 });
 
+// get post request for decrease quantity in the cart and update the cart in the database
 app.post("/quantity/decrease/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
@@ -1144,18 +802,16 @@ app.post("/quantity/decrease/:id", async (req, res) => {
     }
     await User.updateOne(
       { email: req.session.email },
-      { $inc: { [`cart.${recipeId}.quantity`]: -1 }}
-    )
-    
-}catch (error) {
+      { $inc: { [`cart.${recipeId}.quantity`]: -1 } }
+    );
+  } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).send("Error fetching user");
   }
   res.status(200).send("Decreased quantity");
-}
-  
-)
+});
 
+// get post request for increase quantity in the cart and update the cart in the database
 app.post("/quantity/increase/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
@@ -1166,20 +822,14 @@ app.post("/quantity/increase/:id", async (req, res) => {
     await User.updateOne(
       { email: req.session.email },
       { $inc: { [`cart.${recipeId}.quantity`]: 1 } }
-    )
-
+    );
   } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).send("Error fetching user");
   }
   res.status(200).send("Increased quantity");
-}
-)
+});
 
-// app.post('/mycart', async (req, res) => {
-  
-//   res.status(200).redirect('/payment');
-// })
 // Logout page
 app.post("/logout", (req, res) => {
   res.clearCookie("connect.sid", { path: "/" });
@@ -1189,6 +839,9 @@ app.post("/logout", (req, res) => {
 
 // Import the calculator routes and use them as middleware
 app.use(calculator);
+
+// Route to handle the order confirmation
+app.use(sendConfirmationEmail);
 
 // 404 Page (Keep down here so that you don't muck up other routes)
 app.get("*", (req, res) => {
