@@ -420,9 +420,9 @@ app.get("/home", async (req, res) => {
   });
 });
 
-app.get("/cart", (req, res) => {
-  res.render("cart");
-});
+// app.get("/cart", (req, res) => {
+//   res.render("cart");
+// });
 
 app.get("/browse", (req, res) => {
   res.render("browse");
