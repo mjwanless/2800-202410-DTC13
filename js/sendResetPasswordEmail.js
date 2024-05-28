@@ -102,7 +102,7 @@ resetPasswordRouter.post("/reset_password", resetPassword, async (req, res) => {
         clientId: config.clientId,
         clientSecret: config.clientSecret,
         refreshToken: config.refreshToken,
-        accessToken: accessToken,
+        accessToken: accessToken
       },
     });
 

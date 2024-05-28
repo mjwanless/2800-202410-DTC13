@@ -16,9 +16,9 @@ const userSchema = new mongoose.Schema({
     type: Map,
     of: {
       recipePrice: Number,
-      quantity: Number,
-    },
-  },
+      quantity: Number
+    }
+  }
 });
 const User = mongoose.model("User", userSchema);
 module.exports = User;

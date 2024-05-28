@@ -1,4 +1,4 @@
-/* jshint esversion: 8 */
+/* jshint esversion: 2 */
 
 
 // Hash function to hash recipe price

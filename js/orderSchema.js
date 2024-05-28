@@ -1,6 +1,5 @@
 /* jshint esversion: 8 */
 
-
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const orderSchema = new Schema({
@@ -10,13 +9,13 @@ const orderSchema = new Schema({
   isDelivery: Boolean,
   vendor: {
     name: String,
-    address: String,
+    address: String
   },
   amount: Number,
   info: {
     recipeTitle: String,
-    description: String,
-  },
+    description: String
+  }
 });
 
 const orders = mongoose.model("orders", orderSchema);

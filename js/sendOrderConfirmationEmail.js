@@ -1,4 +1,4 @@
-/* jshint esversion: 8 */
+/* jshint esversion: 11 */
 
 const express = require("express");
 const User = require("./userSchema");
@@ -9,7 +9,6 @@ const OAuth2 = google.auth.OAuth2; //google auth library to send email without u
 const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
 const dateFormat = require("date-fns");
-const { is, fr, ht, tr, el } = require("date-fns/locale");
 const orders = require("./orderSchema");
 const orderconfirmRouter = express.Router();
 
@@ -72,14 +71,14 @@ function confirmationInfo(userName, orderNumber, amount) {
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
       <div style="text-align: center; margin-bottom: 20px;">
         <img src="https://freshplate.onrender.com/logo1.svg" alt="Fresh Plate Logo" style="width: 150px; height: auto;">
-    </div>  
+    </div>
       <h2 style="color: #333;">Hello ${userName}!</h2>
       <h3 style="color: #555;">Order Confirmation: ${orderNumber}</h3>
       <h3 style="color: #555;">Total Amount: ${amount}</h3>
       <p style="color: #666; line-height: 1.5;">Thank you for your order. Your order has been confirmed.</p>
       <p style="color: #666; line-height: 1.5;">Thank you for choosing Fresh Plate.</p>
       <p style="color: #666; line-height: 1.5;">
-        For more information, please read our 
+        For more information, please read our
         <a href="https://docs.google.com/document/d/1VoWqNivEph_rFmGik6b1JtnFFU8KOQrVuFWoxJF-Psk/edit?usp=sharing" style="color: #1a73e8;">Privacy Policy</a>.
       </p>
     </div>

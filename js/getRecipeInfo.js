@@ -1,4 +1,4 @@
-/* jshint esversion: 8 */
+/* jshint esversion: 9 */
 
 
 const express = require("express");
@@ -32,7 +32,6 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
         recipeIngredients: data.recipe.ingredientLines,
         recipeCuisineType: data.recipe.cuisineType,
         recipeNutrients: data.recipe.totalNutrients,
-      
       };
 
 
@@ -49,7 +48,7 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
 
       const user = await User.findOne({ email: req.session.email });
       recipeDetails.recipePrice = getPrice(recipeId);
-      favoriteList = user.my_fav;
+      const favoriteList = user.my_fav;
       let isFavorite = false;
       if (favoriteList.includes(recipeId)) {
         isFavorite = true;
