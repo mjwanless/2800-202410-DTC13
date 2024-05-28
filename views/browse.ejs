@@ -1,65 +1,73 @@
 <%- include('templates/header') %>
-<%- include('templates/searchBar') %>
+    <%- include('templates/searchBar') %>
 
-<div class="bg-white min-h-screen py-1">
-    <div class="container mx-auto px-4">
-        <!-- Top categories section -->
-        <h2 class="text-2xl font-bold mb-5 text-blue-950">Top categories</h2>
-        <div class="grid grid-cols-2 gap-4 mb-10">
-            <div class="border border-black rounded shadow-md flex flex-col items-center">
-                <img src="/chinese_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="Chinese Cuisine">
-                <span class="text-sm text-blue-950 py-2">Chinese Cuisine</span>
+        <div class="bg-white min-h-screen py-1">
+            <div class="container mx-auto px-4">
+                <!-- Top categories section -->
+                <h2 class="text-2xl font-bold mb-5 text-blue-950">Top categories</h2>
+                <div class="grid grid-cols-2 gap-4 mb-10">
+                    <div class="border border-black rounded shadow-md flex flex-col items-center">
+                        <img src="/chinese_food.jpg" class="object-cover h-48 rounded-t-md w-full"
+                            alt="Chinese Cuisine">
+                        <span class="text-sm text-blue-950 py-2">Chinese Cuisine</span>
+                    </div>
+                    <div class="border border-black rounded shadow-md flex flex-col items-center">
+                        <img src="/japanese_food.jpg" class="object-cover h-48 rounded-t-md w-full"
+                            alt="Japanese Cuisine">
+                        <span class="text-sm text-blue-950 py-2">Japanese Cuisine</span>
+                    </div>
+
+                </div>
+
+                <!-- All categories section -->
+                <h2 class="text-2xl font-bold mb-5 text-blue-950">All categories</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="border border-black rounded shadow-md flex flex-col items-center">
+                        <img src="/italian_food.jpg" class="object-cover h-48 rounded-t-md w-full"
+                            alt="Italian Cuisine">
+                        <span class="text-sm text-blue-950 py-2">Italian Cuisine</span>
+                    </div>
+                    <div class="border border-black rounded shadow-md flex flex-col items-center">
+                        <img src="/indian_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="Indian Cuisine">
+                        <span class="text-sm text-blue-950 py-2">Indian Cuisine</span>
+                    </div>
+                    <div class="border border-black rounded shadow-md flex flex-col items-center">
+                        <img src="/french_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="French Cuisine">
+                        <span class="text-sm text-blue-950 py-2">French Cuisine</span>
+                    </div>
+                    <div class="border border-black rounded shadow-md flex flex-col items-center">
+                        <img src="/mexican_food.jpg" class="object-cover h-48 rounded-t-md w-full"
+                            alt="Mexican Cuisine">
+                        <span class="text-sm text-blue-950 py-2">Mexican Cuisine</span>
+                    </div>
+                </div>
             </div>
-            <div class="border border-black rounded shadow-md flex flex-col items-center">
-                <img src="/japanese_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="Japanese Cuisine">
-                <span class="text-sm text-blue-950 py-2">Japanese Cuisine</span>
-            </div>
-            
         </div>
 
-        <!-- All categories section -->
-        <h2 class="text-2xl font-bold mb-5 text-blue-950">All categories</h2>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="border border-black rounded shadow-md flex flex-col items-center">
-                <img src="/italian_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="Italian Cuisine">
-                <span class="text-sm text-blue-950 py-2">Italian Cuisine</span>
-            </div>
-            <div class="border border-black rounded shadow-md flex flex-col items-center">
-                <img src="/indian_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="Indian Cuisine">
-                <span class="text-sm text-blue-950 py-2">Indian Cuisine</span>
-            </div>
-            <div class="border border-black rounded shadow-md flex flex-col items-center">
-                <img src="/french_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="French Cuisine">
-                <span class="text-sm text-blue-950 py-2">French Cuisine</span>
-            </div>
-            <div class="border border-black rounded shadow-md flex flex-col items-center">
-                <img src="/mexican_food.jpg" class="object-cover h-48 rounded-t-md w-full" alt="Mexican Cuisine">
-                <span class="text-sm text-blue-950 py-2">Mexican Cuisine</span>
-            </div>
-        </div>
-    </div>
-</div>
+        <%- include('templates/menuBar') %>
+            <%- include('templates/footer') %>
 
-<%- include('templates/menuBar') %>
-<%- include('templates/footer') %>
+                <style>
+                    .category-card {
+                        transition: transform 0.3s, box-shadow 0.3s;
+                    }
 
-<style>
-    .category-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .category-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-    .text-blue-950 {
-        color: #1e3a8a;
-    }
-    .rounded-t-md {
-        border-top-left-radius: 0.375rem;
-        border-top-right-radius: 0.375rem;
-    }
-    .py-2 {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-</style>
+                    .category-card:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .text-blue-950 {
+                        color: #1e3a8a;
+                    }
+
+                    .rounded-t-md {
+                        border-top-left-radius: 0.375rem;
+                        border-top-right-radius: 0.375rem;
+                    }
+
+                    .py-2 {
+                        padding-top: 0.5rem;
+                        padding-bottom: 0.5rem;
+                    }
+                </style>
