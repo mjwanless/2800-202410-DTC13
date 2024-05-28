@@ -612,7 +612,7 @@ app.get("/user_orders", async (req, res) => {
     const user = await User.findOne({ username: req.session.username });
     const userOrders = await orders
       .find({ orderId: { $in: user.order } })
-      .sort({ orde_date: -1 }); // Sort by orde_date descending
+      .sort({ orderDate: -1 }); // Sort by orde_date descending
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
