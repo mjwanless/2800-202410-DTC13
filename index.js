@@ -108,7 +108,6 @@ app.use(express.json());
 // Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
   if (req.session.authenticated) {
-    req.session.username = req.session.username;
     next();
   } else {
     return res.redirect("/login");
@@ -227,7 +226,7 @@ app.get("/login", (req, res) => {
 // Get request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ username: req.session.username.trim() });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -306,8 +305,8 @@ app.post("/signup", async (req, res) => {
 
   try {
     await newUser.save();
-    req.session.username = username;
-    req.session.email = email;
+    req.session.username = username.trim();
+    req.session.email = email.trim();
     res.redirect("/my_preference");
   } catch (error) {
     console.error("Error creating user:", error);
@@ -659,9 +658,9 @@ app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email.trim() },
       {
-        $set: { username: name, email: email, phone: phone, address: address },
+        $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
       },
       { new: true }
     );
