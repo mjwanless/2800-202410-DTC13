@@ -1,3 +1,6 @@
+/* jshint esversion: 8 */
+
+
 const config = require("./config");
 const { google } = require("googleapis");
 const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent

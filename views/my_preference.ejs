@@ -1,6 +1,6 @@
 <%- include('templates/header'); %>
 <div class="bg-indigo-50 min-h-screen flex flex-col items-center p-4 relative">
-    <h1 class="text-2xl font-bold text-blue-950 text-center mb-4">My Preference</h1>
+    <h1 class="text-2xl font-bold text-blue-950 text-center mb-4">My Preferences</h1>
     <div class="absolute top-4 right-4">
         <i class="fas fa-sync-alt text-orange-500 cursor-pointer" onclick="refreshPreferences()"></i>
     </div>
@@ -13,7 +13,7 @@
         <% }); %>
     </div>
     <div class="flex space-x-4 mt-4">
-        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600" onclick="savePreferences()">Complete</button>
+        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600" onclick="savePreferences()">Confirm</button>
         <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" onclick="skipPreferences()">Skip</button>
     </div>
 </div>

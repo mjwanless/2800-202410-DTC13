@@ -1,3 +1,5 @@
+/* jshint esversion: 8 */
+
 const express = require("express");
 const User = require("./userSchema");
 const config = require("./config");

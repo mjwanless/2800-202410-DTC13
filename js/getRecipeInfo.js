@@ -1,3 +1,6 @@
+/* jshint esversion: 8 */
+
+
 const express = require("express");
 const User = require("./userSchema");
 require("dotenv").config();

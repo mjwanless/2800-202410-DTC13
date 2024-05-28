@@ -1,3 +1,5 @@
+/* jshint esversion: 8 */
+
 // ======================================
 // Just some fun import statements
 // ======================================
@@ -837,7 +839,7 @@ app.post("/deleteRecipe/:id", async (req, res) => {
     await User.updateOne(
       { email: req.session.email },
       { $unset: { [`cart.${recipeId}`]: "" } }
-    )
+    );
     res.status(200).send("Deleted recipe");
   }
 catch (error) {
@@ -845,7 +847,7 @@ catch (error) {
   res.status(500).send("Error fetching user");
 }
 
-})
+});
   
 
 // Logout page
