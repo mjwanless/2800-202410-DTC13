@@ -130,7 +130,10 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   //update user's order list
   await User.updateOne(
     { username: req.session.username },
-    { $push: { order: orderNumber } }
+    { 
+      $push: { order: orderNumber },
+      $set: {cart: {}}
+    }
   );
 
   //get a new access token to send email every time
