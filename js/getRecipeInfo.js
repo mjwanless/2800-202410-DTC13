@@ -31,8 +31,10 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
         recipeImg: data.recipe.image,
         recipeIngredients: data.recipe.ingredientLines,
         recipeCuisineType: data.recipe.cuisineType,
-        recipeNutrients: {},
+        recipeNutrients: data.recipe.totalNutrients,
+      
       };
+
 
       let count = 0;
       for (let nutrient in data.recipe.totalNutrients) {
