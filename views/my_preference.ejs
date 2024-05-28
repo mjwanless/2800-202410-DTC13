@@ -18,7 +18,7 @@
     </div>
 </div>
 <%- include('templates/menuBar'); %>
-<%- include('templates/footer'); %> 
+
 
 <script>
     let selectedPreferences = JSON.parse(localStorage.getItem('selectedPreferences')) || [];
@@ -89,3 +89,4 @@
         border-color: rgba(234, 88, 12, 0.8); /* Darker orange border when selected */
     }
 </style>
+<%- include('templates/footer'); %>

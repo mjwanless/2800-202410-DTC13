@@ -45,34 +45,13 @@
     </div>
 
     <%- include('templates/menuBar'); %>
-      <%- include('templates/footer'); %>
-
-        <script>
-          function confirmSave() {
-            if (confirm("Are you sure you want to save changes?")) {
-              document.querySelector("form").submit();
-            }
-          }
-
-          // async function confirmSignOut() {
-          //     if (confirm("Are you sure you want to sign out?")) {
-          //         try {
-          //             response = await fetch('/signout', {
-          //                 method: 'POST'
-          //             })
-          //             if(response.ok){
-          //                 window.location.href = '/'
-          //             }else{
-          //                 alert("An error occurred. Please try again later.")
-          //             }
-
-          //         }catch(err) {
-          //             alert("An error occurred. Please try again later.")
-          //     }
-          // }
-          // if (confirm("Are you sure you want to sign out?")) {
-          //   window.location.href = "/signout";
-          // }
-          // }
-        </script>
+    
+    <script>
+      function confirmSave() {
+        if (confirm("Are you sure you want to save changes?")) {
+          document.querySelector("form").submit();
+        }
+      }
+      </script>
         
+<%- include('templates/footer'); %>

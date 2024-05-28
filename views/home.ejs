@@ -8,6 +8,8 @@
     overflow: hidden;
   }
 </style>
+
+
 <h3 class="px-5 flex items-centertext-lg font-bold text-lg">
   Weekly Recommendation
 </h3>
@@ -72,7 +74,7 @@
   <% }) %>
 </div>
 <div id="bottom" class="h-1"></div>
-
+<%- include('templates/menuBar') %>
 <script>
 
   // Below is the codes from the youtube video teaching how to make a horizontal gallery with dragging and touch effect
@@ -110,4 +112,4 @@
   carousel.addEventListener("mouseup", draggingStop);
   carousel.addEventListener("touched", draggingStop);
 </script>
-<%- include('templates/menuBar') %> <%- include('templates/footer') %>
+<%- include('templates/footer') %>
