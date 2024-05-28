@@ -455,7 +455,7 @@ app.post("/add-to-cart", async (req, res) => {
     }
     await user.save();
     const currentUrl = req.headers.referer;
-    res.redirect(currentUrl);
+    res.status(200);
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).send("Internal server error");
