@@ -136,7 +136,7 @@ const createUser = async (req, res, next) => {
   const existingUser = await User.findOne({ email: req.body.email });
   if (existingUser) {
     return res.render("signup", { repeatEmail: true });
-  };
+  }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   var hashedSecurityAnswer = await bcrypt.hash(
@@ -859,14 +859,11 @@ app.post("/deleteRecipe/:id", async (req, res) => {
       { $unset: { [`cart.${recipeId}`]: "" } }
     );
     res.status(200).send("Deleted recipe");
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).send("Error fetching user");
   }
-
 });
-  
 
 // Logout page
 app.post("/logout", (req, res) => {

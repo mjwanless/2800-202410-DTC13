@@ -75,7 +75,7 @@ function confirmationInfo(userName, orderNumber, amount) {
     </div>  
       <h2 style="color: #333;">Hello ${userName}!</h2>
       <h3 style="color: #555;">Order Confirmation: ${orderNumber}</h3>
-      <h3 style="color: #555;">Total Amount: $${amount}</h3>
+      <h3 style="color: #555;">Total Amount: ${amount}</h3>
       <p style="color: #666; line-height: 1.5;">Thank you for your order. Your order has been confirmed.</p>
       <p style="color: #666; line-height: 1.5;">Thank you for choosing Fresh Plate.</p>
       <p style="color: #666; line-height: 1.5;">
@@ -126,7 +126,7 @@ function sendConfirmationEmail(
 orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   const orderNumber = getConfirmationNumber();
   const formattedDate = getDeliveryDate();
-  const formattedAmount = getTotalAmount(req.body.amount);
+  const formattedAmount = getTotalAmount(req.body.amount.replace(/^\$/, ""));
 
   //update user's order list
   await User.updateOne(
@@ -147,7 +147,7 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
     orderNumber,
     formattedAmount
   );
-  saveOrder(orderNumber, req.body.amount);
+  saveOrder(orderNumber, req.body.amount.replace(/^\$/, ""));
 
   res.render("orderconfirm", {
     orderId: orderNumber,
