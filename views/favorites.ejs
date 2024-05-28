@@ -8,8 +8,6 @@
         <div class="h-20"></div>
         <div id="favorites_list" class="px-5">
             <% for(i=0; i< recipeDetails.length; i++) { %>
-
-
                 <div class="favorite_item_and_list relative bg-orange-50 mb-3 w-full rounded-md">
                     <div style="flex-direction: column" class="flex items-center gap-4 shadow-md rounded-md"
                         onclick="goToRecipe('<%= recipeDetails[i].recipeId %>')">
@@ -21,18 +19,14 @@
 
                         </div>
                     </div>
-
-
                     <div class="absolute inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400
                         hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9"
                         onclick="favoritesToggle('<%= recipeDetails[i].recipeId %>')">
                         <i class="fas fa-heart icon text-red-500 text-lg" id="fav_<%= recipeDetails[i].recipeId %>"></i>
                     </div>
                 </div>
-                <%}%>
-
-
+            <%}%>
         </div>
 
-        <%- include('templates/menuBar') %>
-            <%- include('templates/footer')%>
+<%- include('templates/menuBar') %>
+<%- include('templates/footer')%>

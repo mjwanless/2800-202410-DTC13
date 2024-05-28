@@ -1,6 +1,5 @@
 /* jshint esversion: 8 */
 
-
 module.exports = {
   user: process.env.FRESHPLATE_EMAIL,
   clientId: process.env.EMAIL_CLIENTID,

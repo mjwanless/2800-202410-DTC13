@@ -1,7 +1,6 @@
 <%- include('templates/header'); %>
   <%- include('templates/backBtn'); %>
 
-
     <div class="bg-indigo-50 flex py-10 justify-center min-h-screen">
       <div class="bg-indigo-50 p-8 rounded-lg items-center justify-center max-w-sm w-full">
         <div class="flex justify-center mb-6">
@@ -9,7 +8,7 @@
         </div>
         <form action="/update_profile" method="POST" class="space-y-4">
           <div>
-            <label for="name" class="block text-gray-700 text-sm font-semibold mb-2">Name</label>
+            <label for="name" class="block text-gray-700 text-sm font-semibold mb-2">Full name</label>
             <input type="text" id="name" name="name" class="form-input w-full px-4 py-2 border rounded-lg text-gray-700"
               value="<%= user.username %>" required />
           </div>
@@ -38,9 +37,6 @@
             </button>
           </div>
         </form>
-        <!-- <div class="mt-4 text-center">
-        <a onclick="confirmSignOut()" class="w-full text-red-500 px-4 py-3 rounded-lg hover:underline">Sign Out</a>
-        </div> -->
       </div>
     </div>
 
