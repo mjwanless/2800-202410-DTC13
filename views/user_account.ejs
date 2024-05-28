@@ -86,11 +86,11 @@
         <p class="text-gray-300 px-2 text-left">support by nutritionix API</p>
       </form>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center" onclick="comingSoonNotification()">
       <i class="fas fa-info-circle text-orange-500"></i>
       <div class="font-bold ml-3 text-neutral-500 text-lg">About</div>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center" onclick="comingSoonNotification()">
       <i class="fas fa-cog text-orange-500"></i>
       <div class="font-bold ml-3 text-neutral-500 text-lg">Settings</div>
     </div>
@@ -228,6 +228,8 @@
           console.error("Error fetching order history:", error);
         });
       });
+
+      
     </script>
 
 <%- include('templates/menuBar'); %> <%- include('templates/footer'); %>
