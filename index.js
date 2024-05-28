@@ -130,6 +130,12 @@ const createUser = async (req, res, next) => {
     );
   }
 
+  //Checks if there isn't already an account with this email
+  const existingUser = await User.findOne({ email: req.body.email });
+  if (existingUser) {
+    return res.render("signup", { repeatEmail: true });
+  };
+
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   var hashedSecurityAnswer = await bcrypt.hash(
     req.body.security_answer,
