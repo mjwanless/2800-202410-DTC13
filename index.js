@@ -339,21 +339,20 @@ const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseco
 function isCacheExpired() {
   if (!cachedRecipes.timestamp) return true; // if there is no timestamp, cache is expired
   const currentTime = new Date().getTime();
-  return currentTime - cachedRecipes.timestamp > TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
+  return currentTime - cachedRecipes.timestamp >= TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
 }
 
-// function to get the recommendation from the API
-const getRecommendation = async (preferenceList, recipeList, res) => {
-  // a for loop to qurey each preference from the API and store the recipes ids in recipeList
-  for (let i = 0; i < preferenceList.length; i++) {
-    const preference = preferenceList[i];
-    const response = await fetch(
-      `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
+
+const getRecommendation = async (preferenceList) => {
+  try {
+    let recipeList = [];
+
+    await Promise.all(preferenceList.map(async (preference) => {
+      const response = await fetch(`https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`);
+      const data = await response.json();
+
+      if (data && data.hits && data.hits.length > 0) {
         const recipes = data.hits;
-        // only get two recipes for each preference
         for (let j = 1; j < 3; j++) {
           let index = Math.floor(Math.random() * 10);
           let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
@@ -364,37 +363,42 @@ const getRecommendation = async (preferenceList, recipeList, res) => {
           }
           recipeList.push({ recipeId, imgUrl, recipeTitle });
         }
-      });
+      }
+    }));
+    cachedRecipes.timestamp = new Date().getTime();
+    cachedRecipes.data = recipeList;
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    return [];
   }
 };
 
+
 async function fetchAndCacheRecommendations(preferenceList) {
-  cachedRecipes.timestamp = new Date().getTime(); // update the timestamp
-  cachedRecipes.data = []; // clear the cache
-  await getRecommendation(preferenceList, cachedRecipes.data);
+  if (isCacheExpired()) {
+    await getRecommendation(preferenceList);
+  }
 }
+
+// get user's preferences from database
+const getPreference = async (email) => {
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      return user.preferences;
+    } else {
+      console.log("User not found");
+    }
+  } catch (error) {
+    console.error("Error fetching user preferences:", error);
+  }
+};
 
 app.get("/home", async (req, res) => {
   let preferenceList = [];
   let recipeList = [];
   let monthlyRecipeList = [];
-
-  // get user's preferences from database
-  const getPreference = async (email) => {
-    try {
-      const user = await User.findOne({ email: email });
-      if (user) {
-        preferenceList = user.preferences;
-      } else {
-        console.log("User not found");
-      }
-    } catch (error) {
-      console.error("Error fetching user preferences:", error);
-    }
-  };
-
-  await getPreference(req.session.email);
-
+  preferenceList = await getPreference(req.session.email);
   // if user has no preferences, use default preferences
   if (preferenceList.length == 0) {
     preferenceList = ["chicken", "beef", "pork", "vegetarian"];
@@ -403,14 +407,11 @@ app.get("/home", async (req, res) => {
   } else if (preferenceList.length < 3) {
     preferenceList.push("crab");
   }
-
-  if (isCacheExpired()) {
-    await fetchAndCacheRecommendations(preferenceList);
-  }
+  await fetchAndCacheRecommendations(preferenceList);
   recipeList = cachedRecipes.data;
 
   // monthlyRecipe
-  monthlyRecipes = await monthlyRecipe.find({});
+  const monthlyRecipes = await monthlyRecipe.find({});
   if (monthlyRecipes) {
     for (let i = 0; i < 6; i++) {
       let recipeId = monthlyRecipes[i].recipeId;
@@ -421,16 +422,9 @@ app.get("/home", async (req, res) => {
   } else {
     console.log("No monthly recipe found");
   }
-
-  res.render("home", {
-    recipeList: recipeList,
-    monthlyRecipeList: monthlyRecipeList,
-  });
+  res.render("home", {recipeList: recipeList, monthlyRecipeList: monthlyRecipeList});
 });
 
-// app.get("/cart", (req, res) => {
-//   res.render("cart");
-// });
 
 app.get("/browse", (req, res) => {
   res.render("browse");
