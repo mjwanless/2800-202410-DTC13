@@ -101,7 +101,7 @@
 
                     tag = `
                         <p class="m-1 py-1 px-2 col bg-orange-500 text-sm
-                        text-white font-semibold rounded-lg">${tagText}</p>
+                        text-white font-semibold rounded-md">${tagText}</p>
                     `;
                     tagList += tag;
                 }
@@ -172,21 +172,21 @@
                 filterMenu.innerHTML = "";
 
                 filtersCard = document.createElement('div');
-                filtersCard.className = `flex w-fit justify-center rounded-lg bg-blue-950 px-3 py-3 text-sm font-semibold leading-6 text-white shadow-sm`
+                filtersCard.className = `flex w-fit justify-center rounded-md bg-blue-950 px-3 py-3 text-sm font-semibold leading-6 text-white shadow-sm`
                 filtersCard.innerHTML = `
                 <div class='flex flex-col gap-1'>
                     <p>Required ingredients:</p>
-                    <div class='flex flex-row'>
-                        <input id="newRequiredInput" type='text' class='rounded-lg px-1 m-1 h-7 text-gray-700'>
-                        <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500" hover:text-white
+                    <div class='flex flex-row place-items-center'>
+                        <input id="newRequiredInput" type='text' class='rounded-md px-1 m-1 h-7 text-gray-700'>
+                        <button class="flex w-fit justify-center rounded-md bg-indigo-50 px-3 py-1 text-sm text-blue-950 font-semibold leading-6 text-gray-700"
                         onclick="addIngredient('required')">Add</button>
                     </div>
                     <div id='requiredTags' class='flex flex-initial flex-wrap w-64'></div>
 
                     <p>Excluded ingredients:</p>
-                    <div class='flex flex-row'>
-                        <input id="newExcludedInput" type='text' class='rounded-lg px-1 m-1 h-7 text-gray-700'>
-                        <button class="flex w-fit justify-center rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-700 shadow-sm hover:bg-orange-500 hover:text-white"
+                    <div class='flex flex-row place-items-center'>
+                        <input id="newExcludedInput" type='text' class='rounded-md px-1 m-1 h-7 text-gray-700'>
+                        <button class="flex w-fit justify-center rounded-md bg-indigo-50 px-3 py-1 text-sm text-blue-950 font-semibold leading-6 text-gray-700"
                         onclick="addIngredient('excluded')">Add</button>
                     </div>
                     <div id='excludedTags' class='flex flex-initial flex-wrap w-64'></div>
@@ -233,7 +233,7 @@
                 tag.classList = 'flex flex-nowrap'
                 tag.innerHTML = `
                     <p class="flex flex-nowrap m-1 p-1 w-fit bg-orange-500 text-sm
-                    text-white font-semibold rounded-lg">
+                    text-white font-semibold rounded-md">
                         ${tagText}
                         <button class='mx-1' Onclick='removeFilter("${tagText}", "${type}")'>X</button>
                     </p>
