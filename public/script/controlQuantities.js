@@ -1,4 +1,8 @@
 function decreaseQuantity(product_id, price) {
+    cartSize--;
+    if (cartSize == 0) return;
+    cartCounter.innerText = cartSize;
+
     decreaseBtn = document.getElementById("text_" + product_id)
     if (decreaseBtn.innerText == 1) {
         return
@@ -15,13 +19,16 @@ function decreaseQuantity(product_id, price) {
     }).then(response => {
         if (response.ok) {
             console.log('Quantity reduced');
-            window.location.reload();
         }
     }
     )
 
 }
 function increaseQuantity(product_id, price) {
+    cartSize++;
+    if (cartSize > 9) cartSize = "9+";
+    cartCounter.innerText = cartSize;
+
     increaseBtn = document.getElementById("text_" + product_id)
     increaseBtn.innerText++
 
@@ -32,8 +39,7 @@ function increaseQuantity(product_id, price) {
         method: 'POST',
     }).then(response => {
         if (response.ok) {
-            console.log('Quantity added')
-            window.location.reload();
+            console.log('Quantity added');
         }
     }
 )
