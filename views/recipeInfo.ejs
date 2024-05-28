@@ -29,7 +29,7 @@
             <div class="mt-4 bg-indigo-50 p-4 rounded-xl">
                 <ul id="ingredients-list" class="mt-2">
                     <% recipeDetails.recipeIngredients.forEach((ingredient)=> { %>
-                    <li class="items-center mt-2 w-full">
+                    <li class="items-center mt-2 w-full ingredient">
                         <div class="flex items-center justify-between">
                             <span>
                                 <%= ingredient %>
@@ -85,10 +85,7 @@
     </div>
 </div>
 
-<script>
-
-</script>
 
 <%- include('templates/menuBar') %>
-<script src="/script/plusAndMinus.js"></script>
+<script src="/script/recipeInfoScript.js"></script>
 <%- include('templates/footer') %>
