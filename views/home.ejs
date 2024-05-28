@@ -8,11 +8,13 @@
     overflow: hidden;
   }
 </style>
-<h2 class="px-5 flex items-center">
-  <span class="text-lg font-bold">Weekly Recommendations</span>
-</h2>
 
-<div id="h-gallery" class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10">
+
+<h3 class="px-5 flex items-center text-lg font-bold text-lg">
+  Weekly Recommendation
+</h3>
+
+<div id="h-gallery" class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10 pt-3">
   <% recipeList.forEach((recipe) => { %>
   <div
     id="<%= recipe.recipeId %>"
@@ -20,7 +22,7 @@
     onclick="goToRecipe(id)"
   >
     <img
-      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      class="shrink-0 w-80 h-60 rounded-md shadow-xl bg-white"
       src="<%= recipe.imgUrl %>"
       alt="Recipe Image"
     />
@@ -33,7 +35,7 @@
   <% }) %>
 </div>
 <!--Below is horizontal gallery-->
-<h3 class="p-5 flex items-center">
+<h3 class="px-5 flex items-center">
   <span class="text-lg font-bold">Monthly Hot</span>
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +74,7 @@
   <% }) %>
 </div>
 <div id="bottom" class="h-1"></div>
-
+<%- include('templates/menuBar') %>
 <script>
 
   // Below is the codes from the youtube video teaching how to make a horizontal gallery with dragging and touch effect
@@ -93,8 +95,8 @@
     if (!isMove) return;
     e.preventDefault();
     // carousel.classList.add("dragging");
-    let posisionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
-    carousel.scrollLeft = prevScrollLeft - posisionDiff;
+    let positionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
+    carousel.scrollLeft = prevScrollLeft - positionDiff;
   };
 
   const draggingStop = () => {
@@ -110,4 +112,4 @@
   carousel.addEventListener("mouseup", draggingStop);
   carousel.addEventListener("touched", draggingStop);
 </script>
-<%- include('templates/menuBar') %> <%- include('templates/footer') %>
+<%- include('templates/footer') %>

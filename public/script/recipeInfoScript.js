@@ -10,14 +10,27 @@
         decrementButton.addEventListener('click', function () {
             let value = parseInt(counterInput[i].value);
             value = isNaN(value) ? 0 : value;
-            counterInput[i].value = value > 0 ? value - 1 : 0;
+
+            if (value > 0) {
+                counterInput[i].value = value - 1;
+                if(value === 1){
+                    this.closest(".ingredient").classList.add("line-through");
+                }
+            }
         });
 
         const incrementButton = document.getElementById(`increment-button${i}`);
         incrementButton.addEventListener('click', function() {
+            
             let value = parseInt(counterInput[i].value);
             value = isNaN(value) ? 0 : value;
+            if(value === 0){
+                this.closest(".ingredient").classList.remove("line-through");
+            }
+
             counterInput[i].value = value + 1;
         });
     }
     });
+
+

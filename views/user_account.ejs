@@ -73,24 +73,24 @@
           id="query"
           name="query"
           class="border-2 border-orange-500 p-2 rounded-md w-64"
-          placeholder=" - ran 1 hour"
+          placeholder=" ex. ran 1 hour"
           required
         />
         <button
           type="button"
-          class="bg-orange-500 text-white p-2 rounded-md ml-2"
+          class="bg-orange-500 text-white p-2 mt-2 rounded-md ml-2"
           onclick="getResults()"
         >
           Calculate
         </button>
-        <p class="text-gray-300 px-5">support by nutritionix API</p>
+        <p class="text-gray-300 px-2 text-left">support by nutritionix API</p>
       </form>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center" onclick="comingSoonNotification()">
       <i class="fas fa-info-circle text-orange-500"></i>
       <div class="font-bold ml-3 text-neutral-500 text-lg">About</div>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center" onclick="comingSoonNotification()">
       <i class="fas fa-cog text-orange-500"></i>
       <div class="font-bold ml-3 text-neutral-500 text-lg">Settings</div>
     </div>
@@ -134,7 +134,6 @@
   </div>
 </div>
 
-<%- include('templates/menuBar'); %> <%- include('templates/footer'); %>
 
 <script>
   function getResults() {
@@ -150,23 +149,23 @@
       },
       body: JSON.stringify({ query }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(" Calories burned: ", data);
-        // TODP - Display the result
-        const modal = document.getElementById("calori-modal");
-        const calories = document.getElementById("calories");
-        modal.style.display = "block";
-        calories.innerText = `${data.result} kcal`;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(" Calories burned: ", data);
+      // TODP - Display the result
+      const modal = document.getElementById("calori-modal");
+      const calories = document.getElementById("calories");
+      modal.style.display = "block";
+      calories.innerText = `${data.result} kcal`;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
   }
   // toggle calculator
   const toggleCalculator = document.getElementById("calorimeter");
   const calculator = document.getElementById("calculator");
-
+  
   toggleCalculator.addEventListener("click", () => {
     if (calculator.style.display === "none") {
       calculator.style.display = "flex";
@@ -174,59 +173,63 @@
       calculator.style.display = "none";
     }
   });
-
+  
   const close = document.getElementById("close");
   close.addEventListener("click", () => {
     const modal = document.getElementById("calori-modal");
     modal.style.display = "none";
   });
-
+  
   function confirmSignOut() {
     if (confirm("Are you sure you want to sign out?")) {
       fetch("/logout", {
         method: "POST",
       })
-        .then((res) => {
-          if (res.status === 200) {
-            window.location.href = "/";
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      .then((res) => {
+        if (res.status === 200) {
+          window.location.href = "/";
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
     }
   }
-
+  
   // Fetch and render order history
   document.addEventListener("DOMContentLoaded", function () {
     fetch("/user_orders")
-      .then((response) => response.json())
-      .then((orders) => {
-        const orderHistory = document.getElementById("orderHistory");
-        orders.forEach((order) => {
-          const orderCard = document.createElement("div");
-          orderCard.className = "bg-orange-50 p-4 rounded-md shadow-md";
-          orderCard.innerHTML = `
-                      <div class="flex items-center">
-                          <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
-                          <div>
-                              <h2 class="text-md font-semibold text-blue-950">${
-                                order.info.recipeTitle
-                              }</h2>
-                              <p class="text-sm text-gray-600">${new Date(
-                                order.orde_date
-                              ).toLocaleString()}</p>
-                          </div>
-                      </div>
-                      <a href="/order/${
-                        order.orderId
-                      }" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
-                  `;
-          orderHistory.appendChild(orderCard);
+    .then((response) => response.json())
+    .then((orders) => {
+      const orderHistory = document.getElementById("orderHistory");
+      orders.forEach((order) => {
+        const orderCard = document.createElement("div");
+        orderCard.className = "bg-orange-50 p-4 rounded-md shadow-md";
+        orderCard.innerHTML = `
+        <div class="flex items-center">
+          <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
+          <div>
+            <h2 class="text-md font-semibold text-blue-950">${
+              order.info.recipeTitle
+            }</h2>
+            <p class="text-sm text-gray-600">${new Date(
+              order.orde_date
+            ).toLocaleString()}</p>
+            </div>
+            </div>
+            <a href="/order/${
+              order.orderId
+            }" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
+            `;
+            orderHistory.appendChild(orderCard);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching order history:", error);
         });
-      })
-      .catch((error) => {
-        console.error("Error fetching order history:", error);
       });
-  });
-</script>
+
+      
+    </script>
+
+<%- include('templates/menuBar'); %> <%- include('templates/footer'); %>

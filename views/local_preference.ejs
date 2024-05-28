@@ -4,36 +4,35 @@
 <div class="bg-orange-50 min-h-screen py-10">
     <div class="bg-orange-50 p-8 min-h-screen flex flex-col items-center p-4 relative">
         <h3 class="text-2xl font-bold mb-5 text-blue-950">Edit Your Preferences</h3>
-        <div class="mb-4">
+        <div class="w-full pb-3">
             <input type="text" id="preferenceInput" class="p-2 border rounded w-full" placeholder="Enter a preference">
         </div>
         <div class="mb-4 flex justify-center space-x-12">
-            <button onclick="addPreference()" class="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
-            <button onclick="deleteSelectedPreferences()" class="bg-gray-500 text-white px-3 py-1 rounded">Delete</button>
+            <button onclick="addPreference()" class="bg-blue-950 text-white px-3 py-1 rounded">Add</button>
+            <button onclick="deleteSelectedPreferences()" class="border-2 border-blue-950 px-3 py-1 rounded text-blue-950">Delete</button>
         </div>
         <div id="preferenceList" class="flex flex-wrap gap-2 mb-4">
             <% if (user.preferences && user.preferences.length > 0) { %>
                 <% user.preferences.forEach(function(pref) { %>
-                    <div class="relative bg-indigo-50 text-blue-950 px-3 py-1 rounded-full preference-bubble" data-name="<%= pref %>">
+                    <div class="font-bold bg-indigo-50 text-blue-950 px-3 py-1 rounded-full preference-bubble" data-name="<%= pref %>">
                         <%= pref %>
                     </div>
                 <% }) %>
             <% } %>
         </div>
-        <div class="mt-4 flex justify-center">
-            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-1 rounded">Save</button>
+        <div class="mt-4 flex justify-center w-full">
+            <button onclick="savePreferences()" class="bg-orange-500 text-white px-4 py-1 rounded w-10/12">Save</button>
         </div>
     </div>
 </div>
 
 <!-- Menubar -->
 <%- include('templates/menuBar'); %>
-<%- include('templates/footer'); %>
 
 <script>
     let preferences = [];
     let selectedPreferences = [];
-
+    
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize preferences from server-rendered data
         const prefElements = document.querySelectorAll('.preference-bubble');
@@ -42,7 +41,7 @@
             element.addEventListener('click', () => toggleSelection(element));
         });
     });
-
+    
     function addPreference() {
         const input = document.getElementById('preferenceInput');
         const value = input.value.trim();
@@ -52,7 +51,7 @@
             input.value = '';
         }
     }
-
+    
     function toggleSelection(element) {
         const preference = element.getAttribute('data-name');
         if (selectedPreferences.includes(preference)) {
@@ -63,7 +62,7 @@
             element.classList.add('selected');
         }
     }
-
+    
     function deleteSelectedPreferences() {
         if (confirm(`Are you sure you want to delete the selected preferences?`)) {
             preferences = preferences.filter(p => !selectedPreferences.includes(p));
@@ -71,7 +70,7 @@
             updatePreferenceList();
         }
     }
-
+    
     function updatePreferenceList() {
         const list = document.getElementById('preferenceList');
         list.innerHTML = '';
@@ -84,15 +83,15 @@
             list.appendChild(chip);
         });
     }
-
+    
     function savePreferences() {
         axios.post('/save_preferences', { preferences })
-            .then(response => {
-                window.location.href = '/user_account';
-            })
-            .catch(error => {
-                console.error('Error saving preferences:', error);
-            });
+        .then(response => {
+            window.location.href = '/user_account';
+        })
+        .catch(error => {
+            console.error('Error saving preferences:', error);
+        });
     }
 </script>
 
@@ -109,3 +108,5 @@
         background-color: rgba(7, 172, 183, 0.8); /* Darker transparent orange when selected */
     }
 </style>
+
+<%- include('templates/footer'); %>

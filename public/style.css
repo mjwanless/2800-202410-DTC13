@@ -1,4 +1,6 @@
-
+*{
+    font-family: 'Poppins', sans-serif;
+}
 .fadeOut{
     opacity: 0;
     transition-duration: 2s;

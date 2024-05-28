@@ -6,3 +6,7 @@ async function goToRecipe(id) {
         window.location.href = `/recipeInfo/${id}`;
     });
 }
+
+function comingSoonNotification() {
+    alert("This feature is coming soon!");
+}

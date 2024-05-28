@@ -11,25 +11,25 @@
         </div>
         <div class="p-8">
             <div class="flex items-center justify-between">
-                <h1 id="recipe-name" class="text-2xl font-bold text-blue-800">
+                <h1 id="recipe-name" class="text-2xl font-bold text-blue-950">
                     <%= recipeDetails.recipeTitle %>
                 </h1>
             </div>
             <% let i=0 %>
             <% recipeDetails.recipeCuisineType.forEach((cuisine)=> { %>
-            <p id="recipe-cuisine" class="mt-2 text-gray-600">
-                <%= cuisine %>
+            <p class="recipe-cuisine mt-2 text-gray-400 font-medium">
+                <span class="font-bold">Cuisine type:</span> <%= cuisine %>
             </p>
             <% }) %>
 
             <div class="flex items-center justify-between mt-4">
-                <h2 class="text-2xl font-semibold text-blue-800">Ingredients</h2>
+                <h2 class="text-2xl font-semibold text-blue-950">Ingredients</h2>
             </div>
 
-            <div class="mt-4 bg-blue-100 p-4 rounded-xl">
+            <div class="mt-4 bg-indigo-50 p-4 rounded-xl">
                 <ul id="ingredients-list" class="mt-2">
                     <% recipeDetails.recipeIngredients.forEach((ingredient)=> { %>
-                    <li class="items-center mt-2 w-full">
+                    <li class="items-center mt-2 w-full ingredient">
                         <div class="flex items-center justify-between">
                             <span>
                                 <%= ingredient %>
@@ -60,23 +60,19 @@
             </div>
 
             <div class="flex items-center justify-between mt-4">
-                <h2 class="text-2xl font-semibold text-blue-800">Price:</h2>
-                <div class="flex items-center font-semibold">
-                    <span class="text-2xl text-blue-800">$</span>
-                    <span class="text-2xl text-blue-800 ml-1" id="price"><%= recipeDetails.recipePrice %></span>
+                <h2 class="text-xl font-semibold text-blue-950">Price : $ <span id="price"><%= recipeDetails.recipePrice %></span></h2>
+                <div class="flex justify-end">
+                    <form id="add-to-cart-form" action="/add-to-cart" method="POST">
+                        <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
+                        <input class="hidden" name="recipePrice" type="data" value="<%= recipeDetails.recipePrice %>">
+                        <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
+                    </form>
                 </div>
             </div>
 
-            <div class="flex mt-4 justify-end">
-                <form id="add-to-cart-form" action="/add-to-cart" method="POST">
-                    <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
-                    <input class="hidden" name="recipePrice" type="data" value="<%= recipeDetails.recipePrice %>">
-                    <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
-                </form>
-            </div>
 
             <div class="mt-6">
-                <h2 class="text-2xl font-semibold text-blue-800">Nutritional Information</h2>
+                <h2 class="text-2xl font-semibold text-blue-950">Nutritional Information</h2>
                 <ul id="nutritional-info" class="list-disc list-inside mt-2 text-gray-700">
                     <% if (recipeDetails.recipeNutrients.ENERC_KCAL) { %>
                     <li>Calories: <%= recipeDetails.recipeNutrients.ENERC_KCAL.quantity.toFixed(2) %> <%= recipeDetails.recipeNutrients.ENERC_KCAL.unit %></li>
@@ -105,9 +101,7 @@
     </div>
 </div>
 
-<script>
-</script>
 
 <%- include('templates/menuBar') %>
-<script src="/script/plusAndMinus.js"></script>
+<script src="/script/recipeInfoScript.js"></script>
 <%- include('templates/footer') %>
