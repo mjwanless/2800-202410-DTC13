@@ -125,6 +125,11 @@ const createUser = async (req, res, next) => {
     security_answer: joi.string().max(50).required(),
   });
   const { error } = schema.validate(req.body);
+
+  if (!req.body.security_question) {
+    return res.render("signup", { noSecurityQuestion: true, email: req.body.email, username: req.body.username });
+  }
+
   if (error) {
     return res.send(
       `Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`
