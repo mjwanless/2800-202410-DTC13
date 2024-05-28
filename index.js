@@ -108,7 +108,6 @@ app.use(express.json());
 // Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
   if (req.session.authenticated) {
-    req.session.username = req.session.username;
     next();
   } else {
     return res.redirect("/login");
@@ -127,12 +126,12 @@ const createUser = async (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (!req.body.security_question) {
-    return res.render("signup", { noSecurityQuestion: true, email: req.body.email, username: req.body.username });
+    return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
   }
 
   if (error) {
     if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
-      return res.render("signup", { invalidUsername: true, email: req.body.email });
+      return res.render("signup", { invalidUsername: true, email: req.body.email.trim() });
     }
 
     return res.send(
@@ -141,23 +140,23 @@ const createUser = async (req, res, next) => {
   }
 
   //Checks if there isn't already an account with this email
-  const existingUser = await User.findOne({ email: req.body.email });
+  const existingUser = await User.findOne({ email: req.body.email.trim() });
   if (existingUser) {
-    return res.render("signup", { repeatEmail: true });
+    return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
   }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   var hashedSecurityAnswer = await bcrypt.hash(
-    req.body.security_answer,
+    req.body.security_answer.trim(),
     saltRounds
   );
 
   const user = new User({
-    username: req.body.username,
-    email: req.body.email,
+    username: req.body.username.trim(),
+    email: req.body.email.trim(),
     password: hashedPassword,
     security_question: req.body.security_question,
-    security_answer: hashedSecurityAnswer,
+    security_answer: hashedSecurityAnswer.trim(),
     cart: new Map(),
   });
 
@@ -169,7 +168,7 @@ const createUser = async (req, res, next) => {
   }
 
   req.session.authenticated = true;
-  req.session.username = req.body.username;
+  req.session.username = req.body.username.trim();
   req.session.cookie.maxAge = sessionExpireTime;
   next();
 };
@@ -179,7 +178,7 @@ const loginValidation = async (req, res, next) => {
   const schema = joi.object({
     email: joi.string().max(200).required(),
   });
-  req.session.email = req.body.email;
+  req.session.email = req.body.email.trim();
   const validationResult = schema.validate({ email: req.session.email });
   if (validationResult.error) {
     res.send("login validation result error", {
@@ -188,10 +187,10 @@ const loginValidation = async (req, res, next) => {
     return;
   }
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email.trim() });
     if (user) {
       const outputPassword = user.password;
-      const inputPassword = req.body.password;
+      const inputPassword = req.body.password.trim();
 
       if (await bcrypt.compare(inputPassword, outputPassword)) {
         req.session.authenticated = true;
@@ -199,10 +198,10 @@ const loginValidation = async (req, res, next) => {
         req.session.cookie.maxAge = sessionExpireTime;
         next();
       } else {
-        return res.render("login", { wrongPassword: true, email: req.body.email });
+        return res.render("login", { wrongPassword: true, email: req.body.email.trim() });
       }
     } else {
-      return res.render("login", { noUser: true });
+      return res.render("login", { noUser: true, email: req.body.email.trim() });
     }
   } catch (err) {
     console.log("fail to login", err);
@@ -227,7 +226,7 @@ app.get("/login", (req, res) => {
 // Get request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ username: req.session.username.trim() });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -286,8 +285,8 @@ app.get("/reset_password", (req, res) => {
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
-  req.session.username = req.body.username;
-  req.session.email = req.body.email;
+  req.session.username = req.body.username.trim();
+  req.session.email = req.body.email.trim();
   res.redirect("/my_preference");
 });
 
@@ -306,8 +305,8 @@ app.post("/signup", async (req, res) => {
 
   try {
     await newUser.save();
-    req.session.username = username;
-    req.session.email = email;
+    req.session.username = username.trim();
+    req.session.email = email.trim();
     res.redirect("/my_preference");
   } catch (error) {
     console.error("Error creating user:", error);
@@ -658,9 +657,9 @@ app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email.trim() },
       {
-        $set: { username: name, email: email, phone: phone, address: address },
+        $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
       },
       { new: true }
     );
@@ -733,8 +732,8 @@ app.post("/favorites/add/:id", async (req, res) => {
 
 // store feedback in the database
 app.post("/save_feedback", async (req, res) => {
-  const name = req.body.name;
-  const message = req.body.message;
+  const name = req.body.name.trim();
+  const message = req.body.message.trim();
   const timestamp = new Date();
   const feedback = new feedbacks({
     name: name,
@@ -793,7 +792,7 @@ app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username },
+      { username: req.session.username.trim() },
       { $set: { preferences: preferences } },
       { new: true }
     );
