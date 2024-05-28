@@ -469,7 +469,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    userCart = user.cart;
+    const userCart = user.cart;
 
     try {
       await User.findOneAndUpdate(
@@ -490,7 +490,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
 app.get("/getCartNumber", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.session.username });
-    cartCount = 0;
+    let cartCount = 0;
 
     user.cart.forEach((item) => {
       if (item) cartCount += item.quantity;
