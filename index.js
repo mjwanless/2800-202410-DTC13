@@ -131,6 +131,10 @@ const createUser = async (req, res, next) => {
   }
 
   if (error) {
+    if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
+      return res.render("signup", { invalidUsername: true, email: req.body.email });
+    }
+
     return res.send(
       `Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`
     );

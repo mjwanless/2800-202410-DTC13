@@ -21,6 +21,17 @@
             <% } %>
         </div>
 
+        <!-- invalid username message -->
+        <div class="fixed top-2 left-2 right-2 z-10">
+          <% if (typeof invalidUsername !=='undefined' && invalidUsername){ %>
+            <div id="usernameErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert">
+              <strong class="font-bold">Invalid Username!</strong>
+              <span class="block sm:inline">Username can only contain Alphanumeric characters.</span>
+            </div>
+            <% } %>
+        </div>
+
         <!-- existing email message -->
         <div class="fixed top-2 left-2 right-2 z-10">
           <% if (typeof repeatEmail !=='undefined' && repeatEmail){ %>
