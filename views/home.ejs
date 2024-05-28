@@ -8,11 +8,11 @@
     overflow: hidden;
   }
 </style>
-<h2 class="px-5 flex items-center">
-  <span class="text-lg font-bold">Weekly Recommendation</span>
-</h2>
+<h3 class="px-5 flex items-centertext-lg font-bold text-lg">
+  Weekly Recommendation
+</h3>
 
-<div id="h-gallery" class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10">
+<div id="h-gallery" class="container scroll-smooth focus:scroll-auto relative w-full flex gap-6 snap-x overflow-x-auto pb-10 pt-3">
   <% recipeList.forEach((recipe) => { %>
   <div
     id="<%= recipe.recipeId %>"
@@ -20,7 +20,7 @@
     onclick="goToRecipe(id)"
   >
     <img
-      class="shrink-0 w-80 h-60 rounded-lg shadow-xl bg-white"
+      class="shrink-0 w-80 h-60 rounded-md shadow-xl bg-white"
       src="<%= recipe.imgUrl %>"
       alt="Recipe Image"
     />
@@ -33,7 +33,7 @@
   <% }) %>
 </div>
 <!--Below is horizontal gallery-->
-<h3 class="p-5 flex items-center">
+<h3 class="px-5 flex items-center">
   <span class="text-lg font-bold">Monthly Hot</span>
   <svg
     xmlns="http://www.w3.org/2000/svg"
