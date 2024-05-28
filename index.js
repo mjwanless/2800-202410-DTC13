@@ -22,6 +22,7 @@ const sendResetPasswordEmail = require("./js/sendResetPasswordEmail");
 const getRecipeInfo = require("./js/getRecipeInfo");
 const getPrice = require("./js/getPrice");
 
+
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
@@ -118,12 +119,17 @@ const isAuthenticated = (req, res, next) => {
 const createUser = async (req, res, next) => {
   const schema = joi.object({
     username: joi.string().alphanum().max(30).required(),
-    email: joi.string().max(200).required(),
+    email: joi.string().max(200).required().email(),
     password: joi.string().max(50).required(),
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required(),
   });
   const { error } = schema.validate(req.body);
+
+  const validationResult = schema.validate({ email: req.session.email });
+  if (validationResult.error) {
+    return res.render("signup", { invalidEmail: true, username: req.body.username.trim() });
+  }
 
   if (!req.body.security_question) {
     return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
@@ -179,12 +185,9 @@ const loginValidation = async (req, res, next) => {
     email: joi.string().max(200).required(),
   });
   req.session.email = req.body.email.trim();
-  const validationResult = schema.validate({ email: req.session.email });
+  const validationResult = schema.validate({ email: req.session.email.trim() });
   if (validationResult.error) {
-    res.send("login validation result error", {
-      error: validationResult.error,
-    });
-    return;
+    res.render("login", { invalidEmail: true, email: req.body.email.trim() });
   }
   try {
     const user = await User.findOne({ email: req.body.email.trim() });
