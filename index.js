@@ -190,7 +190,7 @@ const loginValidation = async (req, res, next) => {
         req.session.cookie.maxAge = sessionExpireTime;
         next();
       } else {
-        return res.render("login", { wrongPassword: true });
+        return res.render("login", { wrongPassword: true, email: req.body.email });
       }
     } else {
       return res.render("login", { noUser: true });
@@ -784,7 +784,7 @@ app.get("/local_preference", isAuthenticated, async (req, res) => {
 app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-     await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { username: req.session.username },
       { $set: { preferences: preferences } },
       { new: true }
