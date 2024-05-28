@@ -1,6 +1,5 @@
 /* jshint esversion: 8 */
 
-
 const express = require("express");
 const User = require("./userSchema");
 const config = require("./config");
@@ -14,7 +13,7 @@ const { is, fr, ht, tr, el } = require("date-fns/locale");
 const orders = require("./orderSchema");
 const orderconfirmRouter = express.Router();
 
-const getConfirmationNumber = () =>{
+const getConfirmationNumber = () => {
   // Generate random order number
   const number = (Math.floor(Math.random() * 1000) + 1).toString();
   // Generate random 3 letter code
@@ -22,31 +21,30 @@ const getConfirmationNumber = () =>{
   for (let i = 0; i < 3; i++) {
     letter += String.fromCharCode(Math.floor(Math.random() * 26) + 65);
   }
-   const orderNumber = number + letter;
-   return orderNumber;
-}
+  const orderNumber = number + letter;
+  return orderNumber;
+};
 
 // Calculate delivery date
-const getDeliveryDate = () =>{
+const getDeliveryDate = () => {
   const now = new Date();
   const deliveryDate = new Date(now.setDate(now.getDate() + 7));
   const formattedDate = dateFormat.format(deliveryDate, "yyyy-MM-dd");
   return formattedDate;
-}
+};
 
 // format the amount into CAD
-const getTotalAmount = (amount) =>{
+const getTotalAmount = (amount) => {
   const currencyFormater = new Intl.NumberFormat("en-CA", {
     style: "currency",
     currency: "CAD",
   });
   const formattedAmount = currencyFormater.format(amount);
   return formattedAmount;
-}
-
+};
 
 // save order to the database
-const saveOrder = async (orderNumber, amount) =>{
+const saveOrder = async (orderNumber, amount) => {
   await orders
     .create({
       orderId: orderNumber,
@@ -67,19 +65,34 @@ const saveOrder = async (orderNumber, amount) =>{
       order.save();
       console.log("Order saved to the database");
     });
-}
+};
 
 function confirmationInfo(userName, orderNumber, amount) {
   return `
-    <h1>Hello ${userName} ! </h1>
-    <h3>Order Confirmation: ${orderNumber}</h3>
-    <h3>Total amount: $ ${amount}</h3>
-    <p>Thank you for your order. Your order has been confirmed.</p>
-    <p>Thank you for choosing Fresh Plate</p>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Fresh Plate Logo" style="width: 150px; height: auto;">
+      </div>
+      <h2 style="color: #333;">Hello ${userName}!</h2>
+      <h3 style="color: #555;">Order Confirmation: ${orderNumber}</h3>
+      <h3 style="color: #555;">Total Amount: $${amount}</h3>
+      <p style="color: #666; line-height: 1.5;">Thank you for your order. Your order has been confirmed.</p>
+      <p style="color: #666; line-height: 1.5;">Thank you for choosing Fresh Plate.</p>
+      <p style="color: #666; line-height: 1.5;">
+        For more information, please read our 
+        <a href="https://docs.google.com/document/d/1VoWqNivEph_rFmGik6b1JtnFFU8KOQrVuFWoxJF-Psk/edit?usp=sharing" style="color: #1a73e8;">Privacy Policy</a>.
+      </p>
+    </div>
     `;
 }
 
-function sendConfirmationEmail(recipient, accessToken, userName, orderNumber, formattedAmount) {
+function sendConfirmationEmail(
+  recipient,
+  accessToken,
+  userName,
+  orderNumber,
+  formattedAmount
+) {
   const transporter = nodeMailer.createTransport({
     service: "gmail",
     auth: {
@@ -111,7 +124,6 @@ function sendConfirmationEmail(recipient, accessToken, userName, orderNumber, fo
 
 //post request for the order confirmation page
 orderconfirmRouter.post("/orderconfirm", async (req, res) => {
-
   const orderNumber = getConfirmationNumber();
   const formattedDate = getDeliveryDate();
   const formattedAmount = getTotalAmount(req.body.amount);
@@ -128,7 +140,13 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   const recipient = user.email;
   const userName = user.username;
 
-  sendConfirmationEmail(recipient, accessToken, userName, orderNumber, formattedAmount);  
+  sendConfirmationEmail(
+    recipient,
+    accessToken,
+    userName,
+    orderNumber,
+    formattedAmount
+  );
   saveOrder(orderNumber, req.body.amount);
 
   res.render("orderconfirm", {
