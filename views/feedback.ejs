@@ -1,17 +1,17 @@
 <%- include('templates/header') %> <%- include('templates/backBtn') %>
     <div class="min-h-screen flex flex-col items-center p-4 relative bg-orange-50 p-8">
-      <h2 class="title-font mb-1 text-lg font-medium text-gray-900">Feedback</h2>
+      <h2 class="title-font mb-1 text-xl font-bold text-blue-950">Feedback</h2>
       <p class="mb-5 leading-relaxed text-gray-600">
         If you had any issues or you liked our product, please share with us!
       </p>
       <form action="/save_feedback" method="post" onsubmit="return confirmSubmission()">
         <div class="mb-4">
-          <label for="email" class="text-sm leading-7 text-gray-600">Your Name</label>
+          <label for="name" class="font-medium text-sm leading-7 text-gray-600">Your Name</label>
           <input type="text" id="name" name="name"
             class="w-full rounded border border-gray-300 bg-white py-1 px-3 text-base leading-8 text-gray-700 outline-none transition-colors duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required />
         </div>
         <div class="mb-4">
-          <label for="message" class="text-sm leading-7 text-gray-600">Message</label>
+          <label for="message" class="font-medium text-sm leading-7 text-gray-600">Message</label>
           <textarea id="message" name="message"
             class="h-32 w-full resize-none rounded border border-gray-300 bg-white py-1 px-3 text-base leading-6 text-gray-700 outline-none transition-colors duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required></textarea>
         </div>

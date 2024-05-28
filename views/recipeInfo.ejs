@@ -60,16 +60,16 @@
             </div>
 
             <div class="flex items-center justify-between mt-4">
-                <h2 class="text-2xl font-semibold text-blue-950">Price : $ <span id="price"><%= recipeDetails.recipePrice %></span></h2>
+                <h2 class="text-xl font-semibold text-blue-950">Price : $ <span id="price"><%= recipeDetails.recipePrice %></span></h2>
+                <div class="flex justify-end">
+                    <form id="add-to-cart-form" action="/add-to-cart" method="POST">
+                        <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
+                        <input class="hidden" name="recipePrice" type="data" value="<%= recipeDetails.recipePrice %>">
+                        <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
+                    </form>
+                </div>
             </div>
 
-            <div class="flex mt-4 justify-end">
-                <form id="add-to-cart-form" action="/add-to-cart" method="POST">
-                    <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
-                    <input class="hidden" name="recipePrice" type="data" value="<%= recipeDetails.recipePrice %>">
-                    <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
-                </form>
-            </div>
 
             <div class="mt-6">
                 <h2 class="text-2xl font-semibold text-blue-950">Nutritional Information</h2>

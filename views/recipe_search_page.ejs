@@ -4,9 +4,9 @@
 
         <div class="px-5 flex items-center justify-between">
             <p class="text-lg font-bold">Search Results:</p>
-            <div id="filter-div" class="px-5 flex items-center" onclick="openFilterMenu()">
+            <div id="filter-div" class="px-5 flex items-center text-blue-950" onclick="openFilterMenu()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter" width="20"
-                    height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none"
+                    height="20" viewBox="0 0 24 24" stroke-width="3" stroke="#172554" fill="none"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path
@@ -100,7 +100,7 @@
                     }
 
                     tag = `
-                        <p class="m-1 p-1 col-span-${columnWidth} bg-orange-500 text-sm
+                        <p class="m-1 py-1 px-2 col bg-orange-500 text-sm
                         text-white font-semibold rounded-lg">${tagText}</p>
                     `;
                     tagList += tag;
@@ -121,9 +121,9 @@
                             <img class="" src=${recipe.image}>
                         </div>
                     </div>
-                    <div class="flex flex-col justify-center p-1 text-center w-2/3">
-                        <p class="font-bold">${recipe.label}</p>
-                        <div class='grid grid-cols-6 text-center'>${tagList}</div>
+                    <div class="flex flex-col justify-center p-1 w-2/3">
+                        <p class="font-bold text-blue-950 text-left ml-2">${recipe.label}</p>
+                        <div class='flex flex-wrap text-center'>${tagList}</div>
                     </div>
                 </div>
                 `
