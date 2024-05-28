@@ -105,23 +105,19 @@
             <h1 class="text-lg font-semibold">Order History</h1>
         </div>
         <div id="orderHistory" class="mt-4 space-y-4">
-            <!-- Order cards will be rendered here -->
+            <!-- Order cards are rendered here -->
         </div>
     </div>
-
-<!--modal-->
 
 <div id="calori-modal" class="hidden fixed top-0 left-0 w-full h-full flex align-content-center items-center bg-black bg-opacity-50">
   <div role="dialog" class="bg-white rounded-lg shadow-lg p-6 transform translate-y-3/4">
     <div id="modal-content">
-      <!-- <span id="close" class="close absolute top-0 right-0 p-4">&times;</span> -->
       <span id="close" class="close absolute top-0 right-0 p-4"><svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path></svg></span>
       <h2 class="text-2xl font-bold mb-4">Estimated Calories Burned:</h2>
       <p id="calories" class="text-lg">kcal</p>
     </div>
   </div>
 </div>
-
 
 <script>
   function confirmSignOut() {

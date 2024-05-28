@@ -1,12 +1,10 @@
-/* jshint esversion: 9 */
-
+/* jshint esversion: 8 */
 
 const express = require("express");
 const User = require("./userSchema");
 require("dotenv").config();
 const getPrice = require("./getPrice");
 const getRecipeInfoRouter = express.Router();
-
 
 getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
@@ -19,9 +17,6 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
       `https://api.edamam.com/api/recipes/v2/${recipeId}?type=public&app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}`
     );
     const data = await response.json();
-
-    // Log the response for debugging
-    // console.log('API Response:', data);
 
     // Check if the data.recipe exists
     if (data.recipe) {

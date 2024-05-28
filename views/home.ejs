@@ -1,4 +1,5 @@
-<%- include('templates/header') %> <%- include('templates/searchBar') %>
+<%- include('templates/header') %> 
+<%- include('templates/searchBar') %>
 <style>
   ::-webkit-scrollbar {
     display: none;
@@ -8,7 +9,6 @@
     overflow: hidden;
   }
 </style>
-
 
 <h3 class="px-5 flex items-center text-lg font-bold text-lg">
   Weekly Recommendation
@@ -56,7 +56,6 @@
   </svg>
 </h3>
 <!--Below is vertical gallery-->
-
 <div id="v-gallery" class="overflow-auto">
   <% monthlyRecipeList.forEach((recipe) => { %>
   <div
@@ -66,7 +65,7 @@
   >
     <img class="w-20 h-20 flex-shrink-0" src="<%= recipe.recipeImg %>" />
     <div class="flex flex-col">
-      <strong class="text-slate-900 text-sm font-medium dark:text-slate-200"
+      <strong class="text-slate-900 text-sm font-medium dark:text-slate-800"
         ><%= recipe.recipeTitle %></strong
       >
     </div>

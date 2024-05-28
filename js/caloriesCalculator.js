@@ -1,4 +1,4 @@
-/* jshint esversion: 3 */
+/* jshint esversion: 8 */
 
 const express = require("express");
 const request = require("request");

@@ -89,7 +89,6 @@ function resetPasswordInfo(userName) {
 resetPasswordRouter.post("/reset_password", resetPassword, async (req, res) => {
   const accessToken = getAccessToken();
 
-  // const user = await User.findOne({ email: req.body.email });
   const recipientEmail = user.email;
   const userName = user.username;
 
