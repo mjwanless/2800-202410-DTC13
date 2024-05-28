@@ -23,6 +23,7 @@ const getPrice = require("./js/getPrice");
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
+const { user } = require("./js/config");
 
 // ======================================
 // Create a new express app and set up the port for .env variables
@@ -419,9 +420,9 @@ app.get("/home", async (req, res) => {
   });
 });
 
-app.get("/cart", (req, res) => {
-  res.render("cart");
-});
+// app.get("/cart", (req, res) => {
+//   res.render("cart");
+// });
 
 app.get("/browse", (req, res) => {
   res.render("browse");
@@ -829,6 +830,23 @@ app.post("/quantity/increase/:id", async (req, res) => {
   }
   res.status(200).send("Increased quantity");
 });
+
+app.post("/deleteRecipe/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  try {
+    await User.updateOne(
+      { email: req.session.email },
+      { $unset: { [`cart.${recipeId}`]: "" } }
+    )
+    res.status(200).send("Deleted recipe");
+  }
+catch (error) {
+  console.error("Error fetching user:", error);
+  res.status(500).send("Error fetching user");
+}
+
+})
+  
 
 // Logout page
 app.post("/logout", (req, res) => {

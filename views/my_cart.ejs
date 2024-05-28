@@ -43,10 +43,13 @@
                         <!-- <span class="font-bold text-blue-950 text-lg">$<%= (recipe.totalNutrients.ENERC_KCAL.quantity * recipe.count).toFixed(2) %></span> -->
                         <span class="font-bold text-blue-950 text-lg" id="price_<%= priceList[i].recipeId%>">$<%= (priceList[i].price * priceList[i].quantity).toFixed(2) %></span>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button class="bg-indigo-50 text-blue-950 rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="decreaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">-</button>
-                        <span id="text_<%= priceList[i].recipeId%>"><%= priceList[i].quantity %></span>
-                        <button class="bg-orange-500 text-white rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="increaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">+</button>
+                    <div class="flex justify-between">
+                        <div class="flex items-center space-x-2">
+                            <button class="bg-indigo-50 text-blue-950 rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="decreaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">-</button>
+                            <span id="text_<%= priceList[i].recipeId%>"><%= priceList[i].quantity %></span>
+                            <button class="bg-orange-500 text-white rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="increaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">+</button>
+                        </div>
+                        <button type="button" class="underline text-red-500 font-medium" onclick="removeRecipe('<%= priceList[i].recipeId%>')">Remove</button>
                     </div>
                 </div>
             </div>
@@ -72,6 +75,20 @@ function processPayment(){
         }
     }
     )
+}
+
+function removeRecipe(recipeId) {
+    const confirmed = confirm('Are you sure you want to remove this recipe from your cart?');
+    if (!confirmed) {
+        return;
+    }
+    fetch(`/deleteRecipe/${recipeId}`, {
+        method: 'POST',
+    }).then(response => {
+        if (response.ok) {
+            window.location.reload();
+        }
+    });
 }
 </script>
 
