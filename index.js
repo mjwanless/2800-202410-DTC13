@@ -143,7 +143,7 @@ const createUser = async (req, res, next) => {
   //Checks if there isn't already an account with this email
   const existingUser = await User.findOne({ email: req.body.email });
   if (existingUser) {
-    return res.render("signup", { repeatEmail: true });
+    return res.render("signup", { repeatEmail: true, username: req.body.username, });
   }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -202,7 +202,7 @@ const loginValidation = async (req, res, next) => {
         return res.render("login", { wrongPassword: true, email: req.body.email });
       }
     } else {
-      return res.render("login", { noUser: true });
+      return res.render("login", { noUser: true, email: req.body.email });
     }
   } catch (err) {
     console.log("fail to login", err);
