@@ -14,6 +14,7 @@ const joi = require("joi");
 const saltRounds = 10;
 const resetPasswordRouter = express.Router();
 
+let user;
 
 // Middleware to reset a password
 const resetPassword = async (req, res, next) => {
@@ -28,7 +29,7 @@ const resetPassword = async (req, res, next) => {
     return;
   }
   try {
-    const user = await User.findOne({ email: req.body.email });
+    user = await User.findOne({ email: req.body.email });
     if (user) {
       const outputAnswer = user.security_answer;
       const inputAnswer = req.body.security_answer;
@@ -58,16 +59,41 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+function resetPasswordInfo(userName) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://freshplate.onrender.com/logo1.svg" alt="Fresh Plate Logo" style="width: 150px; height: auto;">
+    </div>  
+    <h1 style="color: #333;">Hello ${userName}!</h1>
+      <p style="color: #666; line-height: 1.5;">Your password has been reset successfully.</p>
+      <p style="color: #666; line-height: 1.5;">If you did not request this change, please contact our support team immediately.</p>
+      <p style="color: #666; line-height: 1.5;">
+        You can now log in to your account using your new password. For any assistance, please visit our 
+        <a href="#" style="color: #1a73e8;">Support Page</a> or contact us at 
+        <a href="#" style="color: #1a73e8;">support@freshplate.com</a>.
+      </p>
+      <p style="color: #666; line-height: 1.5;">Thank you for choosing Fresh Plate. Stay secure!</p>
+      <p style="color: #666; line-height: 1.5;">
+        For more information, please read our 
+        <a href="https://docs.google.com/document/d/1VoWqNivEph_rFmGik6b1JtnFFU8KOQrVuFWoxJF-Psk/edit?usp=sharing" style="color: #1a73e8;">Privacy Policy</a>.
+      </p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="https://freshplate.onrender.com/login" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #1a73e8; border-radius: 4px; text-decoration: none;">Log In</a>
+      </div>
+    </div>
+    `;
+}
+
 // After successful password reset
 resetPasswordRouter.post("/reset_password", resetPassword, async (req, res) => {
   const accessToken = getAccessToken();
-  // const accessToken = await OAuth2Client.getAccessToken();
 
-  const user = await User.findOne({ email: req.body.email });
-  const recipient = user.email;
+  // const user = await User.findOne({ email: req.body.email });
+  const recipientEmail = user.email;
   const userName = user.username;
 
-  function resetPasswordEmail(recipient) {
+  function resetPasswordEmail(recipientEmail) {
     const transporter = nodeMailer.createTransport({
       service: "gmail",
       auth: {
@@ -82,9 +108,9 @@ resetPasswordRouter.post("/reset_password", resetPassword, async (req, res) => {
 
     const mailOptions = {
       from: `Fresh Plate <${config.user}>`,
-      to: recipient,
+      to: recipientEmail,
       subject: "Password Has Been Reset Successfully",
-      html: resetPasswordInfo(),
+      html: resetPasswordInfo(userName),
     };
 
     transporter.sendMail(mailOptions, (err, result) => {
@@ -97,13 +123,7 @@ resetPasswordRouter.post("/reset_password", resetPassword, async (req, res) => {
     });
   }
 
-  function resetPasswordInfo() {
-    return `
-    <h1>Hello ${userName} ! </h1>
-    <p>Your password has been reset successfully.</p>
-    `;
-  }
-  resetPasswordEmail(recipient);
+  resetPasswordEmail(recipientEmail);
 
   res.redirect("/login");
 });
