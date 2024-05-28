@@ -35,7 +35,6 @@
                 <div class="p-8 flex-grow">
                     <div class="flex items-center justify-between">
                         <h2 class="font-bold text-2xl text-blue-950"><%= recipe.label %></h2>
-                        <!-- <span class="font-bold text-gray-800">x<%= recipe.count %></span> -->
                     </div>
                     <ul>
                     <% recipe.ingredientLines.forEach(ingredient => { %>
@@ -44,7 +43,6 @@
                     </ul>
                     <div class="flex justify-between items-center my-4">
                         <span class="font-bold text-lg">Total:</span>
-                        <!-- <span class="font-bold text-blue-950 text-lg">$<%= (recipe.totalNutrients.ENERC_KCAL.quantity * recipe.count).toFixed(2) %></span> -->
                         <span class="font-bold text-blue-950 text-lg" id="price_<%= priceList[i].recipeId%>">$<%= (priceList[i].price * priceList[i].quantity).toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">

@@ -136,7 +136,7 @@ const createUser = async (req, res, next) => {
   const existingUser = await User.findOne({ email: req.body.email });
   if (existingUser) {
     return res.render("signup", { repeatEmail: true });
-  };
+  }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   var hashedSecurityAnswer = await bcrypt.hash(
@@ -612,7 +612,7 @@ app.get("/user_orders", async (req, res) => {
     const user = await User.findOne({ username: req.session.username });
     const userOrders = await orders
       .find({ orderId: { $in: user.order } })
-      .sort({ orde_date: -1 }); // Sort by orde_date descending
+      .sort({ orderDate: -1 }); // Sort by orde_date descending
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -859,14 +859,11 @@ app.post("/deleteRecipe/:id", async (req, res) => {
       { $unset: { [`cart.${recipeId}`]: "" } }
     );
     res.status(200).send("Deleted recipe");
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).send("Error fetching user");
   }
-
 });
-  
 
 // Logout page
 app.post("/logout", (req, res) => {
