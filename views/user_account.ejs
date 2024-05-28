@@ -8,14 +8,8 @@
         class="w-20 h-20 rounded-full"
       />
       <div>
-        <h1 class="text-lg font-semibold text-blue-950">
-          
-                        <%= user.username %>
-        
-                    </h1>
-        <h3 class="text-m text-gray-600">
-                        <%= user.email %>
-                    </h3>
+        <h1 class="text-lg font-semibold text-blue-950"><%= user.username %></h1>
+        <h3 class="text-m text-gray-600"><%= user.email %></h3>
       </div>
     </div>
     <a
@@ -117,14 +111,8 @@
 
 <!--modal-->
 
-<div
-  id="calori-modal"
-  class="hidden fixed top-0 left-0 w-full h-full flex align-content-center items-center bg-black bg-opacity-50"
->
-  <div
-    role="dialog"
-    class="bg-white rounded-lg shadow-lg p-6 transform translate-y-3/4"
-  >
+<div id="calori-modal" class="hidden fixed top-0 left-0 w-full h-full flex align-content-center items-center bg-black bg-opacity-50">
+  <div role="dialog" class="bg-white rounded-lg shadow-lg p-6 transform translate-y-3/4">
     <div id="modal-content">
       <!-- <span id="close" class="close absolute top-0 right-0 p-4">&times;</span> -->
       <span id="close" class="close absolute top-0 right-0 p-4"><svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path></svg></span>
@@ -136,50 +124,6 @@
 
 
 <script>
-  function getResults() {
-    const query = document.getElementById("query").value;
-    if (query === "" || !query) {
-      alert("Please enter a valid query");
-      return;
-    }
-    fetch("/calculate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query }),
-    })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(" Calories burned: ", data);
-      // TODP - Display the result
-      const modal = document.getElementById("calori-modal");
-      const calories = document.getElementById("calories");
-      modal.style.display = "block";
-      calories.innerText = `${data.result} kcal`;
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-  }
-  // toggle calculator
-  const toggleCalculator = document.getElementById("calorimeter");
-  const calculator = document.getElementById("calculator");
-  
-  toggleCalculator.addEventListener("click", () => {
-    if (calculator.style.display === "none") {
-      calculator.style.display = "flex";
-    } else {
-      calculator.style.display = "none";
-    }
-  });
-  
-  const close = document.getElementById("close");
-  close.addEventListener("click", () => {
-    const modal = document.getElementById("calori-modal");
-    modal.style.display = "none";
-  });
-  
   function confirmSignOut() {
     if (confirm("Are you sure you want to sign out?")) {
       fetch("/logout", {
@@ -196,38 +140,9 @@
     }
   }
   
-  // Fetch and render order history
-  document.addEventListener("DOMContentLoaded", function () {
-    fetch("/user_orders")
-      .then((response) => response.json())
-      .then((orders) => {
-        const orderHistory = document.getElementById("orderHistory");
-        orders.forEach((order) => {
-          const orderCard = document.createElement("div");
-          orderCard.className = "bg-orange-50 p-4 rounded-md shadow-md";
-          orderCard.innerHTML = `
-                      <div class="flex items-center">
-                          <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
-                          <div>
-                              <h2 class="text-md font-semibold text-blue-950">${
-                                order.info.recipeTitle
-                              }</h2>
-                              <p class="text-sm text-gray-600">${new Date(
-                                order.orderDate
-                              ).toLocaleString()}</p>
-                          </div>
-                      </div>
-                      <a href="/order/${
-                        order.orderId
-                      }" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
-                  `;
-          orderHistory.appendChild(orderCard);
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching order history:", error);
-      });
-  });
 </script>
-
-<%- include('templates/menuBar'); %> <%- include('templates/footer'); %>
+<%- include('templates/menuBar'); %>
+<script src="/script/getCaloriesResult.js"></script>
+<script src="/script/toggleCalculator.js"></script>
+<script src="/script/renderOrderHistory.js"></script>
+<%- include('templates/footer'); %>
