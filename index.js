@@ -25,7 +25,6 @@ const getPrice = require("./js/getPrice");
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
-const { user } = require("./js/config");
 
 // ======================================
 // Create a new express app and set up the port for .env variables
@@ -106,14 +105,14 @@ app.use(express.json());
 // functions and middleware
 // ======================================
 
-let emailSent = false;
-
 // Middleware to check if the user is authenticated
-isAuthenticated = (req, res, next) => {
+const isAuthenticated = (req, res, next) => {
   if (req.session.authenticated) {
     req.session.username = req.session.username;
     next();
-  } else return res.redirect("/login");
+  } else {
+    return res.redirect("/login");
+  }
 };
 
 // Middleware to create a user
@@ -342,29 +341,32 @@ function isCacheExpired() {
   return currentTime - cachedRecipes.timestamp >= TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
 }
 
-
 const getRecommendation = async (preferenceList) => {
   try {
     let recipeList = [];
 
-    await Promise.all(preferenceList.map(async (preference) => {
-      const response = await fetch(`https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`);
-      const data = await response.json();
+    await Promise.all(
+      preferenceList.map(async (preference) => {
+        const response = await fetch(
+          `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
+        );
+        const data = await response.json();
 
-      if (data && data.hits && data.hits.length > 0) {
-        const recipes = data.hits;
-        for (let j = 1; j < 3; j++) {
-          let index = Math.floor(Math.random() * 10);
-          let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
-          let imgUrl = recipes[index].recipe.image;
-          let recipeTitle = recipes[index].recipe.label;
-          if (recipeTitle.length > 40) {
-            recipeTitle = recipeTitle.substring(0, 40) + "...";
+        if (data && data.hits && data.hits.length > 0) {
+          const recipes = data.hits;
+          for (let j = 1; j < 3; j++) {
+            let index = Math.floor(Math.random() * 10);
+            let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+            let imgUrl = recipes[index].recipe.image;
+            let recipeTitle = recipes[index].recipe.label;
+            if (recipeTitle.length > 40) {
+              recipeTitle = recipeTitle.substring(0, 40) + "...";
+            }
+            recipeList.push({ recipeId, imgUrl, recipeTitle });
           }
-          recipeList.push({ recipeId, imgUrl, recipeTitle });
         }
-      }
-    }));
+      })
+    );
     cachedRecipes.timestamp = new Date().getTime();
     cachedRecipes.data = recipeList;
   } catch (error) {
@@ -372,7 +374,6 @@ const getRecommendation = async (preferenceList) => {
     return [];
   }
 };
-
 
 async function fetchAndCacheRecommendations(preferenceList) {
   if (isCacheExpired()) {
@@ -422,9 +423,11 @@ app.get("/home", async (req, res) => {
   } else {
     console.log("No monthly recipe found");
   }
-  res.render("home", {recipeList: recipeList, monthlyRecipeList: monthlyRecipeList});
+  res.render("home", {
+    recipeList: recipeList,
+    monthlyRecipeList: monthlyRecipeList,
+  });
 });
-
 
 app.get("/browse", (req, res) => {
   res.render("browse");
@@ -754,7 +757,7 @@ app.get("/my_preference", async (req, res) => {
 app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
-    const updatedUser = await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { username: req.session.username },
       { $set: { preferences: preferences } },
       { new: true }
@@ -781,7 +784,7 @@ app.get("/local_preference", isAuthenticated, async (req, res) => {
 app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-    const updatedUser = await User.findOneAndUpdate(
+     await User.findOneAndUpdate(
       { username: req.session.username },
       { $set: { preferences: preferences } },
       { new: true }
