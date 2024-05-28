@@ -62,7 +62,10 @@ const resetPassword = async (req, res, next) => {
 function resetPasswordInfo(userName) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-      <h1 style="color: #333;">Hello ${userName}!</h1>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://freshplate.onrender.com/logo1.svg" alt="Fresh Plate Logo" style="width: 150px; height: auto;">
+    </div>  
+    <h1 style="color: #333;">Hello ${userName}!</h1>
       <p style="color: #666; line-height: 1.5;">Your password has been reset successfully.</p>
       <p style="color: #666; line-height: 1.5;">If you did not request this change, please contact our support team immediately.</p>
       <p style="color: #666; line-height: 1.5;">
@@ -71,6 +74,10 @@ function resetPasswordInfo(userName) {
         <a href="#" style="color: #1a73e8;">support@freshplate.com</a>.
       </p>
       <p style="color: #666; line-height: 1.5;">Thank you for choosing Fresh Plate. Stay secure!</p>
+      <p style="color: #666; line-height: 1.5;">
+        For more information, please read our 
+        <a href="https://docs.google.com/document/d/1VoWqNivEph_rFmGik6b1JtnFFU8KOQrVuFWoxJF-Psk/edit?usp=sharing" style="color: #1a73e8;">Privacy Policy</a>.
+      </p>
       <div style="text-align: center; margin-top: 20px;">
         <a href="https://freshplate.onrender.com/login" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #1a73e8; border-radius: 4px; text-decoration: none;">Log In</a>
       </div>

@@ -71,8 +71,8 @@ function confirmationInfo(userName, orderNumber, amount) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Fresh Plate Logo" style="width: 150px; height: auto;">
-      </div>
+        <img src="https://freshplate.onrender.com/logo1.svg" alt="Fresh Plate Logo" style="width: 150px; height: auto;">
+    </div>  
       <h2 style="color: #333;">Hello ${userName}!</h2>
       <h3 style="color: #555;">Order Confirmation: ${orderNumber}</h3>
       <h3 style="color: #555;">Total Amount: $${amount}</h3>
