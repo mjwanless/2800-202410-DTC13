@@ -96,7 +96,7 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   await orders
     .create({
       orderId: orderNumber,
-      orde_date: new Date(),
+      orderDate: new Date(),
       isPickup: false,
       isDelivery: true,
       vendor: {
@@ -111,6 +111,7 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
     })
     .then((order) => {
       order.save();
+      console.log("Order saved to the database:", order.orderDate);
     });
 
   res.render("orderconfirm", {

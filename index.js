@@ -132,6 +132,12 @@ const createUser = async (req, res, next) => {
     );
   }
 
+  //Checks if there isn't already an account with this email
+  const existingUser = await User.findOne({ email: req.body.email });
+  if (existingUser) {
+    return res.render("signup", { repeatEmail: true });
+  };
+
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   var hashedSecurityAnswer = await bcrypt.hash(
     req.body.security_answer,
@@ -504,6 +510,18 @@ app.get("/recipe_search_page", (req, res) => {
   res.render("recipe_search_page");
 });
 
+app.get("/getSearchQuery/:query", async (req, res) => {
+  const appId = process.env.EDAMAM_APP_ID;
+  const appKey = process.env.EDAMAM_APP_KEY;
+  const query = req.params.query;
+
+  const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  res.json(data);
+});
+
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
   const user = await User.findOne({ email: req.session.email });
@@ -842,10 +860,10 @@ app.post("/deleteRecipe/:id", async (req, res) => {
     );
     res.status(200).send("Deleted recipe");
   }
-catch (error) {
-  console.error("Error fetching user:", error);
-  res.status(500).send("Error fetching user");
-}
+  catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
 
 });
   
