@@ -463,8 +463,7 @@ app.post("/add-to-cart", async (req, res) => {
       user.cart.get(recipeId).quantity += 1;
     }
     await user.save();
-    const currentUrl = req.headers.referer;
-    res.status(200);
+    res.status(200).json({ message: "Added to cart successfully" });
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).send("Internal server error");
