@@ -455,7 +455,7 @@ app.post("/add-to-cart", async (req, res) => {
     }
     await user.save();
     const currentUrl = req.headers.referer;
-    res.redirect(currentUrl);
+    res.status(200);
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).send("Internal server error");
@@ -478,8 +478,8 @@ app.post("/recipeInfo/:id", async (req, res) => {
       );
       res.sendStatus(200);
     } catch (err) {
-      console.error("Failed to update password:", err);
-      res.status(500).send("Failed to update password.");
+      console.error("Failed to update cart.", err);
+      res.status(500).send("Failed to update cart.");
     }
   } catch (err) {
     console.error("Failed to retrieve user:", err);
