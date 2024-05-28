@@ -13,12 +13,3 @@ getCartCount = async function () {
   document.getElementById("cart-button").append(cartCounter);
 };
 getCartCount();
-
-// increase cart number
-function increaseCartNumber() {
-  cartSize++;
-  if (cartSize > 9) cartSize = "9+";
-  cartCounter.innerText = cartSize;
-  console.log("increase cart number");
-  return true;
-}

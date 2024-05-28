@@ -62,7 +62,7 @@
             <div class="flex items-center justify-between mt-4">
                 <h2 class="text-xl font-semibold text-blue-950">Price : $ <span id="price"><%= recipeDetails.recipePrice %></span></h2>
                 <div class="flex justify-end">
-                    <form id="add-to-cart-form" action="/add-to-cart" method="POST" onsubmit="return increaseCartNumber()">
+                    <form id="add-to-cart-form" action="/add-to-cart" method="POST">
                         <input class="hidden" name="recipeId" type="data" value="<%= recipeDetails.recipeId %>">
                         <input class="hidden" name="recipePrice" type="data" value="<%= recipeDetails.recipePrice %>">
                         <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-md ml-2">Add to Cart</button>
@@ -100,8 +100,11 @@
         </div>
     </div>
 </div>
-
+<script>
+    
+</script>
 
 <%- include('templates/menuBar') %>
 <script src="/script/recipeInfoScript.js"></script>
+<script src="/script/increseCartNumber.js"></script>
 <%- include('templates/footer') %>

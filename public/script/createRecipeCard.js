@@ -46,7 +46,7 @@ function generateTagList(recipe) {
     }
 
     tagList += `
-            <p class="m-1 py-1 px-2 col bg-orange-500 text-sm text-white font-semibold rounded-lg">${tagText}</p>
+            <p class="m-1 py-1 px-2 col bg-orange-500 text-sm text-white font-semibold rounded-md">${tagText}</p>
         `;
   }
 

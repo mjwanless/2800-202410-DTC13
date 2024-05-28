@@ -1,14 +1,13 @@
 function decreaseQuantity(product_id, price) {
+    
+    decreaseBtn = document.getElementById("text_" + product_id)
+    if (decreaseBtn.innerText == 1) return
+    decreaseBtn.innerText--
+    
     cartSize--;
     if (cartSize == 0) return;
     cartCounter.innerText = cartSize;
-
-    decreaseBtn = document.getElementById("text_" + product_id)
-    if (decreaseBtn.innerText == 1) {
-        return
-    }
-    decreaseBtn.innerText--
-
+    
     let priceElem = document.getElementById("price_" + product_id);
     let priceValue = parseFloat(priceElem.innerText.substring(1));
     priceElem.innerText = "$" + (priceValue - parseFloat(price)).toFixed(2);
