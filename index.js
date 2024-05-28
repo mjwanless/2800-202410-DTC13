@@ -478,8 +478,8 @@ app.post("/recipeInfo/:id", async (req, res) => {
       );
       res.sendStatus(200);
     } catch (err) {
-      console.error("Failed to update password:", err);
-      res.status(500).send("Failed to update password.");
+      console.error("Failed to update cart.", err);
+      res.status(500).send("Failed to update cart.");
     }
   } catch (err) {
     console.error("Failed to retrieve user:", err);

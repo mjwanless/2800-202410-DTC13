@@ -35,7 +35,7 @@ const resetPassword = async (req, res, next) => {
       const inputAnswer = req.body.security_answer;
 
       if (!(await bcrypt.compare(inputAnswer, outputAnswer))) {
-        return res.render("reset_password", { wrongAnswer: true });
+        return res.render("reset_password", { wrongAnswer: true, email: req.body.email });
       }
 
       var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
