@@ -502,6 +502,18 @@ app.get("/recipe_search_page", (req, res) => {
   res.render("recipe_search_page");
 });
 
+app.get("/getSearchQuery/:query", async (req, res) => {
+  const appId = process.env.EDAMAM_APP_ID;
+  const appKey = process.env.EDAMAM_APP_KEY;
+  const query = req.params.query;
+
+  const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  res.json(data);
+});
+
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
   const user = await User.findOne({ email: req.session.email });
@@ -840,13 +852,13 @@ app.post("/deleteRecipe/:id", async (req, res) => {
     )
     res.status(200).send("Deleted recipe");
   }
-catch (error) {
-  console.error("Error fetching user:", error);
-  res.status(500).send("Error fetching user");
-}
+  catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
 
 })
-  
+
 
 // Logout page
 app.post("/logout", (req, res) => {
