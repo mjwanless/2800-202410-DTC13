@@ -193,7 +193,7 @@ const loginValidation = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email.trim() });
     if (user) {
       const outputPassword = user.password;
-      const inputPassword = req.body.password.trim();
+      const inputPassword = req.body.password;
 
       if (await bcrypt.compare(inputPassword, outputPassword)) {
         req.session.authenticated = true;
