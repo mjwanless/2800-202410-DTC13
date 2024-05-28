@@ -9,15 +9,39 @@
         </h2>
       </div>
 
-      <!-- existing email message -->
-      <div class="fixed top-2 left-2 right-2 z-10">
-        <% if (typeof repeatEmail !=='undefined' && repeatEmail){ %>
-          <div id="emailErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert">
-            <strong class="font-bold">Repeat Email!</strong>
-            <span class="block sm:inline">The email you entered is already used by an existing account.</span>
-          </div>
-          <% } %>
+      <div id="errorMessage">
+        <!-- no security question selected message -->
+        <div class="fixed top-2 left-2 right-2 z-10">
+          <% if (typeof noSecurityQuestion !=='undefined' && noSecurityQuestion){ %>
+            <div id="emailErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert">
+              <strong class="font-bold">No Selection!</strong>
+              <span class="block sm:inline">You need to select a security question.</span>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- invalid username message -->
+        <div class="fixed top-2 left-2 right-2 z-10">
+          <% if (typeof invalidUsername !=='undefined' && invalidUsername){ %>
+            <div id="usernameErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert">
+              <strong class="font-bold">Invalid Username!</strong>
+              <span class="block sm:inline">Username can only contain Alphanumeric characters.</span>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- existing email message -->
+        <div class="fixed top-2 left-2 right-2 z-10">
+          <% if (typeof repeatEmail !=='undefined' && repeatEmail){ %>
+            <div id="emailErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert">
+              <strong class="font-bold">Repeat Email!</strong>
+              <span class="block sm:inline">The email you entered is already used by an existing account.</span>
+            </div>
+            <% } %>
+        </div>
       </div>
 
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -27,7 +51,11 @@
             <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Username*</label>
             <div class="mt-2">
               <input id="username" name="username" type="username" autocomplete="username" required
-                class="px-4 block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                class="px-4 block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                <% if (typeof username !=='undefined' && username){ %>
+              value="<%= username %>"
+                <% } %>
+                  >
             </div>
           </div>
           <!-- email enter field -->
@@ -35,7 +63,11 @@
             <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email*</label>
             <div class="mt-2">
               <input id="email" name="email" type="email" autocomplete="email" required
-                class="px-4 block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                class="px-4 block w-full rounded-full border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                <% if (typeof email !=='undefined' && email){ %>
+              value="<%= email %>"
+                <% } %>
+                  >
             </div>
           </div>
           <!-- password enter field -->
@@ -95,7 +127,7 @@
   </div>
   <script>
     window.onload = async () => {
-      errorMessage = document.getElementById('emailErrorMsg')
+      errorMessage = document.getElementById('errorMessage')
       if (errorMessage) {
         await setTimeout(() => {
           errorMessage.classList.add('fadeOut')
