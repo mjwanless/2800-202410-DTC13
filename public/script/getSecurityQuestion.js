@@ -1,11 +1,3 @@
-window.onload = async () => {
-  errorMessage = document.getElementById("answerErrorMsg");
-  if (errorMessage) {
-    await setTimeout(() => {
-      errorMessage.classList.add("fadeOut");
-    }, 3000);
-  }
-};
 
 async function getSecurityQuestion() {
   let email = document.getElementById("email").value;
