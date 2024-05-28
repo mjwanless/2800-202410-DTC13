@@ -93,8 +93,8 @@
     if (!isMove) return;
     e.preventDefault();
     // carousel.classList.add("dragging");
-    let posisionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
-    carousel.scrollLeft = prevScrollLeft - posisionDiff;
+    let positionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
+    carousel.scrollLeft = prevScrollLeft - positionDiff;
   };
 
   const draggingStop = () => {
