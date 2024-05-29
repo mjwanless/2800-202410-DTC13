@@ -3,12 +3,12 @@
         <!-- back button -->
         <div class="bg-white fixed z-10 w-full">
             <%- include('templates/backBtn'); %>
-                <h1 class="text-2xl font-bold py-3  text-blue-950 text-center w-full">My Favorites</h1>
+                <h1 class="text-2xl font-bold py-5  text-blue-950 text-center w-full">My Favorites</h1>
         </div>
         <div class="h-20"></div>
         <div id="favorites_list" class="px-5">
             <% for(i=0; i< recipeDetails.length; i++) { %>
-                <div class="favorite_item_and_list relative bg-orange-50 mb-3 w-full rounded-md">
+                <div class="favorite_item_and_list relative bg-orange-50 mb-5 w-full rounded-md">
                     <div style="flex-direction: column" class="flex items-center gap-4 shadow-md rounded-md"
                         onclick="goToRecipe('<%= recipeDetails[i].recipeId %>')">
                         <img class=" rounded-t-md h-48 w-full object-cover md:w-48" src='<%= recipeDetails[i].recipeImg %>'>
