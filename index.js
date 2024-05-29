@@ -257,8 +257,7 @@ app.get("/mycart", async (req, res) => {
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
-        quantity: value.quantity,
-        price: getPrice(key),
+        quantity: value.quantity
       });
     });
 
