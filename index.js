@@ -141,22 +141,23 @@ const createUser = async (req, res, next) => {
   
 
   const { error } = schema.validate(req.body);
+  console.log(error);
 
   if (!req.body.security_question) {
     return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
   }
 
   if (error) {
-    if (error.details[0].key == "email") {
-      return res.render("signup", { invalidEmail: true, username: req.body.username.trim() });
+    if (error.details[0].message == '"email" must be a valid email') {
+      return res.render("signup", { invalidEmail: true, username: req.body.username.trim(), email: req.body.email.trim() });
     }
 
     if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
-      return res.render("signup", { invalidUsername: true, email: req.body.email.trim() });
+      return res.render("signup", { invalidUsername: true, email: req.body.email.trim(), username: req.body.username.trim() });
     }
 
-    return res.send(
-      `Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`
+    return res.render(
+      "signup", { error: true, email: req.body.email.trim(), username: req.body.username.trim() }
     );
   }
 
