@@ -1,8 +1,8 @@
 <%- include('templates/header'); %>
-<div class="bg-indigo-50 min-h-screen flex flex-col items-center p-4 relative">
+<div class="bg-indigo-50 flex flex-col items-center px-4 pt-6 pb-0 relative">
     <h1 class="text-2xl font-bold text-blue-950 text-center mb-4">My Preferences</h1>
-    <div class="absolute top-4 right-4">
-        <i class="fas fa-sync-alt text-orange-500 cursor-pointer" onclick="refreshPreferences()"></i>
+    <div class="absolute top-6 right-7">
+        <i class="fas fa-sync-alt text-orange-500 cursor-pointer text-xl" onclick="refreshPreferences()"></i>
     </div>
     <div class="grid grid-cols-2 gap-4 w-full max-w-xs">
         <% preferences.slice(0, 18).forEach(function(preference) { %>
@@ -12,7 +12,7 @@
             </div>
         <% }); %>
     </div>
-    <div class="flex space-x-4 mt-4">
+    <div class="flex space-x-4 mt-8">
         <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600" onclick="savePreferences()">Confirm</button>
         <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" onclick="skipPreferences()">Skip</button>
     </div>
@@ -22,6 +22,9 @@
 
 <script src="/script/setMyPrefencesFirstTime.js"></script>
 <style>
+    body{
+        background-color: #EEF2FF;
+    }
     .preference-bubble {
         transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
         position: relative;

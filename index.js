@@ -138,18 +138,19 @@ const createUser = async (req, res, next) => {
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required(),
   });
-  const { error } = schema.validate(req.body);
+  
 
-  const validationResult = schema.validate({ email: req.session.email });
-  if (validationResult.error) {
-    return res.render("signup", { invalidEmail: true, username: req.body.username.trim() });
-  }
+  const { error } = schema.validate(req.body);
 
   if (!req.body.security_question) {
     return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
   }
 
   if (error) {
+    if (error.details[0].key == "email") {
+      return res.render("signup", { invalidEmail: true, username: req.body.username.trim() });
+    }
+
     if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
       return res.render("signup", { invalidUsername: true, email: req.body.email.trim() });
     }
