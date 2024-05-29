@@ -245,7 +245,7 @@ app.get("/login", (req, res) => {
 // GET request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username.trim() });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -265,6 +265,7 @@ app.get("/mycart", async (req, res) => {
 
     // Form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
+    console.log(recipeIds)
 
     // Using map to create an array of promises
     const recipeDetailsPromises = recipeIds.map(async (recipeId) => {
