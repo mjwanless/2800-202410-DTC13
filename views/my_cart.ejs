@@ -2,9 +2,9 @@
 
 <div class="relative mx-auto bg-white rounded-md overflow-hidden md:max-w-2xl">
     <div class="bg-white fixed z-10 w-full">
-            <h1 class="text-2xl font-bold py-3 text-blue-950 text-center w-full">My Cart</h1>
+            <h1 class="text-2xl font-bold py-5 text-blue-950 text-center w-full">My Cart</h1>
     </div>
-<div class="h-11"></div>
+<div class="h-20"></div>
     <% if (!recipeDetails || recipeDetails.length === 0) { %>
         <p class="text-center text-orange-500 font-bold pt-10">Your cart is empty.</p>
     <% } else { 
@@ -28,7 +28,7 @@
         <% Object.keys(recipeTally).forEach(recipeLabel => {
             let recipe = recipeTally[recipeLabel];
         %>
-            <div class="md:flex bg-indigo-50 rounded-md overflow-hidden m-4">
+            <div class="md:flex bg-indigo-50 rounded-md overflow-hidden mx-4 mb-8">
                 <div class="md:flex-shrink-0">
                     <img src="<%= recipe.image %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
                 </div>
