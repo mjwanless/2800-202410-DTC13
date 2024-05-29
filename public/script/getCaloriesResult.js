@@ -14,7 +14,7 @@ function getResults() {
     .then((res) => res.json())
     .then((data) => {
       console.log(" Calories burned: ", data);
-      // TODP - Display the result
+      // TODO - Display the result
       const modal = document.getElementById("calori-modal");
       const calories = document.getElementById("calories");
       modal.style.display = "block";
@@ -25,7 +25,7 @@ function getResults() {
     });
 }
 
-// close the modal
+// Close the modal
 const close = document.getElementById("close");
 close.addEventListener("click", () => {
   const modal = document.getElementById("calori-modal");
