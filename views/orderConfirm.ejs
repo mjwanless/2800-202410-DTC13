@@ -1,22 +1,22 @@
 <%- include('templates/header'); %>
 <%- include("templates/backBtn") %>
-<h2 class="text-4xl font-bold dark:text-white text-center py-2 text-blue-950">Confirmation</h2>
+<h2 class="text-4xl font-bold text-center py-2 text-blue-950">Confirmation</h2>
 <!--order confimation card-->
 <div class="relative flex grid justify-center top-20">
-    <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+    <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow">
         <a href="#">
             <img class="rounded-t-lg" src="1.jpg" alt="" />
         </a>
         <div class="p-5">
             <a href="#">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Order Number: <%= orderId %></h5>
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gra">Order Number: <%= orderId %></h5>
             </a><br>
-            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Delivery Date: <%= deliveryDate %> </p>
-            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Amount: <%= amount %></p>
+            <p class="mb-3 font-normal text-gray-700">Delivery Date: <%= deliveryDate %> </p>
+            <p class="mb-3 font-normal text-gray-700">Amount: <%= amount %></p>
         </div>
     </div>
     <div class="max-w-sm flex grid justify-center py-7 my-7">
-        <a href="#" id="doneBtn" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+        <a href="#" id="doneBtn" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg">
             Done
         </a>
     </div>
