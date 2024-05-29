@@ -122,7 +122,7 @@ function sendConfirmationEmail(
 }
 
 //post request for the order confirmation page
-orderconfirmRouter.post("/orderconfirm", async (req, res) => {
+orderconfirmRouter.post("/orderConfirm", async (req, res) => {
   const orderNumber = getConfirmationNumber();
   const formattedDate = getDeliveryDate();
   const formattedAmount = getTotalAmount(req.body.amount.replace(/^\$/, ""));
@@ -151,7 +151,7 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   );
   saveOrder(orderNumber, req.body.amount.replace(/^\$/, ""));
 
-  res.render("orderconfirm", {
+  res.render("orderConfirm", {
     orderId: orderNumber,
     deliveryDate: formattedDate,
     amount: formattedAmount,
