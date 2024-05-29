@@ -265,7 +265,6 @@ app.get("/mycart", async (req, res) => {
 
     // Form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
-    console.log(recipeIds)
 
     // Using map to create an array of promises
     const recipeDetailsPromises = recipeIds.map(async (recipeId) => {
