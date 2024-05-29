@@ -76,9 +76,9 @@
                                 </div>
 
                                 <div class="flex items-center justify-between mt-4">
-                                    <h2 class="text-xl font-semibold text-blue-950">Price: $<span id="price">
-                                            <%= recipeDetails.recipePrice.toFixed(2) %>
-                                        </span></h2>
+                                    <h2 class="text-xl font-semibold text-blue-950">Price: $<%=
+                                            recipeDetails.recipePrice.toFixed(2) %>
+                                    </h2>
                                     <div class="flex justify-end">
                                         <form id="add-to-cart-form" action="/add-to-cart" method="POST">
                                             <input class="hidden" name="recipeId" type="data"
