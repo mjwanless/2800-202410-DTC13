@@ -1,6 +1,10 @@
+/* jshint esversion: 8 */
+
+/*
 // ======================================
 // Just some fun import statements
 // ======================================
+*/
 const express = require("express");
 require("dotenv").config();
 const session = require("express-session");
@@ -9,7 +13,7 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const cors = require("cors");
 
-// import modules
+// Import modules
 const monthlyRecipe = require("./js/monthlyRecipeSchema");
 const feedbacks = require("./js/createFeedback");
 const User = require("./js/userSchema");
@@ -20,27 +24,34 @@ const sendResetPasswordEmail = require("./js/sendResetPasswordEmail");
 const getRecipeInfo = require("./js/getRecipeInfo");
 const getPrice = require("./js/getPrice");
 
+
 const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 
-// ======================================
-// Create a new express app and set up the port for .env variables
-// ======================================
+/*
+* ======================================
+* Create a new express app and set up the port for .env variables
+* ======================================
+*/
 const app = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 
-// ======================================
-// This is to be able to allow us to parse the req.body/URL-encoded bodies
-// ======================================
+/*
+* ======================================
+* This is to be able to allow us to parse the req.body/URL-encoded bodies
+* ======================================
+*/
 app.use(express.urlencoded({ extended: false }));
 
-// ======================================
-// We need a session setup to maintain security and user data and create sessions with cookies
-// ======================================
+/*
+* ======================================
+* We need a session setup to maintain security and user data and create sessions with cookies
+* ======================================
+*/
 
 // Mongo variables from the .env file
 const mongodb_host = process.env.MONGODB_HOST;
@@ -48,7 +59,7 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-// // Connecting to the Atlas database
+// Connecting to the Atlas database
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
 const connectToDB = async () => {
   try {
@@ -74,7 +85,7 @@ const preferenceSchema = new mongoose.Schema({
 });
 const Preference = mongoose.model("Preference", preferenceSchema);
 
-// mongoDB session
+// MongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
@@ -90,57 +101,84 @@ app.use(
   })
 );
 
-// // ======================================
-// // This is to be able to use html, css, and js files in the public folder
-// // ======================================
+/*
+* ======================================
+* This is to be able to use html, css, and js files in the public folder
+* ======================================
+*/
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
-// // ======================================
-// // Where the magic happens ================================================================
-// // ======================================
+/*
+* ======================================
+* Where the magic happens
+* ======================================
+*/
 
-// ======================================
-// functions and middleware
-// ======================================
-
-let emailSent = false;
+/*
+* ======================================
+* functions and middleware
+* ======================================
+*/
 
 // Middleware to check if the user is authenticated
-isAuthenticated = (req, res, next) => {
+const isAuthenticated = (req, res, next) => {
   if (req.session.authenticated) {
-    req.session.username = req.session.username;
     next();
-  } else return res.redirect("/login");
+  } else {
+    return res.redirect("/login");
+  }
 };
 
 // Middleware to create a user
 const createUser = async (req, res, next) => {
   const schema = joi.object({
     username: joi.string().alphanum().max(30).required(),
-    email: joi.string().max(200).required(),
+    email: joi.string().max(200).required().email(),
     password: joi.string().max(50).required(),
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required(),
   });
+  
+
   const { error } = schema.validate(req.body);
+  console.log(error);
+
+  if (!req.body.security_question) {
+    return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
+  }
+
   if (error) {
-    return res.send(
-      `Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`
+    if (error.details[0].message == '"email" must be a valid email') {
+      return res.render("signup", { invalidEmail: true, username: req.body.username.trim(), email: req.body.email.trim() });
+    }
+
+    if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
+      return res.render("signup", { invalidUsername: true, email: req.body.email.trim(), username: req.body.username.trim() });
+    }
+
+    return res.render(
+      "signup", { error: true, email: req.body.email.trim(), username: req.body.username.trim() }
     );
+  }
+
+  // Checks if there isn't already an account with this email
+  const existingUser = await User.findOne({ email: req.body.email.trim() });
+  if (existingUser) {
+    return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
   }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
   var hashedSecurityAnswer = await bcrypt.hash(
-    req.body.security_answer,
+    req.body.security_answer.trim(),
     saltRounds
   );
 
   const user = new User({
-    username: req.body.username,
-    email: req.body.email,
+    username: req.body.username.trim(),
+    email: req.body.email.trim(),
     password: hashedPassword,
     security_question: req.body.security_question,
-    security_answer: hashedSecurityAnswer,
+    security_answer: hashedSecurityAnswer.trim(),
     cart: new Map(),
   });
 
@@ -152,7 +190,7 @@ const createUser = async (req, res, next) => {
   }
 
   req.session.authenticated = true;
-  req.session.username = req.body.username;
+  req.session.username = req.body.username.trim();
   req.session.cookie.maxAge = sessionExpireTime;
   next();
 };
@@ -162,16 +200,13 @@ const loginValidation = async (req, res, next) => {
   const schema = joi.object({
     email: joi.string().max(200).required(),
   });
-  req.session.email = req.body.email;
+  req.session.email = req.body.email.trim();
   const validationResult = schema.validate({ email: req.session.email });
   if (validationResult.error) {
-    res.send("login validation result error", {
-      error: validationResult.error,
-    });
-    return;
+    res.render("login", { invalidEmail: true, email: req.body.email.trim() });
   }
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email.trim() });
     if (user) {
       const outputPassword = user.password;
       const inputPassword = req.body.password;
@@ -182,10 +217,10 @@ const loginValidation = async (req, res, next) => {
         req.session.cookie.maxAge = sessionExpireTime;
         next();
       } else {
-        return res.render("login", { wrongPassword: true });
+        return res.render("login", { wrongPassword: true, email: req.body.email.trim() });
       }
     } else {
-      return res.render("login", { noUser: true });
+      return res.render("login", { noUser: true, email: req.body.email.trim() });
     }
   } catch (err) {
     console.log("fail to login", err);
@@ -207,30 +242,31 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-// Get request for the my_cart page
+// GET request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ username: req.session.username.trim() });
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    // Get the price list from the cart
-    // the priceList is an array of objects with recipeId, recipePrice, and quantity
+    /*
+    * Get the price list from the cart
+    * the priceList is an array of objects with recipeId, recipePrice, and quantity
+    */
     let priceList = [];
     user.cart.forEach((value, key) => {
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
-        quantity: value.quantity,
-        price: getPrice(key),
+        quantity: value.quantity
       });
     });
 
-    // form the recipeIds array from the user's cart
+    // Form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
 
-    // using map to create an array of promises
+    // Using map to create an array of promises
     const recipeDetailsPromises = recipeIds.map(async (recipeId) => {
       try {
         const response = await fetch(
@@ -262,6 +298,7 @@ app.get("/mycart", async (req, res) => {
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
+
 // GET request for the reset password page
 app.get("/reset_password", (req, res) => {
   res.render("reset_password");
@@ -269,8 +306,8 @@ app.get("/reset_password", (req, res) => {
 
 // After successful signup
 app.post("/signup", createUser, (req, res) => {
-  req.session.username = req.body.username;
-  req.session.email = req.body.email;
+  req.session.username = req.body.username.trim();
+  req.session.email = req.body.email.trim();
   res.redirect("/my_preference");
 });
 
@@ -289,8 +326,8 @@ app.post("/signup", async (req, res) => {
 
   try {
     await newUser.save();
-    req.session.username = username;
-    req.session.email = email;
+    req.session.username = username.trim();
+    req.session.email = email.trim();
     res.redirect("/my_preference");
   } catch (error) {
     console.error("Error creating user:", error);
@@ -300,12 +337,12 @@ app.post("/signup", async (req, res) => {
 
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
-  res.redirect("/home"); // Changed from "/test" to "/user_account"
+  res.redirect("/home");
 });
 
-//Gets security question based on the email
+// GET security question based on the email
 app.get("/getSecurityQuestion/:email", async (req, res) => {
-  const email = req.params.email;
+  const email = req.params.email.trim();
   try {
     const requestedUser = await User.findOne({ email: email });
     res.json(requestedUser.security_question);
@@ -319,7 +356,7 @@ app.use(sendResetPasswordEmail);
 
 app.use(isAuthenticated);
 
-// the code snippets for using the cached recipes to store the recipes for 2 days are from ChatGPT openAI
+// Code snippets for using the cached recipes to store the recipes for 2 days are from ChatGPT openAI
 let cachedRecipes = {
   timestamp: null,
   data: [],
@@ -328,65 +365,71 @@ let cachedRecipes = {
 const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
 
 function isCacheExpired() {
-  if (!cachedRecipes.timestamp) return true; // if there is no timestamp, cache is expired
+  if (!cachedRecipes.timestamp) return true; // If there is no timestamp, cache is expired
   const currentTime = new Date().getTime();
-  return currentTime - cachedRecipes.timestamp > TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
+  return currentTime - cachedRecipes.timestamp >= TWO_DAYS_IN_MILLISECONDS; // If the cache is older than 2 days, it is expired
 }
 
-// function to get the recommendation from the API
-const getRecommendation = async (preferenceList, recipeList, res) => {
-  // a for loop to qurey each preference from the API and store the recipes ids in recipeList
-  for (let i = 0; i < preferenceList.length; i++) {
-    const preference = preferenceList[i];
-    const response = await fetch(
-      `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        const recipes = data.hits;
-        // only get two recipes for each preference
-        for (let j = 1; j < 3; j++) {
-          let index = Math.floor(Math.random() * 10);
-          let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
-          let imgUrl = recipes[index].recipe.image;
-          let recipeTitle = recipes[index].recipe.label;
-          if (recipeTitle.length > 40) {
-            recipeTitle = recipeTitle.substring(0, 40) + "...";
+const getRecommendation = async (preferenceList) => {
+  try {
+    let recipeList = [];
+
+    await Promise.all(
+      preferenceList.map(async (preference) => {
+        const response = await fetch(
+          `https://api.edamam.com/search?app_id=${process.env.EDAMAM_APP_ID}&app_key=${process.env.EDAMAM_APP_KEY}&q=${preference}`
+        );
+        const data = await response.json();
+
+        if (data && data.hits && data.hits.length > 0) {
+          const recipes = data.hits;
+          for (let j = 1; j < 3; j++) {
+            let index = Math.floor(Math.random() * 10);
+            let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+            let imgUrl = recipes[index].recipe.image;
+            let recipeTitle = recipes[index].recipe.label;
+            if (recipeTitle.length > 40) {
+              recipeTitle = recipeTitle.substring(0, 40) + "...";
+            }
+            recipeList.push({ recipeId, imgUrl, recipeTitle });
           }
-          recipeList.push({ recipeId, imgUrl, recipeTitle });
         }
-      });
+      })
+    );
+    cachedRecipes.timestamp = new Date().getTime();
+    cachedRecipes.data = recipeList;
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    return [];
   }
 };
 
 async function fetchAndCacheRecommendations(preferenceList) {
-  cachedRecipes.timestamp = new Date().getTime(); // update the timestamp
-  cachedRecipes.data = []; // clear the cache
-  await getRecommendation(preferenceList, cachedRecipes.data);
+  if (isCacheExpired()) {
+    await getRecommendation(preferenceList);
+  }
 }
+
+// GET user's preferences from database
+const getPreference = async (email) => {
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      return user.preferences;
+    } else {
+      console.log("User not found");
+    }
+  } catch (error) {
+    console.error("Error fetching user preferences:", error);
+  }
+};
 
 app.get("/home", async (req, res) => {
   let preferenceList = [];
   let recipeList = [];
   let monthlyRecipeList = [];
-
-  // get user's preferences from database
-  const getPreference = async (email) => {
-    try {
-      const user = await User.findOne({ email: email });
-      if (user) {
-        preferenceList = user.preferences;
-      } else {
-        console.log("User not found");
-      }
-    } catch (error) {
-      console.error("Error fetching user preferences:", error);
-    }
-  };
-
-  await getPreference(req.session.email);
-
-  // if user has no preferences, use default preferences
+  preferenceList = await getPreference(req.session.email);
+  // If user has no preferences, use default preferences
   if (preferenceList.length == 0) {
     preferenceList = ["chicken", "beef", "pork", "vegetarian"];
   } else if (preferenceList.length < 2) {
@@ -394,14 +437,11 @@ app.get("/home", async (req, res) => {
   } else if (preferenceList.length < 3) {
     preferenceList.push("crab");
   }
-
-  if (isCacheExpired()) {
-    await fetchAndCacheRecommendations(preferenceList);
-  }
+  await fetchAndCacheRecommendations(preferenceList);
   recipeList = cachedRecipes.data;
 
-  // monthlyRecipe
-  monthlyRecipes = await monthlyRecipe.find({});
+  // MonthlyRecipe
+  const monthlyRecipes = await monthlyRecipe.find({});
   if (monthlyRecipes) {
     for (let i = 0; i < 6; i++) {
       let recipeId = monthlyRecipes[i].recipeId;
@@ -412,15 +452,10 @@ app.get("/home", async (req, res) => {
   } else {
     console.log("No monthly recipe found");
   }
-
   res.render("home", {
     recipeList: recipeList,
     monthlyRecipeList: monthlyRecipeList,
   });
-});
-
-app.get("/cart", (req, res) => {
-  res.render("cart");
 });
 
 app.get("/browse", (req, res) => {
@@ -431,7 +466,7 @@ app.use(getRecipeInfo);
 
 app.post("/add-to-cart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -448,8 +483,7 @@ app.post("/add-to-cart", async (req, res) => {
       user.cart.get(recipeId).quantity += 1;
     }
     await user.save();
-    const currentUrl = req.headers.referer;
-    res.redirect(currentUrl);
+    res.status(200).json({ message: "Added to cart successfully" });
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).send("Internal server error");
@@ -458,12 +492,12 @@ app.post("/add-to-cart", async (req, res) => {
 
 app.post("/recipeInfo/:id", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    userCart = user.cart;
+    const userCart = user.cart;
 
     try {
       await User.findOneAndUpdate(
@@ -472,8 +506,8 @@ app.post("/recipeInfo/:id", async (req, res) => {
       );
       res.sendStatus(200);
     } catch (err) {
-      console.error("Failed to update password:", err);
-      res.status(500).send("Failed to update password.");
+      console.error("Failed to update cart.", err);
+      res.status(500).send("Failed to update cart.");
     }
   } catch (err) {
     console.error("Failed to retrieve user:", err);
@@ -483,8 +517,8 @@ app.post("/recipeInfo/:id", async (req, res) => {
 
 app.get("/getCartNumber", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
-    cartCount = 0;
+    const user = await User.findOne({ email: req.session.email });
+    let cartCount = 0;
 
     user.cart.forEach((item) => {
       if (item) cartCount += item.quantity;
@@ -501,6 +535,18 @@ app.get("/recipe_search_page", (req, res) => {
   res.render("recipe_search_page");
 });
 
+app.get("/getSearchQuery/:query", async (req, res) => {
+  const appId = process.env.EDAMAM_APP_ID;
+  const appKey = process.env.EDAMAM_APP_KEY;
+  const query = req.params.query;
+
+  const url = `https://api.edamam.com/search?app_id=${appId}&app_key=${appKey}&q=${query}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  res.json(data);
+});
+
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
   const user = await User.findOne({ email: req.session.email });
@@ -511,10 +557,10 @@ app.get("/payment", async (req, res) => {
     totalPrice += item.recipePrice * item.quantity;
   });
 
-  // tax calculation
+  // Tax calculation
   const tax = totalPrice * 0.12;
 
-  // push the total price before tax, tax, and total price with tax to the priceList array
+  // Push the total price before tax, tax, and total price with tax to the priceList array
   priceList.push(totalPrice, tax, totalPrice + tax);
 
   res.render("payment", { priceList: priceList });
@@ -524,7 +570,7 @@ app.post("/update-cart", async (req, res) => {
   try {
     const { recipeLabel, action } = req.body;
 
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       console.error("User not found");
       return res
@@ -571,7 +617,7 @@ app.post("/update-cart", async (req, res) => {
 app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ username: req.session.username });
+      const user = await User.findOne({ email: req.session.email });
       if (!user) {
         return res.status(404).send("User not found");
       }
@@ -588,10 +634,10 @@ app.get("/user_account", async (req, res) => {
 // Route to get user orders
 app.get("/user_orders", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     const userOrders = await orders
       .find({ orderId: { $in: user.order } })
-      .sort({ orde_date: -1 }); // Sort by orde_date descending
+      .sort({ orderDate: -1 }); // Sort by orde_date descending
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -613,7 +659,7 @@ app.get("/order/:orderId", async (req, res) => {
 app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ username: req.session.username });
+      const user = await User.findOne({ email: req.session.email });
       if (user) {
         res.render("user_profile", { user: user });
       } else {
@@ -632,9 +678,9 @@ app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email },
       {
-        $set: { username: name, email: email, phone: phone, address: address },
+        $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
       },
       { new: true }
     );
@@ -646,9 +692,9 @@ app.post("/update_profile", async (req, res) => {
   }
 });
 
-// favorites page
+// Favorites page
 app.get("/favorites", async (req, res) => {
-  const user = await User.findOne({ username: req.session.username });
+  const user = await User.findOne({ email: req.session.email });
   const favoriteList = user.my_fav;
 
   let recipeDetailsArray = [];
@@ -670,7 +716,7 @@ app.get("/favorites", async (req, res) => {
   res.render("favorites", { recipeDetails: recipeDetailsArray });
 });
 
-// get feedback page
+// Get feedback page
 app.get("/feedback", (req, res) => {
   res.render("feedback");
 });
@@ -679,7 +725,7 @@ app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email },
       { $pull: { my_fav: id } }
     );
     res.status(200).send("Removed favorite");
@@ -694,7 +740,7 @@ app.post("/favorites/add/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email },
       { $push: { my_fav: id } }
     );
     res.status(200).send("Added favorite");
@@ -705,10 +751,10 @@ app.post("/favorites/add/:id", async (req, res) => {
   }
 });
 
-// store feedback in the database
+// Store feedback in the database
 app.post("/save_feedback", async (req, res) => {
-  const name = req.body.name;
-  const message = req.body.message;
+  const name = req.body.name.trim();
+  const message = req.body.message.trim();
   const timestamp = new Date();
   const feedback = new feedbacks({
     name: name,
@@ -739,8 +785,8 @@ app.get("/my_preference", async (req, res) => {
 app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
-    const updatedUser = await User.findOneAndUpdate(
-      { username: req.session.username },
+    await User.findOneAndUpdate(
+      { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
     );
@@ -754,7 +800,7 @@ app.post("/update_preference", async (req, res) => {
 // Route to render the local preferences page
 app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     res.render("local_preference", { user });
   } catch (error) {
     console.error("Error fetching user preferences:", error);
@@ -766,8 +812,8 @@ app.get("/local_preference", isAuthenticated, async (req, res) => {
 app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-    const updatedUser = await User.findOneAndUpdate(
-      { username: req.session.username },
+    await User.findOneAndUpdate(
+      { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
     );
@@ -792,11 +838,11 @@ app.post("/delete_preference", async (req, res) => {
   }
 });
 
-// get post request for decrease quantity in the cart and update the cart in the database
+// Get post request for decrease quantity in the cart and update the cart in the database
 app.post("/quantity/decrease/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -811,11 +857,11 @@ app.post("/quantity/decrease/:id", async (req, res) => {
   res.status(200).send("Decreased quantity");
 });
 
-// get post request for increase quantity in the cart and update the cart in the database
+// Get post request for increase quantity in the cart and update the cart in the database
 app.post("/quantity/increase/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -828,6 +874,20 @@ app.post("/quantity/increase/:id", async (req, res) => {
     res.status(500).send("Error fetching user");
   }
   res.status(200).send("Increased quantity");
+});
+
+app.post("/deleteRecipe/:id", async (req, res) => {
+  const recipeId = req.params.id;
+  try {
+    await User.updateOne(
+      { email: req.session.email },
+      { $unset: { [`cart.${recipeId}`]: "" } }
+    );
+    res.status(200).send("Deleted recipe");
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Error fetching user");
+  }
 });
 
 // Logout page

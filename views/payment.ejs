@@ -6,7 +6,6 @@
   <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
     <div class="mx-auto max-w-5xl">
 
-
       <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12">
         <form id="payment-form" action="/orderConfirm" method="post" class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6 lg:max-w-xl lg:p-8" onsubmit="return addHiddenInput()">
           <div class="mb-6 grid grid-cols-2 gap-4">
@@ -59,7 +58,7 @@
             <div class="space-y-2">
               <dl class="flex items-center justify-between gap-4">
                 <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Original price</dt>
-                <dd class="text-base font-medium text-gray-900 dark:text-white"><%= priceList[0].toFixed(2)%></dd>
+                <dd class="text-base font-medium text-gray-900 dark:text-white">$<%= priceList[0].toFixed(2)%></dd>
               </dl>
 
               <dl class="flex items-center justify-between gap-4">
@@ -74,13 +73,13 @@
 
               <dl class="flex items-center justify-between gap-4">
                 <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Tax</dt>
-                <dd class="text-base font-medium text-gray-900 dark:text-white"><%= priceList[1].toFixed(2) %></dd>
+                <dd class="text-base font-medium text-gray-900 dark:text-white">$<%= priceList[1].toFixed(2) %></dd>
               </dl>
             </div>
 
             <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
               <dt class="text-base font-bold text-gray-900 dark:text-white">Total</dt>
-              <dd id="total-amount" class="text-base font-bold text-gray-900 dark:text-white"><%= priceList[2].toFixed(2)%></dd>
+              <dd id="total-amount" class="text-base font-bold text-gray-900 dark:text-white">$<%= priceList[2].toFixed(2)%></dd>
             </dl>
           </div>
 
@@ -102,19 +101,6 @@
     </div>
   </div>
 </section>
-<script>
-  // get the amount and hide it in the form
-    function addHiddenInput() {
-      const form = document.getElementById('payment-form');
-      const amount = document.getElementById('total-amount').innerText;
-      const hiddenInput = document.createElement('input');
-      hiddenInput.setAttribute('type', 'hidden');
-      hiddenInput.setAttribute('name', 'amount');
-      hiddenInput.value = amount;
-      form.appendChild(hiddenInput);
-      return true;
-    }
-</script>
-
+<script src="/script/postPaymentAmount.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
 <%- include('templates/footer') %>

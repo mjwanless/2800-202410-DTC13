@@ -1,32 +1,26 @@
 <%- include('templates/header'); %>
 <div class="bg-indigo-50 py-4">
-  <div class="flex items-center justify-between w-full px-7 w-full">
+  <div class="flex justify-between w-full px-7 w-full">
     <div class="flex items-center justify-between w-56">
       <img
         src="/profileimg.png"
         alt="Profile Picture"
         class="w-20 h-20 rounded-full"
       />
-      <div>
-        <h1 class="text-lg font-semibold text-blue-950">
-          
-                        <%= user.username %>
-        
-                    </h1>
-        <h3 class="text-m text-gray-600">
-                        <%= user.email %>
-                    </h3>
+      <div class="ml-3">
+        <h1 class="text-lg font-semibold text-blue-950"><%= user.username %></h1>
+        <h3 class="text-m text-gray-600"><%= user.email %></h3>
       </div>
     </div>
     <a
       href="/user_profile"
-      class="text-orange-500 hover:underline text-md font-bold"
+      class="text-orange-500 underline text-md font-bold pt-3"
       >Edit</a
     >
   </div>
 </div>
 
-<div class="bg-white p-4">
+<div class="bg-white p-4 mt-3">
   <div class="grid grid-cols-3 gap-4 text-center">
     <div
       class="flex flex-col items-center"
@@ -36,7 +30,7 @@
       <div class="bg-indigo-50 p-4 rounded-md">
         <i class="fas fa-heart text-orange-500 text-5xl"></i>
       </div>
-      <span class="text-blue-950 font-semibold">Favorites</span>
+      <span class="text-blue-950 font-semibold mt-1">Favorites</span>
     </div>
     <div
       class="flex flex-col items-center"
@@ -46,7 +40,7 @@
       <div class="bg-indigo-50 p-4 rounded-md">
         <i class="fas fa-sliders-h text-orange-500 text-5xl"></i>
       </div>
-      <span class="text-blue-950 font-semibold">Preference</span>
+      <span class="text-blue-950 font-semibold mt-1">Preference</span>
     </div>
     <div class="flex flex-col items-center">
       <div
@@ -55,7 +49,7 @@
       >
         <i class="fas fa-star text-orange-500 text-5xl"></i>
       </div>
-      <span class="text-blue-950 font-semibold">Feedback</span>
+      <span class="text-blue-950 font-semibold mt-1">Feedback</span>
     </div>
   </div>
 
@@ -73,24 +67,24 @@
           id="query"
           name="query"
           class="border-2 border-orange-500 p-2 rounded-md w-64"
-          placeholder=" - ran 1 hour"
+          placeholder=" ex. ran 1 hour"
           required
         />
         <button
           type="button"
-          class="bg-orange-500 text-white p-2 rounded-md ml-2"
+          class="bg-orange-500 text-white p-2 mt-2 rounded-md ml-2"
           onclick="getResults()"
         >
           Calculate
         </button>
-        <p class="text-gray-300 px-5">support by nutritionix API</p>
+        <p class="text-gray-300 px-2 text-left">support by nutritionix API</p>
       </form>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center" onclick="comingSoonNotification()">
       <i class="fas fa-info-circle text-orange-500"></i>
       <div class="font-bold ml-3 text-neutral-500 text-lg">About</div>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center" onclick="comingSoonNotification()">
       <i class="fas fa-cog text-orange-500"></i>
       <div class="font-bold ml-3 text-neutral-500 text-lg">Settings</div>
     </div>
@@ -111,22 +105,13 @@
             <h1 class="text-lg font-semibold">Order History</h1>
         </div>
         <div id="orderHistory" class="mt-4 space-y-4">
-            <!-- Order cards will be rendered here -->
+            <!-- Order cards are rendered here -->
         </div>
     </div>
 
-<!--modal-->
-
-<div
-  id="calori-modal"
-  class="hidden fixed top-0 left-0 w-full h-full flex align-content-center items-center bg-black bg-opacity-50"
->
-  <div
-    role="dialog"
-    class="bg-white rounded-lg shadow-lg p-6 transform translate-y-3/4"
-  >
+<div id="calori-modal" class="hidden fixed top-0 left-0 w-full h-full flex align-content-center items-center bg-black bg-opacity-50">
+  <div role="dialog" class="bg-white rounded-lg shadow-lg p-6 transform translate-y-3/4">
     <div id="modal-content">
-      <!-- <span id="close" class="close absolute top-0 right-0 p-4">&times;</span> -->
       <span id="close" class="close absolute top-0 right-0 p-4"><svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path></svg></span>
       <h2 class="text-2xl font-bold mb-4">Estimated Calories Burned:</h2>
       <p id="calories" class="text-lg">kcal</p>
@@ -134,99 +119,26 @@
   </div>
 </div>
 
-<%- include('templates/menuBar'); %> <%- include('templates/footer'); %>
-
 <script>
-  function getResults() {
-    const query = document.getElementById("query").value;
-    if (query === "" || !query) {
-      alert("Please enter a valid query");
-      return;
-    }
-    fetch("/calculate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(" Calories burned: ", data);
-        // TODP - Display the result
-        const modal = document.getElementById("calori-modal");
-        const calories = document.getElementById("calories");
-        modal.style.display = "block";
-        calories.innerText = `${data.result} kcal`;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }
-  // toggle calculator
-  const toggleCalculator = document.getElementById("calorimeter");
-  const calculator = document.getElementById("calculator");
-
-  toggleCalculator.addEventListener("click", () => {
-    if (calculator.style.display === "none") {
-      calculator.style.display = "flex";
-    } else {
-      calculator.style.display = "none";
-    }
-  });
-
-  const close = document.getElementById("close");
-  close.addEventListener("click", () => {
-    const modal = document.getElementById("calori-modal");
-    modal.style.display = "none";
-  });
-
   function confirmSignOut() {
     if (confirm("Are you sure you want to sign out?")) {
       fetch("/logout", {
         method: "POST",
       })
-        .then((res) => {
-          if (res.status === 200) {
-            window.location.href = "/";
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      .then((res) => {
+        if (res.status === 200) {
+          window.location.href = "/";
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
     }
   }
-
-  // Fetch and render order history
-  document.addEventListener("DOMContentLoaded", function () {
-    fetch("/user_orders")
-      .then((response) => response.json())
-      .then((orders) => {
-        const orderHistory = document.getElementById("orderHistory");
-        orders.forEach((order) => {
-          const orderCard = document.createElement("div");
-          orderCard.className = "bg-orange-50 p-4 rounded-md shadow-md";
-          orderCard.innerHTML = `
-                      <div class="flex items-center">
-                          <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
-                          <div>
-                              <h2 class="text-md font-semibold text-blue-950">${
-                                order.info.recipeTitle
-                              }</h2>
-                              <p class="text-sm text-gray-600">${new Date(
-                                order.orde_date
-                              ).toLocaleString()}</p>
-                          </div>
-                      </div>
-                      <a href="/order/${
-                        order.orderId
-                      }" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
-                  `;
-          orderHistory.appendChild(orderCard);
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching order history:", error);
-      });
-  });
+  
 </script>
+<%- include('templates/menuBar'); %>
+<script src="/script/getCaloriesResult.js"></script>
+<script src="/script/toggleCalculator.js"></script>
+<script src="/script/renderOrderHistory.js"></script>
+<%- include('templates/footer'); %>

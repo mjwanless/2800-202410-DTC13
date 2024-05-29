@@ -1,9 +1,10 @@
+/* jshint esversion: 8 */
+
 const express = require("express");
 const User = require("./userSchema");
 require("dotenv").config();
 const getPrice = require("./getPrice");
 const getRecipeInfoRouter = express.Router();
-
 
 getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
   const recipeId = req.params.id;
@@ -17,9 +18,6 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
     );
     const data = await response.json();
 
-    // Log the response for debugging
-    // console.log('API Response:', data);
-
     // Check if the data.recipe exists
     if (data.recipe) {
       recipeDetails = {
@@ -28,8 +26,9 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
         recipeImg: data.recipe.image,
         recipeIngredients: data.recipe.ingredientLines,
         recipeCuisineType: data.recipe.cuisineType,
-        recipeNutrients: {},
+        recipeNutrients: data.recipe.totalNutrients,
       };
+
 
       let count = 0;
       for (let nutrient in data.recipe.totalNutrients) {
@@ -44,7 +43,7 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
 
       const user = await User.findOne({ email: req.session.email });
       recipeDetails.recipePrice = getPrice(recipeId);
-      favoriteList = user.my_fav;
+      const favoriteList = user.my_fav;
       let isFavorite = false;
       if (favoriteList.includes(recipeId)) {
         isFavorite = true;

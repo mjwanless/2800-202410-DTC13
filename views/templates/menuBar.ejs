@@ -1,8 +1,8 @@
-<div class="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+<div class="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200">
     <div class="grid h-full max-w-lg grid-cols-4 mx-auto font-medium">
         <!-- home button -->
         <button type="button" onclick="window.location.href = '/home'"
-            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50">
             <svg class="w-5 h-5 mb-2 text-gray-500 group-hover:text-orange-500 " aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -12,7 +12,7 @@
         </button>
         <!-- cart button -->
         <button type="button" onclick="window.location.href = '/mycart'"
-            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group">
 
             <div class="flex relative" id="cart-button">
                 <svg class="w-5 h-6 mb-2 text-gray-500 group-hover:text-orange-500" aria-hidden="true"
@@ -28,7 +28,7 @@
 
         <!-- explore button -->
         <button type="button" onclick="window.location.href = '/browse'"
-            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group">
             <svg class="w-5 h-5 mb-2 text-gray-500 group-hover:text-orange-500" aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg" stroke-width="3" stroke="currentColor" fill="none"
                 stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 20 20">
@@ -40,7 +40,7 @@
         </button>
         <!-- account button -->
         <button type="button" onclick="window.location.href = '/user_account'"
-            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+            class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group">
             <svg class="w-5 h-5 mb-2 text-gray-500 group-hover:text-orange-500" aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -50,22 +50,5 @@
         </button>
     </div>
 </div>
-
-<script>
-    getCartCount = async function () {
-        const result = await fetch(
-            `/getCartNumber`
-        );
-        let cartSize = await result.json(result);
-
-        if (cartSize == 0) return;
-        if (cartSize > 9) cartSize = '9+';
-
-        cartCounter = document.createElement('span');
-        cartCounter.className = 'w-5 p-0.5 z-10 absolute bottom-4 left-4 bg-orange-500 text-xs text-white font-semibold rounded-full'
-        cartCounter.innerText = cartSize;
-
-        document.getElementById('cart-button').append(cartCounter);
-    }
-    getCartCount()
-</script>
+<div class="h-24"></div>
+<script src="/script/controlCartDisplayNumber.js"></script>

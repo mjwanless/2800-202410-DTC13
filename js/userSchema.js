@@ -1,3 +1,5 @@
+/* jshint esversion: 8 */
+
 const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   username: String,
@@ -14,9 +16,9 @@ const userSchema = new mongoose.Schema({
     type: Map,
     of: {
       recipePrice: Number,
-      quantity: Number,
-    },
-  },
+      quantity: Number
+    }
+  }
 });
 const User = mongoose.model("User", userSchema);
 module.exports = User;

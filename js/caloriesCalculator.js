@@ -1,6 +1,7 @@
+/* jshint esversion: 8 */
+
 const express = require("express");
 const request = require("request");
-const cors = require("cors");
 require("dotenv").config();
 
 const calculateRouter = express.Router();
@@ -10,16 +11,16 @@ calculateRouter.post("/calculate", async (req, res) => {
 
   const { query } = req.body;
   let options = {
-    method: "POST",
-    url: "https://trackapi.nutritionix.com/v2/natural/exercise",
+    body: JSON.stringify({
+      query: query
+    }),
     headers: {
       "Content-Type": "application/json",
       "x-app-id": process.env.NUTRITIONIX_APP_ID,
-      "x-app-key": process.env.NUTRITIONIX_APP_KEY,
+      "x-app-key": process.env.NUTRITIONIX_APP_KEY
     },
-    body: JSON.stringify({
-      query: query,
-    }),
+    method: "POST",
+    url: "https://trackapi.nutritionix.com/v2/natural/exercise"
   };
   request(options, async function (error, response) {
     if (error) throw new Error(error);

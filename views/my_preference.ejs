@@ -1,80 +1,30 @@
 <%- include('templates/header'); %>
-<div class="bg-indigo-50 min-h-screen flex flex-col items-center p-4 relative">
-    <h1 class="text-2xl font-bold text-blue-950 text-center mb-4">My Preference</h1>
-    <div class="absolute top-4 right-4">
-        <i class="fas fa-sync-alt text-orange-500 cursor-pointer" onclick="refreshPreferences()"></i>
+<div class="bg-indigo-50 flex flex-col items-center px-4 pt-6 pb-0 relative">
+    <h1 class="text-2xl font-bold text-blue-950 text-center mb-4">My Preferences</h1>
+    <div class="absolute top-6 right-7">
+        <i class="fas fa-sync-alt text-orange-500 cursor-pointer text-xl" onclick="refreshPreferences()"></i>
     </div>
     <div class="grid grid-cols-2 gap-4 w-full max-w-xs">
         <% preferences.slice(0, 18).forEach(function(preference) { %>
             <div class="bg-orange-50 border-2 border-orange-500 rounded-full p-3 text-center cursor-pointer preference-bubble"
-                 data-name="<%= preference.name %>" onclick="selectPreference('<%= preference.name %>')">
+                data-name="<%= preference.name %>" onclick="selectPreference('<%= preference.name %>')">
                 <%= preference.name %>
             </div>
         <% }); %>
     </div>
-    <div class="flex space-x-4 mt-4">
-        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600" onclick="savePreferences()">Complete</button>
+    <div class="flex space-x-4 mt-8">
+        <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600" onclick="savePreferences()">Confirm</button>
         <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" onclick="skipPreferences()">Skip</button>
     </div>
 </div>
 <%- include('templates/menuBar'); %>
-<%- include('templates/footer'); %> 
 
-<script>
-    let selectedPreferences = JSON.parse(localStorage.getItem('selectedPreferences')) || [];
 
-    function selectPreference(preference) {
-        const bubble = document.querySelector(`.preference-bubble[data-name='${preference}']`);
-        if (selectedPreferences.includes(preference)) {
-            selectedPreferences = selectedPreferences.filter(p => p !== preference);
-            bubble.classList.remove('selected');
-        } else {
-            selectedPreferences.push(preference);
-            bubble.classList.add('selected');
-        }
-        localStorage.setItem('selectedPreferences', JSON.stringify(selectedPreferences));
-    }
-
-    function savePreferences() {
-        fetch('/update_preference', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ preferences: selectedPreferences })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Preferences updated successfully');
-                window.location.href = '/home';
-            } else {
-                alert('Error updating preferences');
-            }
-        });
-    }
-
-    function skipPreferences() {
-        window.location.href = '/home';
-    }
-
-    function refreshPreferences() {
-        localStorage.removeItem('selectedPreferences');
-        window.location.reload();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const bubbles = document.querySelectorAll('.preference-bubble');
-        bubbles.forEach(bubble => {
-            const preference = bubble.getAttribute('data-name');
-            if (selectedPreferences.includes(preference)) {
-                bubble.classList.add('selected');
-            }
-        });
-    });
-</script>
-
+<script src="/script/setMyPrefencesFirstTime.js"></script>
 <style>
+    body{
+        background-color: #EEF2FF;
+    }
     .preference-bubble {
         transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
         position: relative;
@@ -89,3 +39,4 @@
         border-color: rgba(234, 88, 12, 0.8); /* Darker orange border when selected */
     }
 </style>
+<%- include('templates/footer'); %>
