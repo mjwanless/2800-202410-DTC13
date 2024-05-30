@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 const monthlyRecipesSchema = new mongoose.Schema({
   recipeTitle: String,
   recipeImg: String,
-  recipeId: String
+  recipeId: String,
+  description: String
 });
 const monthlyRecipe = mongoose.model("monthlyRecipes", monthlyRecipesSchema);
 module.exports = monthlyRecipe;

@@ -437,7 +437,8 @@ app.get("/home", async (req, res) => {
       let recipeId = monthlyRecipes[i].recipeId;
       let recipeImg = monthlyRecipes[i].recipeImg;
       let recipeTitle = monthlyRecipes[i].recipeTitle;
-      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle });
+      let description = monthlyRecipes[i].description;
+      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle, description});
     }
   } else {
     console.log("No monthly recipe found");
