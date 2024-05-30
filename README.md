@@ -1,3 +1,18 @@
+# Table of Contents
+1. [FreshPlate](#freshplate)
+2. [Project Title](#project-title)
+3. [Project Description](#project-description)
+4. [About Us](#about-us)
+5. [Technologies Used](#technologies-used)
+6. [Listing of File Contents](#listing-of-file-contents)
+7. [How to Install or Run the Project](#how-to-install-or-run-the-project)
+8. [Configuration](#configuration)
+9. [How to Use the Product (Features)](#how-to-use-the-product-features)
+10. [Credits, References, and Licenses](#credits-references-and-licenses)
+11. [How Did You Use AI?](#how-did-you-use-ai)
+12. [Contact Information](#contact-information)
+
+---
 
 # FreshPlate
 <div style="display: flex;">
@@ -200,8 +215,30 @@ Team Members:
   - **Add Recipes to Shopping Cart**: Add the ingredients of a selected recipe to your shopping cart for easy grocery planning.
   - **Adjust Quantities**: Adjust the quantity of ingredients based on your needs before purchasing.
 * **Recipe Recommendations**
-  - **Weekly Recommendations**: View weekly recommended recipes based on popular trends or user preferences.
-  - **Monthly Hot Recipes**: Explore a list of monthly hot recipes that are currently trending.
+  - **Weekly Recommendations**: View weekly recommended recipes based on popular trends and user preferences.
+  - **Monthly Hot Recipes**: Explore a list of monthly hot recipes that are currently trending.  
+
+* **Calories Burned for Exercise**
+  - **Check Calories Burned for Exercise**: Input natural language to specify the types of exercises users performed and their durations, in order to calculate the calories burned for reference.
+* **Edit Preference List**
+  - **Add or Remove Preferences**: Input preference keywords to add or remove from the user's preference list. This action enables users to update their preferences, thereby receiving new weekly recommendations tailored to their preferences.
+
+* **Favorite Recipes**
+  - **Add recipes into Favorite list**: Add specific recipes to their favorite list by clicking the heart icon located in the upper right corner of the recipe information page. This allows users to conveniently access their favorite recipes directly from the favorite list in the user account.
+  - **Add recipes into Favorite list**: Remove specific recipes from favorite list by clicking the heart icon located in the upper right corner of My Favorites page.
+
+* **Edit Profile**
+  - **Edit User Profile**: Edit the user's phone number and address by clicking on the `Edit` button located in the upper right corner of the user account page.
+
+* **Feeback** 
+  - **Provide Feedback**:  Users can submit their feedback, which will be displayed on the landing page for reference by potential users.
+
+* **Password**
+  - **Reset Password**: Users can reset their password by providing the correct security answer they set. Upon successful submission, they will receive an email confirming the password change.
+
+* **Payment**
+  - **Process Payment**: Users can proceed with payment by checking out recipes in the My Cart page. Upon completion, users will receive an email confirmation for their order.
+
 
 ## Credits, References, and Licenses
 - **Credits**: Developed by DTC 13
@@ -224,7 +261,13 @@ Team Members:
 - FreshPlate does not incorporate AI into its operations. However, we do retrieve data from APIs.
 
 **Did you encounter any limitations? What were they, and how did you overcome them?**
-- We don't believe that we encountered any limitations. As we were just using AI for reference, there were no AI integration issues.
+- We do not believe that we encountered any limitations. As we were just using AI for reference, there were no AI integration issues.
 
 ## Contact Information
-- **Email**: mwanless2@my.bcit.ca
+**Email**:   
+Xinli Wang : shirley.wang.xl@outlook.com  
+Malcolm Wanless: mwanless2@my.bcit.ca  
+Flora Deng : hdeng24@my.bcit.ca  
+Caroline Su : jsu62@my.bcit.ca  
+Joao Eduardo Santos Pollhuber: jpollhuber@outlook.com  
+
