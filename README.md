@@ -134,11 +134,11 @@ Team Members:
     │   feedback.ejs
     │   home.ejs
     │   landing.ejs
-    │   local_preference.ejs
+    │   localPreference.ejs
     │   login.ejs
     │   logout.ejs
-    │   my_cart.ejs
-    │   my_preference.ejs
+    │   myCart.ejs
+    │   myPreference.ejs
     │   order_details.ejs
     │   orderConfirm.ejs
     │   payment.ejs

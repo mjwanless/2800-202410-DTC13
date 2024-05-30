@@ -820,7 +820,7 @@ app.post("/update_preference", async (req, res) => {
 app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
     const user = await userModel.findOne({ email: req.session.email });
-    res.render("local_preference", { user });
+    res.render("localPreference", { user });
   } catch (error) {
     console.error("Error fetching user preferences:", error);
     res.status(500).send("Error fetching user preferences");
