@@ -639,7 +639,7 @@ app.get('/order_history', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   try {
-    const user = await user.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     const totalOrders = await orders.countDocuments({ orderId: { $in: user.order } });
     const paginatedOrders = await orders
       .find({ orderId: { $in: user.order } })
