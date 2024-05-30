@@ -47,7 +47,7 @@ getRecipeInfoRouter.get("/recipe_Info/:id", async (req, res) => {
       if (favoriteList.includes(recipeId)) {
         isFavorite = true;
       }
-      res.render("recipe_info", {
+      res.render("recipeInfo", {
         recipeDetails: recipeDetails,
         isFavorite: isFavorite,
       });
