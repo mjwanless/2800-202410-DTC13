@@ -1,7 +1,7 @@
 <%- include('templates/header'); %>
 <%- include('templates/backBtn'); %>
 
-<div class="bg-orange-50 min-h-screen py-10">
+<div class="bg-white min-h-screen py-10">
   <div class="container mx-auto px-4">
     <h2 class="text-2xl font-bold mb-5 text-blue-950 text-center">Order History</h2>
     <div id="orderHistory" class="space-y-4">
@@ -21,12 +21,14 @@
     </div>
     <div class="mt-4 flex justify-between items-center">
       <button onclick="previousPage()" class="bg-gray-500 text-white px-3 py-1 rounded">Previous</button>
+      <!-- <button onclick="firstPage()" class="bg-gray-500 text-white px-3 py-1 rounded">First</button> -->
       <span>Page <span id="currentPage"><%= currentPage %></span> of <span id="totalPages"><%= totalPages %></span></span>
+      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded">Last</button>
       <button onclick="nextPage()" class="bg-gray-500 text-white px-3 py-1 rounded">Next</button>
     </div>
     <div class="mt-4 flex justify-center items-center">
       <input type="number" id="pageInput" class="border rounded p-2" placeholder="Go to page" min="1" max="<%= totalPages %>" />
-      <button onclick="goToPage()" class="bg-blue-500 text-white px-3 py-1 rounded ml-2">Go</button>
+      <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded ml-2">Go</button>
     </div>
   </div>
 </div>
@@ -48,6 +50,15 @@
     if (currentPage < totalPages) {
       window.location.href = `/order_history?page=${currentPage + 1}`;
     }
+  }
+
+//   function firstPage() {
+//     window.location.href = `/order_history?page=1`;
+//   }
+
+  function lastPage() {
+    const totalPages = parseInt(document.getElementById('totalPages').innerText);
+    window.location.href = `/order_history?page=${totalPages}`;
   }
 
   function goToPage() {
