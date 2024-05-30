@@ -670,15 +670,15 @@ app.get('/order_history', async (req, res) => {
 
     res.render('order_history', {
       orders: paginatedOrders,
-      page: page,
-      totalOrders: totalOrders,
-      totalPages: Math.ceil(totalOrders / limit)
+      totalPages: Math.ceil(totalOrders / limit),
+      currentPage: page,
     });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
   }
 });
+
 
 // Route to render order details page
 app.get("/order/:orderId", async (req, res) => {
