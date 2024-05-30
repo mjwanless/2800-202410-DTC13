@@ -25,7 +25,7 @@
       <button onclick="nextPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="nextBtn">Next</button>
     </div>
     <div class="mt-4 flex justify-center items-center space-x-4">
-      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded ml-2" id="lastBtn">Last</button>
+      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="lastBtn">Last</button>
       <input type="number" id="pageInput" class="border rounded p-2" placeholder="Go to page" min="1" max="<%= totalPages %>" />
       <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded">Go</button>
     </div>
@@ -83,7 +83,7 @@
     if (pageInput && pageInput >= 1 && pageInput <= totalPages) {
       window.location.href = `/order_history?page=${pageInput}`;
     } else {
-      alert('Please enter a valid page number.');
+      alert(`Please enter a valid page number between 1 and ${totalPages}.`);
     }
   }
 </script>
