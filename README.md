@@ -1,12 +1,10 @@
 
 # FreshPlate
 <div style="display: flex;">
-    <img src="./public/landing_page.jpg" alt="landing_page" width="" height="200">
-    <img src="./public/home_page.jpg" alt="home_page" width="" height="200">
-</div>
-<div style="display: flex;">
-    <img src="./public/browse_page.jpg" alt="browse_page" width="" height="200">
-    <img src="./public/recipe_info_page.jpg" alt="recipe_info_page" width="" height="200">
+    <img src="./public/landing_page.jpg" alt="landing_page" height="350">
+    <img src="./public/home_page.jpg" alt="home_page" height="350">
+    <img src="./public/browse_page.jpg" alt="browse_page" height="350">
+    <img src="./public/recipe_info_page.jpg" alt="recipe_info_page" height="350">
 </div>
 
 ## Project Title
