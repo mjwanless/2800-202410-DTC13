@@ -647,9 +647,7 @@ app.get("/user_account", async (req, res) => {
 app.get("/user_orders", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.session.email });
-    const userOrders = await orders
-      .find({ orderId: { $in: user.order } })
-      .sort({ orderDate: -1 }); // Sort by orde_date descending
+    const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orderDate: -1 });
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -657,20 +655,21 @@ app.get("/user_orders", async (req, res) => {
   }
 });
 
+
 app.get('/order_history', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   try {
     const user = await User.findOne({ email: req.session.email });
-    const orders = await orders
+    const totalOrders = await orders.countDocuments({ orderId: { $in: user.order } });
+    const paginatedOrders = await orders
       .find({ orderId: { $in: user.order } })
       .sort({ orderDate: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
-    const totalOrders = await orders.countDocuments({ orderId: { $in: user.order } });
 
     res.render('order_history', {
-      orders: orders,
+      orders: paginatedOrders,
       page: page,
       totalOrders: totalOrders,
       totalPages: Math.ceil(totalOrders / limit)
