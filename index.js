@@ -275,7 +275,7 @@ app.get("/mycart", async (req, res) => {
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
 
-    res.render("my_cart", {
+    res.render("myCart", {
       recipeDetails: filteredRecipes,
       priceList: priceList,
       menuIcon: 2
@@ -440,7 +440,7 @@ app.get("/home", async (req, res) => {
       let recipeImg = monthlyRecipes[i].recipeImg;
       let recipeTitle = monthlyRecipes[i].recipeTitle;
       let description = monthlyRecipes[i].description;
-      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle, description});
+      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle, description });
     }
   } else {
     console.log("No monthly recipe found");
@@ -629,7 +629,9 @@ app.get("/user_account", async (req, res) => {
 app.get("/user_orders", async (req, res) => {
   try {
     const user = await userModel.findOne({ email: req.session.email });
-    const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orderDate: -1 });
+    const userOrders = await orders
+      .find({ orderId: { $in: user.order } })
+      .sort({ orderDate: -1 });
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -638,29 +640,30 @@ app.get("/user_orders", async (req, res) => {
 });
 
 // Route to render order history page
-app.get('/order_history', async (req, res) => {
+app.get("/order_history", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   try {
     const user = await userModel.findOne({ email: req.session.email });
-    const totalOrders = await orders.countDocuments({ orderId: { $in: user.order } });
+    const totalOrders = await orders.countDocuments({
+      orderId: { $in: user.order },
+    });
     const paginatedOrders = await orders
       .find({ orderId: { $in: user.order } })
       .sort({ orderDate: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
-    res.render('order_history', {
+    res.render("order_history", {
       orders: paginatedOrders,
       totalPages: Math.ceil(totalOrders / limit),
       currentPage: page,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
-
 
 // Route to render order details page
 app.get("/order/:orderId", async (req, res) => {
@@ -822,7 +825,7 @@ app.post("/update_preference", async (req, res) => {
 app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
     const user = await userModel.findOne({ email: req.session.email });
-    res.render("local_preference", { user });
+    res.render("localPreference", { user });
   } catch (error) {
     console.error("Error fetching user preferences:", error);
     res.status(500).send("Error fetching user preferences");
