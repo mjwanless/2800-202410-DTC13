@@ -657,7 +657,29 @@ app.get("/user_orders", async (req, res) => {
   }
 });
 
+app.get('/order_history', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 5;
+  try {
+    const user = await User.findOne({ email: req.session.email });
+    const orders = await orders
+      .find({ orderId: { $in: user.order } })
+      .sort({ orderDate: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+    const totalOrders = await orders.countDocuments({ orderId: { $in: user.order } });
 
+    res.render('order_history', {
+      orders: orders,
+      page: page,
+      totalOrders: totalOrders,
+      totalPages: Math.ceil(totalOrders / limit)
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
 
 // Route to render order details page
 app.get("/order/:orderId", async (req, res) => {
