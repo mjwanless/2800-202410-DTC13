@@ -122,6 +122,7 @@ Team Members:
             * searchBar.ejs
         * user_account.ejs
         * user_profile.ejs
+        
 ```
 
 ## How to Install or Run the Project
