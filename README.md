@@ -144,7 +144,7 @@ Team Members:
     │   payment.ejs
     │   recipeSearchPage.ejs
     │   recipeInfo.ejs
-    │   reset_password.ejs
+    │   resetPassword.ejs
     │   signup.ejs
     │   user_account.ejs
     │   user_profile.ejs

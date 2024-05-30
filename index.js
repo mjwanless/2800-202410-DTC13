@@ -292,7 +292,7 @@ app.get("/signup", (req, res) => {
 
 // GET request for the reset password page
 app.get("/reset_password", (req, res) => {
-  res.render("reset_password");
+  res.render("resetPassword");
 });
 
 // After successful signup
