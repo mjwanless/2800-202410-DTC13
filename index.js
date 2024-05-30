@@ -655,6 +655,7 @@ app.get("/user_orders", async (req, res) => {
   }
 });
 
+// Route to render order history page
 app.get('/order_history', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
