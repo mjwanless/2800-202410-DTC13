@@ -98,16 +98,20 @@
   </div>
 </div>
 
-    <div class="bg-white mt-2 p-3">
-        <hr class="border-t-2 p-2 border-orange-300">
-        <div class="flex items-center space-x-2">
-            <i class="fas fa-history text-lg"></i>
-            <h1 class="text-lg font-semibold">Order History</h1>
-        </div>
-        <div id="orderHistory" class="mt-4 space-y-4">
-            <!-- Order cards are rendered here -->
-        </div>
-    </div>
+<div class="bg-white mt-2 p-3">
+  <hr class="border-t-2 p-2 border-orange-300">
+  <div class="flex items-center space-x-2">
+    <i class="fas fa-history text-lg"></i>
+    <a href="/order_history" class="text-lg font-semibold text-blue-950 underline">Order History</a>
+  </div>
+  <div id="orderHistory" class="mt-4 space-y-4">
+    <!-- Order cards will be rendered here by JavaScript -->
+  </div>
+  <div id="moreOrders" class="text-center hidden">
+    <a href="/order_history" class="text-orange-500 underline">See more order history</a>
+  </div>
+</div>
+
 
 <div id="calori-modal" class="hidden fixed top-0 left-0 w-full h-full flex align-content-center items-center bg-black bg-opacity-50">
   <div role="dialog" class="bg-white rounded-lg shadow-lg p-6 transform translate-y-3/4">
