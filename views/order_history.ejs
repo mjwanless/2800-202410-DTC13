@@ -33,32 +33,33 @@
   });
 
   async function loadOrders(page) {
-    try {
-      const response = await fetch(`/user_orders?page=${page}`);
-      const data = await response.json();
-      const orders = data.orders;
-      totalPages = data.totalPages;
+    fetch(`/order_history?page=${page}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const orders = data.orders;
+        totalPages = data.totalPages;
 
-      const orderHistoryContainer = document.getElementById('orderHistory');
-      orderHistoryContainer.innerHTML = '';
+        const orderHistoryContainer = document.getElementById('orderHistory');
+        orderHistoryContainer.innerHTML = '';
 
-      orders.forEach(order => {
-        const orderCard = document.createElement('div');
-        orderCard.className = 'bg-indigo-50 p-4 rounded-md shadow-md';
-        orderCard.innerHTML = `
-          <h3 class="text-lg font-bold text-blue-950">Order ID: ${order.orderId}</h3>
-          <p class="text-gray-600">Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
-          <p class="text-gray-600">Amount: $${order.amount}</p>
-        `;
-        orderHistoryContainer.appendChild(orderCard);
+        orders.forEach(order => {
+          const orderCard = document.createElement('div');
+          orderCard.className = 'bg-orange-50 p-4 rounded-md shadow-md';
+          orderCard.innerHTML = `
+            <h3 class="text-lg font-bold text-blue-950">Order ID: ${order.orderId}</h3>
+            <p class="text-gray-600">Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
+            <p class="text-gray-600">Amount: $${order.amount}</p>
+          `;
+          orderHistoryContainer.appendChild(orderCard);
+        });
+
+        document.getElementById('currentPage').textContent = currentPage;
+        document.getElementById('totalPages').textContent = totalPages;
+        document.getElementById('pageInput').max = totalPages;
+      })
+      .catch((error) => {
+        console.error('Error fetching orders:', error);
       });
-
-      document.getElementById('currentPage').textContent = currentPage;
-      document.getElementById('totalPages').textContent = totalPages;
-      document.getElementById('pageInput').max = totalPages;
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    }
   }
 
   function previousPage() {
