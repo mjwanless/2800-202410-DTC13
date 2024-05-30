@@ -1,10 +1,6 @@
 /* jshint esversion: 8 */
 
-/*
-// ======================================
-// Just some fun import statements
-// ======================================
-*/
+// Import statements for the required modules.
 const express = require("express");
 require("dotenv").config();
 const session = require("express-session");
@@ -13,7 +9,7 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const cors = require("cors");
 
-// Import modules
+// Import modules.
 const monthlyRecipe = require("./js/monthlyRecipeSchema");
 const feedbacks = require("./js/createFeedback");
 const userModel = require("./js/userSchema");
@@ -22,36 +18,20 @@ const calculator = require("./js/caloriesCalculator");
 const sendConfirmationEmail = require("./js/sendOrderConfirmationEmail");
 const sendResetPasswordEmail = require("./js/sendResetPasswordEmail");
 const getRecipeInfo = require("./js/getRecipeInfo");
-const getPrice = require("./js/getPrice");
 
-
-const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
+const sessionExpireTime = 1 * 60 * 60 * 1000; // 1 hour expiration time for session
 const saltRounds = 10;
 const joi = require("joi");
 
-/*
-* ======================================
-* Create a new express app and set up the port for .env variables
-* ======================================
-*/
+// Create a new express app and set up the port for .env variables
 const app = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
-
 app.set("view engine", "ejs");
 
-/*
-* ======================================
-* This is to be able to allow us to parse the req.body/URL-encoded bodies
-* ======================================
-*/
+// This is to be able to allow us to parse the req.body/URL-encoded bodies
 app.use(express.urlencoded({ extended: false }));
 
-/*
-* ======================================
-* We need a session setup to maintain security and user data and create sessions with cookies
-* ======================================
-*/
 
 // Mongo variables from the .env file
 const mongodb_host = process.env.MONGODB_HOST;
@@ -59,7 +39,7 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-// Connecting to the Atlas database
+// Connect to the Atlas database.
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
 const connectToDB = async () => {
   try {
@@ -85,7 +65,7 @@ const preferenceSchema = new mongoose.Schema({
 });
 const Preference = mongoose.model("Preference", preferenceSchema);
 
-// MongoDB session
+// MongoDB session setup to maintain security and user data and create sessions with cookies
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
@@ -101,24 +81,9 @@ app.use(
   })
 );
 
-/*
-* ======================================
-* This is to be able to use html, css, and js files in the public folder
-* ======================================
-*/
+// This is to be able to use html, css, and js files in the public folder
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
-/*
-* ======================================
-* Where the magic happens
-* ======================================
-*/
-
-/*
-* ======================================
-* functions and middleware
-* ======================================
-*/
 
 // Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -139,7 +104,6 @@ const createUser = async (req, res, next) => {
     security_answer: joi.string().max(50).required(),
   });
   
-
   const { error } = schema.validate(req.body);
   console.log(error);
 
@@ -161,7 +125,7 @@ const createUser = async (req, res, next) => {
     );
   }
 
-  // Checks if there isn't already an account with this email
+  // Check if there isn't already an account with this email
   const existingUser = await userModel.findOne({ email: req.body.email.trim() });
   if (existingUser) {
     return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
@@ -251,8 +215,8 @@ app.get("/mycart", async (req, res) => {
     }
 
     /*
-    * Get the price list from the cart
-    * the priceList is an array of objects with recipeId, recipePrice, and quantity
+    * Get the price list from the cart and
+    * the priceList is an array of objects with recipeId, recipePrice, and quantity.
     */
     let priceList = [];
     user.cart.forEach((value, key) => {
@@ -263,7 +227,6 @@ app.get("/mycart", async (req, res) => {
       });
     });
 
-    // Form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
 
     // Using map to create an array of promises
@@ -362,7 +325,7 @@ let cachedRecipes = {
   data: [],
 };
 
-const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000;
 
 function isCacheExpired() {
   if (!cachedRecipes.timestamp) return true; // If there is no timestamp, cache is expired

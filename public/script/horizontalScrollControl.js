@@ -15,14 +15,12 @@ const draggingStart = (e) => {
 const dragging = (e) => {
   if (!isMove) return;
   e.preventDefault();
-  // Carousel.classList.add("dragging");
   let positionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
   carousel.scrollLeft = prevScrollLeft - positionDiff;
 };
 
 const draggingStop = () => {
   isMove = false;
-  // Carousel.classList.remove("dragging");
 };
 carousel.addEventListener("mousedown", draggingStart);
 carousel.addEventListener("touchstart", draggingStart);
