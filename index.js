@@ -651,7 +651,7 @@ app.get("/user_profile", async (req, res) => {
     try {
       const user = await userModel.findOne({ email: req.session.email });
       if (user) {
-        res.render("user_profile", { user: user });
+        res.render("userProfile", { user: user });
       } else {
         res.status(404).send("User not found");
       }
