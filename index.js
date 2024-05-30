@@ -16,7 +16,7 @@ const cors = require("cors");
 // Import modules
 const monthlyRecipe = require("./js/monthlyRecipeSchema");
 const feedbacks = require("./js/createFeedback");
-const User = require("./js/userSchema");
+const userModel = require("./js/userSchema");
 const orders = require("./js/orderSchema");
 const calculator = require("./js/caloriesCalculator");
 const sendConfirmationEmail = require("./js/sendOrderConfirmationEmail");
@@ -162,7 +162,7 @@ const createUser = async (req, res, next) => {
   }
 
   // Checks if there isn't already an account with this email
-  const existingUser = await User.findOne({ email: req.body.email.trim() });
+  const existingUser = await userModel.findOne({ email: req.body.email.trim() });
   if (existingUser) {
     return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
   }
@@ -173,7 +173,7 @@ const createUser = async (req, res, next) => {
     saltRounds
   );
 
-  const user = new User({
+  const user = new userModel({
     username: req.body.username.trim(),
     email: req.body.email.trim(),
     password: hashedPassword,
@@ -206,7 +206,7 @@ const loginValidation = async (req, res, next) => {
     res.render("login", { invalidEmail: true, email: req.body.email.trim() });
   }
   try {
-    const user = await User.findOne({ email: req.body.email.trim() });
+    const user = await userModel.findOne({ email: req.body.email.trim() });
     if (user) {
       const outputPassword = user.password;
       const inputPassword = req.body.password;
@@ -245,7 +245,7 @@ app.get("/login", (req, res) => {
 // GET request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -316,7 +316,7 @@ app.post("/signup", async (req, res) => {
     req.body;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-  const newUser = new User({
+  const newUser = new userModel({
     username,
     email,
     password: hashedPassword,
@@ -344,7 +344,7 @@ app.post("/login", loginValidation, (req, res) => {
 app.get("/getSecurityQuestion/:email", async (req, res) => {
   const email = req.params.email.trim();
   try {
-    const requestedUser = await User.findOne({ email: email });
+    const requestedUser = await userModel.findOne({ email: email });
     res.json(requestedUser.security_question);
   } catch (err) {
     console.error("Failed to retrieve user:", err);
@@ -413,7 +413,7 @@ async function fetchAndCacheRecommendations(preferenceList) {
 // GET user's preferences from database
 const getPreference = async (email) => {
   try {
-    const user = await User.findOne({ email: email });
+    const user = await userModel.findOne({ email: email });
     if (user) {
       return user.preferences;
     } else {
@@ -466,7 +466,7 @@ app.use(getRecipeInfo);
 
 app.post("/add-to-cart", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -492,7 +492,7 @@ app.post("/add-to-cart", async (req, res) => {
 
 app.post("/recipeInfo/:id", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -500,7 +500,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
     const userCart = user.cart;
 
     try {
-      await User.findOneAndUpdate(
+      await userModel.findOneAndUpdate(
         { email: req.session.email },
         { $set: { cart: userCart } }
       );
@@ -517,7 +517,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
 
 app.get("/getCartNumber", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     let cartCount = 0;
 
     user.cart.forEach((item) => {
@@ -549,7 +549,7 @@ app.get("/getSearchQuery/:query", async (req, res) => {
 
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
-  const user = await User.findOne({ email: req.session.email });
+  const user = await userModel.findOne({ email: req.session.email });
   const userCart = user.cart;
   let priceList = [];
   let totalPrice = 0;
@@ -570,7 +570,7 @@ app.post("/update-cart", async (req, res) => {
   try {
     const { recipeLabel, action } = req.body;
 
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       console.error("User not found");
       return res
@@ -596,7 +596,7 @@ app.post("/update-cart", async (req, res) => {
         user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
       }
 
-      await User.updateOne(
+      await userModel.updateOne(
         { username: req.session.username },
         { $set: { cart: user.cart } }
       );
@@ -617,7 +617,7 @@ app.post("/update-cart", async (req, res) => {
 app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ email: req.session.email });
+      const user = await userModel.findOne({ email: req.session.email });
       if (!user) {
         return res.status(404).send("User not found");
       }
@@ -634,7 +634,7 @@ app.get("/user_account", async (req, res) => {
 // Route to get user orders
 app.get("/user_orders", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     const userOrders = await orders
       .find({ orderId: { $in: user.order } })
       .sort({ orderDate: -1 }); // Sort by orde_date descending
@@ -659,7 +659,7 @@ app.get("/order/:orderId", async (req, res) => {
 app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ email: req.session.email });
+      const user = await userModel.findOne({ email: req.session.email });
       if (user) {
         res.render("user_profile", { user: user });
       } else {
@@ -677,7 +677,7 @@ app.get("/user_profile", async (req, res) => {
 app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await userModel.findOneAndUpdate(
       { email: req.session.email },
       {
         $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
@@ -694,7 +694,7 @@ app.post("/update_profile", async (req, res) => {
 
 // Favorites page
 app.get("/favorites", async (req, res) => {
-  const user = await User.findOne({ email: req.session.email });
+  const user = await userModel.findOne({ email: req.session.email });
   const favoriteList = user.my_fav;
 
   let recipeDetailsArray = [];
@@ -724,7 +724,7 @@ app.get("/feedback", (req, res) => {
 app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $pull: { my_fav: id } }
     );
@@ -739,7 +739,7 @@ app.post("/favorites/remove/:id", async (req, res) => {
 app.post("/favorites/add/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $push: { my_fav: id } }
     );
@@ -785,7 +785,7 @@ app.get("/my_preference", async (req, res) => {
 app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
@@ -800,7 +800,7 @@ app.post("/update_preference", async (req, res) => {
 // Route to render the local preferences page
 app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     res.render("local_preference", { user });
   } catch (error) {
     console.error("Error fetching user preferences:", error);
@@ -812,7 +812,7 @@ app.get("/local_preference", isAuthenticated, async (req, res) => {
 app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
@@ -827,7 +827,7 @@ app.post("/save_preferences", async (req, res) => {
 app.post("/delete_preference", async (req, res) => {
   const { preference } = req.body;
   try {
-    await User.updateOne(
+    await userModel.updateOne(
       { username: req.session.username },
       { $pull: { preferences: preference } }
     );
@@ -842,11 +842,11 @@ app.post("/delete_preference", async (req, res) => {
 app.post("/quantity/decrease/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
-    await User.updateOne(
+    await userModel.updateOne(
       { email: req.session.email },
       { $inc: { [`cart.${recipeId}.quantity`]: -1 } }
     );
@@ -861,11 +861,11 @@ app.post("/quantity/decrease/:id", async (req, res) => {
 app.post("/quantity/increase/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
-    await User.updateOne(
+    await userModel.updateOne(
       { email: req.session.email },
       { $inc: { [`cart.${recipeId}.quantity`]: 1 } }
     );
@@ -879,7 +879,7 @@ app.post("/quantity/increase/:id", async (req, res) => {
 app.post("/deleteRecipe/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    await User.updateOne(
+    await userModel.updateOne(
       { email: req.session.email },
       { $unset: { [`cart.${recipeId}`]: "" } }
     );
