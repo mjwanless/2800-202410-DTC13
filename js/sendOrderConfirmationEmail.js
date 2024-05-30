@@ -151,7 +151,7 @@ orderconfirmRouter.post("/order_confirm", async (req, res) => {
   );
   saveOrder(orderNumber, req.body.amount.replace(/^\$/, ""));
 
-  res.render("order_confirm", {
+  res.render("orderConfirm", {
     orderId: orderNumber,
     deliveryDate: formattedDate,
     amount: formattedAmount,
