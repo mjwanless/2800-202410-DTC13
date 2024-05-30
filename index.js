@@ -524,7 +524,7 @@ app.get("/get_cart_number", async (req, res) => {
 
 // GET request for the recipe_search_page
 app.get("/recipe_search_page", (req, res) => {
-  res.render("recipe_search_page");
+  res.render("recipeSearchPage");
 });
 
 app.get("/get_search_query/:query", async (req, res) => {

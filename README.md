@@ -142,7 +142,7 @@ Team Members:
     │   orderDetails.ejs
     │   orderConfirm.ejs
     │   payment.ejs
-    │   recipe_search_page.ejs
+    │   recipeSearchPage.ejs
     │   recipeInfo.ejs
     │   reset_password.ejs
     │   signup.ejs
