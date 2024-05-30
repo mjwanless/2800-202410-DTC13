@@ -667,7 +667,7 @@ app.get("/order_history", async (req, res) => {
 app.get("/order/:orderId", async (req, res) => {
   try {
     const order = await orders.findOne({ orderId: req.params.orderId });
-    res.render("order_details", { order });
+    res.render("orderDetails", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
     res.status(500).send("Error fetching order");

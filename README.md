@@ -139,7 +139,7 @@ Team Members:
     │   logout.ejs
     │   myCart.ejs
     │   myPreference.ejs
-    │   order_details.ejs
+    │   orderDetails.ejs
     │   orderConfirm.ejs
     │   payment.ejs
     │   recipe_search_page.ejs
