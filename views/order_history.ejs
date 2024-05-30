@@ -24,10 +24,12 @@
       <span>Page <span id="currentPage"><%= currentPage %></span> of <span id="totalPages"><%= totalPages %></span></span>
       <button onclick="nextPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="nextBtn">Next</button>
     </div>
-    <div class="mt-4 flex justify-center items-center space-x-4">
-      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="lastBtn">Last</button>
-      <input type="text" id="pageInput" class="border rounded p-2" placeholder="Go to page" />
-      <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded">Go</button>
+    <div class="mt-4 flex justify-center items-center space-x-2">
+      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded mr-8" id="lastBtn">Last</button>
+      <div class="flex space-x-2">
+        <input type="text" id="pageInput" class="border rounded p-1 w-16" placeholder="Go to" />
+        <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded">Go</button>
+      </div>
     </div>
   </div>
 </div>
