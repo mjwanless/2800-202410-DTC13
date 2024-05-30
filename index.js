@@ -631,6 +631,18 @@ app.get("/user_account", async (req, res) => {
   }
 });
 
+// app.get('/user_account', async (req, res) => {
+//   try {
+//     const user = await User.findById(req.session.userId);
+//     const orders = await Order.find({ userId: user._id }).sort({ orderDate: -1 });
+//     res.render('user_account', { user, orders });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+
 // Route to get user orders
 app.get("/user_orders", async (req, res) => {
   try {
@@ -644,6 +656,8 @@ app.get("/user_orders", async (req, res) => {
     res.status(500).send("Error fetching orders");
   }
 });
+
+
 
 // Route to render order details page
 app.get("/order/:orderId", async (req, res) => {
