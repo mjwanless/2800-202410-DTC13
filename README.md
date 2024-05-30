@@ -146,7 +146,7 @@ Team Members:
     │   recipeInfo.ejs
     │   resetPassword.ejs
     │   signup.ejs
-    │   user_account.ejs
+    │   userAccount.ejs
     │   user_profile.ejs
     │
     └── templates

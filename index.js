@@ -613,7 +613,7 @@ app.get("/user_account", async (req, res) => {
       if (!user) {
         return res.status(404).send("User not found");
       }
-      res.render("user_account", { user: user });
+      res.render("userAccount", { user: user });
     } catch (err) {
       console.error("Failed to retrieve user:", err);
       res.status(500).send("Internal server error");
