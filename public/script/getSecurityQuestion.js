@@ -1,11 +1,3 @@
-window.onload = async () => {
-  errorMessage = document.getElementById("answerErrorMsg");
-  if (errorMessage) {
-    await setTimeout(() => {
-      errorMessage.classList.add("fadeOut");
-    }, 3000);
-  }
-};
 
 async function getSecurityQuestion() {
   let email = document.getElementById("email").value;
@@ -13,8 +5,8 @@ async function getSecurityQuestion() {
   const result = await fetch(`/getSecurityQuestion/${email}`);
   let value = await result.json(result);
 
-  //This is not a good approach, but it probably isn't worth it to reset all current acounts
-  //just to store the actual question
+  // This is not a good approach, but it probably isn't worth it to reset all current acounts
+  // just to store the actual question
   let securityQuestion = null;
   if (value == "Favourite food")
     securityQuestion = "What is your favourite food?";

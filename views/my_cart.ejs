@@ -2,9 +2,9 @@
 
 <div class="relative mx-auto bg-white rounded-md overflow-hidden md:max-w-2xl">
     <div class="bg-white fixed z-10 w-full">
-            <h1 class="text-2xl font-bold py-3 text-blue-950 text-center w-full">My Cart</h1>
+            <h1 class="text-2xl font-bold py-5 text-blue-950 text-center w-full">My Cart</h1>
     </div>
-<div class="h-11"></div>
+<div class="h-20"></div>
     <% if (!recipeDetails || recipeDetails.length === 0) { %>
         <p class="text-center text-orange-500 font-bold pt-10">Your cart is empty.</p>
     <% } else { 
@@ -28,7 +28,7 @@
         <% Object.keys(recipeTally).forEach(recipeLabel => {
             let recipe = recipeTally[recipeLabel];
         %>
-            <div class="md:flex bg-indigo-50 rounded-md overflow-hidden m-4">
+            <div class="md:flex bg-indigo-50 rounded-md overflow-hidden mx-4 mb-8">
                 <div class="md:flex-shrink-0">
                     <img src="<%= recipe.image %>" class="h-48 w-full object-cover md:w-48" alt="Recipe image">
                 </div>
@@ -43,13 +43,13 @@
                     </ul>
                     <div class="flex justify-between items-center my-4">
                         <span class="font-bold text-lg">Total:</span>
-                        <span class="font-bold text-blue-950 text-lg" id="price_<%= priceList[i].recipeId%>">$<%= (priceList[i].price * priceList[i].quantity).toFixed(2) %></span>
+                        <span class="font-bold text-blue-950 text-lg" id="price_<%= priceList[i].recipeId%>">$<%= (priceList[i].recipePrice * priceList[i].quantity).toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
                         <div class="flex items-center space-x-2">
-                            <button class="bg-white text-blue-950 rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="decreaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">-</button>
+                            <button class="bg-white text-blue-950 rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="decreaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].recipePrice%>')">-</button>
                             <span id="text_<%= priceList[i].recipeId%>"><%= priceList[i].quantity %></span>
-                            <button class="bg-orange-500 text-white rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="increaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].price%>')">+</button>
+                            <button class="bg-orange-500 text-white rounded px-2" data-recipe-label="<%= recipe.label %>" onclick="increaseQuantity('<%= priceList[i].recipeId%>', '<%= priceList[i].recipePrice%>')">+</button>
                         </div>
                         <button type="button" class="underline text-red-500 font-medium" onclick="removeRecipe('<%= priceList[i].recipeId%>')">Remove</button>
                     </div>
@@ -59,7 +59,7 @@
         <% }); %>
         
         <div class="flex justify-center my-4">
-            <a href="/payment" class="bg-orange-500 font-bold text-white px-4 py-2 rounded-md">Proceed to Payment</a>
+            <a href="/payment" class="bg-orange-500 text-md text-white px-4 py-2 rounded-md">Proceed to Payment</a>
         </div>
     <% } %>
 </div>

@@ -1,4 +1,4 @@
-// get the amount and hide it in the form
+// Get the amount and hide it in the form
 function addHiddenInput() {
   if (confirm("Are you sure you want to proceed with the payment?")) {
     const form = document.getElementById("payment-form");

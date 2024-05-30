@@ -1,14 +1,14 @@
 <%- include('templates/header'); %>
-<!-- invalid email message -->
-<div class="fixed top-2 left-2 right-2 z-10">
-  <% if (typeof invalidEmail !=='undefined' && invalidEmail){ %>
-    <div id="loginErrorMsg" class="fadeOut bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-      role="alert">
-      <strong class="font-bold">Invalid email!</strong>
-      <span class="block sm:inline">The email you entered is invalid.</span>
-    </div>
-    <% } %>
-</div>
+  <!-- invalid email message -->
+  <div class="fixed top-2 left-2 right-2 z-10">
+    <% if (typeof invalidEmail !=='undefined' && invalidEmail){ %>
+      <div id="errorMsg" class="fadeOut bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert">
+        <strong class="font-bold">Invalid email!</strong>
+        <span class="block sm:inline">The email you entered is invalid.</span>
+      </div>
+      <% } %>
+  </div>
 
   <div class="relative container">
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -19,11 +19,22 @@
         </h2>
       </div>
 
+      <!-- error message -->
+      <div class="fixed top-2 left-2 right-2 z-10">
+        <% if (typeof error !=='undefined' && error){ %>
+          <div id="errorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert">
+            <strong class="font-bold">Something goes wrong!</strong>
+            <span class="block sm:inline">Something goes wrong, please try again.</span>
+          </div>
+          <% } %>
+      </div>
+
       <div id="errorMessage">
         <!-- no security question selected message -->
         <div class="fixed top-2 left-2 right-2 z-10">
           <% if (typeof noSecurityQuestion !=='undefined' && noSecurityQuestion){ %>
-            <div id="emailErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            <div id="errorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
               role="alert">
               <strong class="font-bold">No Selection!</strong>
               <span class="block sm:inline">You need to select a security question.</span>
@@ -34,7 +45,7 @@
         <!-- invalid username message -->
         <div class="fixed top-2 left-2 right-2 z-10">
           <% if (typeof invalidUsername !=='undefined' && invalidUsername){ %>
-            <div id="usernameErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            <div id="errorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
               role="alert">
               <strong class="font-bold">Invalid Username!</strong>
               <span class="block sm:inline">Username can only contain Alphanumeric characters.</span>
@@ -45,7 +56,7 @@
         <!-- existing email message -->
         <div class="fixed top-2 left-2 right-2 z-10">
           <% if (typeof repeatEmail !=='undefined' && repeatEmail){ %>
-            <div id="emailErrorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            <div id="errorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
               role="alert">
               <strong class="font-bold">Repeat Email!</strong>
               <span class="block sm:inline">The email you entered is already used by an existing account.</span>
@@ -122,7 +133,7 @@
 
           <div>
             <button type="submit"
-              class="flex w-full justify-center rounded-full bg-orange-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500">
+              class="flex w-full justify-center rounded-full bg-orange-500 px-3 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500">
               Sign up
             </button>
           </div>
@@ -145,7 +156,7 @@
       }
     }
 
-    // function to pop alert when user tries to create a new account
+    // Function to pop alert when user tries to create a new account
     function confirmSignUp() {
       if (confirm("Are you sure you want to sign up?")) {
         return true;

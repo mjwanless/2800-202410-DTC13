@@ -27,7 +27,7 @@ document
       .catch((error) => console.error("Error:", error));
   });
 
-// increase cart number
+// Increase cart number
 function increaseCartNumber() {
   cartSize++;
   if (cartSize > 9) cartSize = "9+";

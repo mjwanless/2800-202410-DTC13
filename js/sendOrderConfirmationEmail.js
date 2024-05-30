@@ -5,8 +5,8 @@ const User = require("./userSchema");
 const config = require("./config");
 const nodeMailer = require("nodemailer");
 const { google } = require("googleapis");
-const OAuth2 = google.auth.OAuth2; //google auth library to send email without user interaction and consent
-const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); //google auth client
+const OAuth2 = google.auth.OAuth2; // Google auth library to send email without user interaction and consent
+const OAuth2Client = new OAuth2(config.clientId, config.clientSecret); // Google auth client
 OAuth2Client.setCredentials({ refresh_token: config.refreshToken });
 const dateFormat = require("date-fns");
 const orders = require("./orderSchema");
@@ -122,7 +122,7 @@ function sendConfirmationEmail(
 }
 
 //post request for the order confirmation page
-orderconfirmRouter.post("/orderconfirm", async (req, res) => {
+orderconfirmRouter.post("/orderConfirm", async (req, res) => {
   const orderNumber = getConfirmationNumber();
   const formattedDate = getDeliveryDate();
   const formattedAmount = getTotalAmount(req.body.amount.replace(/^\$/, ""));
@@ -130,9 +130,9 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   //update user's order list
   await User.updateOne(
     { username: req.session.username },
-    { 
+    {
       $push: { order: orderNumber },
-      $set: {cart: {}}
+      $set: { cart: {} }
     }
   );
 
@@ -151,7 +151,7 @@ orderconfirmRouter.post("/orderconfirm", async (req, res) => {
   );
   saveOrder(orderNumber, req.body.amount.replace(/^\$/, ""));
 
-  res.render("orderconfirm", {
+  res.render("orderConfirm", {
     orderId: orderNumber,
     deliveryDate: formattedDate,
     amount: formattedAmount,

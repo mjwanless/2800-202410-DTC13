@@ -1,6 +1,6 @@
 
 window.onload = async () => {
-    errorMessage = document.getElementById('loginErrorMsg')
+    errorMessage = document.getElementById('errorMsg')
     if (errorMessage) {
         await setTimeout(()=>{
             errorMessage.classList.add('fadeOut')

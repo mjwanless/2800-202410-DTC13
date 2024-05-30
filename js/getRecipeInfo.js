@@ -54,7 +54,7 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
       });
     } else {
       // Handle the case where data.recipe is undefined
-      res.status(404).send("Recipe not found");
+      res.status(404).render("404");
     }
   } catch (error) {
     console.error("Error fetching recipe details:", error);

@@ -1,8 +1,10 @@
 /* jshint esversion: 8 */
 
+/*
 // ======================================
 // Just some fun import statements
 // ======================================
+*/
 const express = require("express");
 require("dotenv").config();
 const session = require("express-session");
@@ -11,7 +13,7 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const cors = require("cors");
 
-// import modules
+// Import modules
 const monthlyRecipe = require("./js/monthlyRecipeSchema");
 const feedbacks = require("./js/createFeedback");
 const User = require("./js/userSchema");
@@ -27,23 +29,29 @@ const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
 const saltRounds = 10;
 const joi = require("joi");
 
-// ======================================
-// Create a new express app and set up the port for .env variables
-// ======================================
+/*
+* ======================================
+* Create a new express app and set up the port for .env variables
+* ======================================
+*/
 const app = express();
 app.use(cors());
 const port = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 
-// ======================================
-// This is to be able to allow us to parse the req.body/URL-encoded bodies
-// ======================================
+/*
+* ======================================
+* This is to be able to allow us to parse the req.body/URL-encoded bodies
+* ======================================
+*/
 app.use(express.urlencoded({ extended: false }));
 
-// ======================================
-// We need a session setup to maintain security and user data and create sessions with cookies
-// ======================================
+/*
+* ======================================
+* We need a session setup to maintain security and user data and create sessions with cookies
+* ======================================
+*/
 
 // Mongo variables from the .env file
 const mongodb_host = process.env.MONGODB_HOST;
@@ -51,7 +59,7 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-// // Connecting to the Atlas database
+// Connecting to the Atlas database
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
 const connectToDB = async () => {
   try {
@@ -77,7 +85,7 @@ const preferenceSchema = new mongoose.Schema({
 });
 const Preference = mongoose.model("Preference", preferenceSchema);
 
-// mongoDB session
+// MongoDB session
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
@@ -93,18 +101,24 @@ app.use(
   })
 );
 
-// // ======================================
-// // This is to be able to use html, css, and js files in the public folder
-// // ======================================
+/*
+* ======================================
+* This is to be able to use html, css, and js files in the public folder
+* ======================================
+*/
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
-// // ======================================
-// // Where the magic happens ================================================================
-// // ======================================
+/*
+* ======================================
+* Where the magic happens
+* ======================================
+*/
 
-// ======================================
-// functions and middleware
-// ======================================
+/*
+* ======================================
+* functions and middleware
+* ======================================
+*/
 
 // Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -124,28 +138,30 @@ const createUser = async (req, res, next) => {
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required(),
   });
-  const { error } = schema.validate(req.body);
+  
 
-  const validationResult = schema.validate({ email: req.session.email });
-  if (validationResult.error) {
-    return res.render("signup", { invalidEmail: true, username: req.body.username.trim() });
-  }
+  const { error } = schema.validate(req.body);
+  console.log(error);
 
   if (!req.body.security_question) {
     return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
   }
 
   if (error) {
-    if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
-      return res.render("signup", { invalidUsername: true, email: req.body.email.trim() });
+    if (error.details[0].message == '"email" must be a valid email') {
+      return res.render("signup", { invalidEmail: true, username: req.body.username.trim(), email: req.body.email.trim() });
     }
 
-    return res.send(
-      `Error in user data: ${error.details[0].message}, <a href='/signup'>try again</a>`
+    if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
+      return res.render("signup", { invalidUsername: true, email: req.body.email.trim(), username: req.body.username.trim() });
+    }
+
+    return res.render(
+      "signup", { error: true, email: req.body.email.trim(), username: req.body.username.trim() }
     );
   }
 
-  //Checks if there isn't already an account with this email
+  // Checks if there isn't already an account with this email
   const existingUser = await User.findOne({ email: req.body.email.trim() });
   if (existingUser) {
     return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
@@ -185,7 +201,7 @@ const loginValidation = async (req, res, next) => {
     email: joi.string().max(200).required(),
   });
   req.session.email = req.body.email.trim();
-  const validationResult = schema.validate({ email: req.session.email.trim() });
+  const validationResult = schema.validate({ email: req.session.email });
   if (validationResult.error) {
     res.render("login", { invalidEmail: true, email: req.body.email.trim() });
   }
@@ -193,7 +209,7 @@ const loginValidation = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email.trim() });
     if (user) {
       const outputPassword = user.password;
-      const inputPassword = req.body.password.trim();
+      const inputPassword = req.body.password;
 
       if (await bcrypt.compare(inputPassword, outputPassword)) {
         req.session.authenticated = true;
@@ -226,30 +242,31 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-// Get request for the my_cart page
+// GET request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username.trim() });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    // Get the price list from the cart
-    // the priceList is an array of objects with recipeId, recipePrice, and quantity
+    /*
+    * Get the price list from the cart
+    * the priceList is an array of objects with recipeId, recipePrice, and quantity
+    */
     let priceList = [];
     user.cart.forEach((value, key) => {
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
-        quantity: value.quantity,
-        price: getPrice(key),
+        quantity: value.quantity
       });
     });
 
-    // form the recipeIds array from the user's cart
+    // Form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
 
-    // using map to create an array of promises
+    // Using map to create an array of promises
     const recipeDetailsPromises = recipeIds.map(async (recipeId) => {
       try {
         const response = await fetch(
@@ -281,6 +298,7 @@ app.get("/mycart", async (req, res) => {
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
+
 // GET request for the reset password page
 app.get("/reset_password", (req, res) => {
   res.render("reset_password");
@@ -319,12 +337,12 @@ app.post("/signup", async (req, res) => {
 
 // After successful login
 app.post("/login", loginValidation, (req, res) => {
-  res.redirect("/home"); // Changed from "/test" to "/user_account"
+  res.redirect("/home");
 });
 
-//Gets security question based on the email
+// GET security question based on the email
 app.get("/getSecurityQuestion/:email", async (req, res) => {
-  const email = req.params.email;
+  const email = req.params.email.trim();
   try {
     const requestedUser = await User.findOne({ email: email });
     res.json(requestedUser.security_question);
@@ -338,7 +356,7 @@ app.use(sendResetPasswordEmail);
 
 app.use(isAuthenticated);
 
-// the code snippets for using the cached recipes to store the recipes for 2 days are from ChatGPT openAI
+// Code snippets for using the cached recipes to store the recipes for 2 days are from ChatGPT openAI
 let cachedRecipes = {
   timestamp: null,
   data: [],
@@ -347,9 +365,9 @@ let cachedRecipes = {
 const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
 
 function isCacheExpired() {
-  if (!cachedRecipes.timestamp) return true; // if there is no timestamp, cache is expired
+  if (!cachedRecipes.timestamp) return true; // If there is no timestamp, cache is expired
   const currentTime = new Date().getTime();
-  return currentTime - cachedRecipes.timestamp >= TWO_DAYS_IN_MILLISECONDS; // if the cache is older than 2 days, it is expired
+  return currentTime - cachedRecipes.timestamp >= TWO_DAYS_IN_MILLISECONDS; // If the cache is older than 2 days, it is expired
 }
 
 const getRecommendation = async (preferenceList) => {
@@ -392,7 +410,7 @@ async function fetchAndCacheRecommendations(preferenceList) {
   }
 }
 
-// get user's preferences from database
+// GET user's preferences from database
 const getPreference = async (email) => {
   try {
     const user = await User.findOne({ email: email });
@@ -411,7 +429,7 @@ app.get("/home", async (req, res) => {
   let recipeList = [];
   let monthlyRecipeList = [];
   preferenceList = await getPreference(req.session.email);
-  // if user has no preferences, use default preferences
+  // If user has no preferences, use default preferences
   if (preferenceList.length == 0) {
     preferenceList = ["chicken", "beef", "pork", "vegetarian"];
   } else if (preferenceList.length < 2) {
@@ -422,7 +440,7 @@ app.get("/home", async (req, res) => {
   await fetchAndCacheRecommendations(preferenceList);
   recipeList = cachedRecipes.data;
 
-  // monthlyRecipe
+  // MonthlyRecipe
   const monthlyRecipes = await monthlyRecipe.find({});
   if (monthlyRecipes) {
     for (let i = 0; i < 6; i++) {
@@ -448,7 +466,7 @@ app.use(getRecipeInfo);
 
 app.post("/add-to-cart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -474,7 +492,7 @@ app.post("/add-to-cart", async (req, res) => {
 
 app.post("/recipeInfo/:id", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -499,7 +517,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
 
 app.get("/getCartNumber", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     let cartCount = 0;
 
     user.cart.forEach((item) => {
@@ -539,10 +557,10 @@ app.get("/payment", async (req, res) => {
     totalPrice += item.recipePrice * item.quantity;
   });
 
-  // tax calculation
+  // Tax calculation
   const tax = totalPrice * 0.12;
 
-  // push the total price before tax, tax, and total price with tax to the priceList array
+  // Push the total price before tax, tax, and total price with tax to the priceList array
   priceList.push(totalPrice, tax, totalPrice + tax);
 
   res.render("payment", { priceList: priceList });
@@ -552,7 +570,7 @@ app.post("/update-cart", async (req, res) => {
   try {
     const { recipeLabel, action } = req.body;
 
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       console.error("User not found");
       return res
@@ -599,7 +617,7 @@ app.post("/update-cart", async (req, res) => {
 app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ username: req.session.username });
+      const user = await User.findOne({ email: req.session.email });
       if (!user) {
         return res.status(404).send("User not found");
       }
@@ -616,7 +634,7 @@ app.get("/user_account", async (req, res) => {
 // Route to get user orders
 app.get("/user_orders", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     const userOrders = await orders
       .find({ orderId: { $in: user.order } })
       .sort({ orderDate: -1 }); // Sort by orde_date descending
@@ -641,7 +659,7 @@ app.get("/order/:orderId", async (req, res) => {
 app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ username: req.session.username });
+      const user = await User.findOne({ email: req.session.email });
       if (user) {
         res.render("user_profile", { user: user });
       } else {
@@ -660,7 +678,7 @@ app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { email: req.session.email.trim() },
+      { email: req.session.email },
       {
         $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
       },
@@ -674,9 +692,9 @@ app.post("/update_profile", async (req, res) => {
   }
 });
 
-// favorites page
+// Favorites page
 app.get("/favorites", async (req, res) => {
-  const user = await User.findOne({ username: req.session.username });
+  const user = await User.findOne({ email: req.session.email });
   const favoriteList = user.my_fav;
 
   let recipeDetailsArray = [];
@@ -698,7 +716,7 @@ app.get("/favorites", async (req, res) => {
   res.render("favorites", { recipeDetails: recipeDetailsArray });
 });
 
-// get feedback page
+// Get feedback page
 app.get("/feedback", (req, res) => {
   res.render("feedback");
 });
@@ -707,7 +725,7 @@ app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email },
       { $pull: { my_fav: id } }
     );
     res.status(200).send("Removed favorite");
@@ -722,7 +740,7 @@ app.post("/favorites/add/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email },
       { $push: { my_fav: id } }
     );
     res.status(200).send("Added favorite");
@@ -733,7 +751,7 @@ app.post("/favorites/add/:id", async (req, res) => {
   }
 });
 
-// store feedback in the database
+// Store feedback in the database
 app.post("/save_feedback", async (req, res) => {
   const name = req.body.name.trim();
   const message = req.body.message.trim();
@@ -768,7 +786,7 @@ app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username },
+      { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
     );
@@ -782,7 +800,7 @@ app.post("/update_preference", async (req, res) => {
 // Route to render the local preferences page
 app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     res.render("local_preference", { user });
   } catch (error) {
     console.error("Error fetching user preferences:", error);
@@ -795,7 +813,7 @@ app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
     await User.findOneAndUpdate(
-      { username: req.session.username.trim() },
+      { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
     );
@@ -820,11 +838,11 @@ app.post("/delete_preference", async (req, res) => {
   }
 });
 
-// get post request for decrease quantity in the cart and update the cart in the database
+// Get post request for decrease quantity in the cart and update the cart in the database
 app.post("/quantity/decrease/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -839,11 +857,11 @@ app.post("/quantity/decrease/:id", async (req, res) => {
   res.status(200).send("Decreased quantity");
 });
 
-// get post request for increase quantity in the cart and update the cart in the database
+// Get post request for increase quantity in the cart and update the cart in the database
 app.post("/quantity/increase/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ username: req.session.username });
+    const user = await User.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }

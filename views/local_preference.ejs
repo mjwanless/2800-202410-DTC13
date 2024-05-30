@@ -1,20 +1,20 @@
 <%- include('templates/header'); %>
 <%- include('templates/backBtn'); %>
 
-<div class="bg-orange-50 min-h-screen py-10">
-    <div class="bg-orange-50 p-8 min-h-screen flex flex-col items-center p-4 relative">
+<div class="bg-orange-50 py-10">
+    <div class="bg-orange-50 p-8 flex flex-col items-center p-4 relative">
         <h3 class="text-2xl font-bold mb-5 text-blue-950">Edit Your Preferences</h3>
         <div class="mb-4 w-full">
             <input type="text" id="preferenceInput" class="p-2 border rounded w-full" placeholder="Enter a preference">
         </div>
-        <div class="mb-4 flex justify-center space-x-12">
-            <button onclick="addPreference()" class="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
-            <button onclick="deleteSelectedPreferences()" class="bg-gray-500 text-white px-3 py-1 rounded">Delete</button>
+        <div class="my-4 flex justify-center space-x-12">
+            <button onclick="addPreference()" class="bg-orange-500 text-white px-3 py-1 rounded">Add</button>
+            <button onclick="deleteSelectedPreferences()" class="bg-transparent border-2 border-red-500 text-red-500 px-3 py-1 rounded">Delete</button>
         </div>
-        <div id="preferenceList" class="flex flex-wrap gap-2 mb-4">
+        <div id="preferenceList" class="flex flex-wrap gap-2 m-4">
             <% if (user.preferences && user.preferences.length > 0) { %>
                 <% user.preferences.forEach(function(pref) { %>
-                    <div class="relative bg-indigo-50 text-blue-950 px-3 py-1 rounded-full preference-bubble" data-name="<%= pref %>">
+                    <div class="relative bg-indigo-50 text-blue-950 px-3 p-1 my-1 rounded-full preference-bubble" data-name="<%= pref %>">
                         <%= pref %>
                     </div>
                 <% }) %>
@@ -40,4 +40,8 @@
     .preference-bubble.selected {
         background-color: rgba(7, 172, 183, 0.8);
     }
+    body {
+      background-color: #FFF7ED;
+    }
+
 </style>
