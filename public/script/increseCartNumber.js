@@ -30,5 +30,6 @@ function increaseCartNumber() {
   cartSize++;
   if (cartSize > 9) cartSize = "9+";
   cartCounter.innerText = cartSize;
+  document.getElementById("cart-button").appendChild(cartCounter);
   return true;
 }
