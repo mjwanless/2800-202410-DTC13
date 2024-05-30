@@ -1,5 +1,3 @@
-
-
 document
   .getElementById("add-to-cart-form")
   .addEventListener("submit", function (event) {
@@ -9,7 +7,7 @@ document
     const recipeId = formData.get("recipeId");
     const recipePrice = formData.get("recipePrice");
 
-    fetch("/add-to-cart", {
+    fetch("/add_to_cart", {
       method: "POST",
       body: JSON.stringify({ recipeId, recipePrice }),
       headers: {

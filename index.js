@@ -32,7 +32,6 @@ app.set("view engine", "ejs");
 // This is to be able to allow us to parse the req.body/URL-encoded bodies
 app.use(express.urlencoded({ extended: false }));
 
-
 // Mongo variables from the .env file
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
@@ -103,32 +102,54 @@ const createUser = async (req, res, next) => {
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required(),
   });
-  
+
   const { error } = schema.validate(req.body);
   console.log(error);
 
   if (!req.body.security_question) {
-    return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
+    return res.render("signup", {
+      noSecurityQuestion: true,
+      email: req.body.email.trim(),
+      username: req.body.username.trim(),
+    });
   }
 
   if (error) {
     if (error.details[0].message == '"email" must be a valid email') {
-      return res.render("signup", { invalidEmail: true, username: req.body.username.trim(), email: req.body.email.trim() });
+      return res.render("signup", {
+        invalidEmail: true,
+        username: req.body.username.trim(),
+        email: req.body.email.trim(),
+      });
     }
 
-    if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
-      return res.render("signup", { invalidUsername: true, email: req.body.email.trim(), username: req.body.username.trim() });
+    if (
+      error.details[0].message ==
+      '"username" must only contain alpha-numeric characters'
+    ) {
+      return res.render("signup", {
+        invalidUsername: true,
+        email: req.body.email.trim(),
+        username: req.body.username.trim(),
+      });
     }
 
-    return res.render(
-      "signup", { error: true, email: req.body.email.trim(), username: req.body.username.trim() }
-    );
+    return res.render("signup", {
+      error: true,
+      email: req.body.email.trim(),
+      username: req.body.username.trim(),
+    });
   }
 
   // Check if there isn't already an account with this email
-  const existingUser = await userModel.findOne({ email: req.body.email.trim() });
+  const existingUser = await userModel.findOne({
+    email: req.body.email.trim(),
+  });
   if (existingUser) {
-    return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
+    return res.render("signup", {
+      repeatEmail: true,
+      username: req.body.username.trim(),
+    });
   }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -181,10 +202,16 @@ const loginValidation = async (req, res, next) => {
         req.session.cookie.maxAge = sessionExpireTime;
         next();
       } else {
-        return res.render("login", { wrongPassword: true, email: req.body.email.trim() });
+        return res.render("login", {
+          wrongPassword: true,
+          email: req.body.email.trim(),
+        });
       }
     } else {
-      return res.render("login", { noUser: true, email: req.body.email.trim() });
+      return res.render("login", {
+        noUser: true,
+        email: req.body.email.trim(),
+      });
     }
   } catch (err) {
     console.log("fail to login", err);
@@ -215,15 +242,15 @@ app.get("/mycart", async (req, res) => {
     }
 
     /*
-    * Get the price list from the cart and
-    * the priceList is an array of objects with recipeId, recipePrice, and quantity.
-    */
+     * Get the price list from the cart and
+     * the priceList is an array of objects with recipeId, recipePrice, and quantity.
+     */
     let priceList = [];
     user.cart.forEach((value, key) => {
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
-        quantity: value.quantity
+        quantity: value.quantity,
       });
     });
 
@@ -427,7 +454,7 @@ app.get("/browse", (req, res) => {
 
 app.use(getRecipeInfo);
 
-app.post("/add-to-cart", async (req, res) => {
+app.post("/add_to_cart", async (req, res) => {
   try {
     const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
@@ -453,7 +480,7 @@ app.post("/add-to-cart", async (req, res) => {
   }
 });
 
-app.post("/recipeInfo/:id", async (req, res) => {
+app.post("/recipe_Info/:id", async (req, res) => {
   try {
     const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
@@ -478,7 +505,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
   }
 });
 
-app.get("/getCartNumber", async (req, res) => {
+app.get("/get_cart_number", async (req, res) => {
   try {
     const user = await userModel.findOne({ email: req.session.email });
     let cartCount = 0;
@@ -498,7 +525,7 @@ app.get("/recipe_search_page", (req, res) => {
   res.render("recipe_search_page");
 });
 
-app.get("/getSearchQuery/:query", async (req, res) => {
+app.get("/get_search_query/:query", async (req, res) => {
   const appId = process.env.EDAMAM_APP_ID;
   const appKey = process.env.EDAMAM_APP_KEY;
   const query = req.params.query;
@@ -529,52 +556,52 @@ app.get("/payment", async (req, res) => {
   res.render("payment", { priceList: priceList });
 });
 
-app.post("/update-cart", async (req, res) => {
-  try {
-    const { recipeLabel, action } = req.body;
+// app.post("/update_cart", async (req, res) => {
+//   try {
+//     const { recipeLabel, action } = req.body;
 
-    const user = await userModel.findOne({ email: req.session.email });
-    if (!user) {
-      console.error("User not found");
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found." });
-    }
+//     const user = await userModel.findOne({ email: req.session.email });
+//     if (!user) {
+//       console.error("User not found");
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found." });
+//     }
 
-    if (!user.cart) {
-      user.cart = [];
-    }
-    if (!user.cart) {
-      user.cart = [];
-    }
+//     if (!user.cart) {
+//       user.cart = [];
+//     }
+//     if (!user.cart) {
+//       user.cart = [];
+//     }
 
-    let item = user.cart.find((item) => item.label === recipeLabel);
+//     let item = user.cart.find((item) => item.label === recipeLabel);
 
-    if (item) {
-      if (action === "increment") {
-        item.count += 1;
-      } else if (action === "decrement" && item.count > 1) {
-        item.count -= 1;
-      } else if (action === "decrement" && item.count === 1) {
-        user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
-      }
+//     if (item) {
+//       if (action === "increment") {
+//         item.count += 1;
+//       } else if (action === "decrement" && item.count > 1) {
+//         item.count -= 1;
+//       } else if (action === "decrement" && item.count === 1) {
+//         user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
+//       }
 
-      await userModel.updateOne(
-        { username: req.session.username },
-        { $set: { cart: user.cart } }
-      );
+//       await userModel.updateOne(
+//         { username: req.session.username },
+//         { $set: { cart: user.cart } }
+//       );
 
-      console.log("Cart updated:", user.cart);
-      res.json({ success: true });
-    } else {
-      console.error("Item not found in cart");
-      res.json({ success: false, message: "Item not found in cart." });
-    }
-  } catch (error) {
-    console.error("Error updating cart:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
+//       console.log("Cart updated:", user.cart);
+//       res.json({ success: true });
+//     } else {
+//       console.error("Item not found in cart");
+//       res.json({ success: false, message: "Item not found in cart." });
+//     }
+//   } catch (error) {
+//     console.error("Error updating cart:", error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// });
 
 // User Account page
 app.get("/user_account", async (req, res) => {
@@ -643,7 +670,11 @@ app.post("/update_profile", async (req, res) => {
     const updatedUser = await userModel.findOneAndUpdate(
       { email: req.session.email },
       {
-        $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
+        $set: {
+          username: name.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+        },
       },
       { new: true }
     );
