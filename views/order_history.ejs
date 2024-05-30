@@ -1,94 +1,123 @@
 <%- include('templates/header'); %>
-<%- include('templates/backBtn'); %>
 
-<div class="bg-white min-h-screen py-10">
-  <div class="container mx-auto px-4">
-    <h2 class="text-2xl font-bold mb-5 text-blue-950 text-center">Order History</h2>
-    <div id="orderHistory" class="space-y-4">
-      <% orders.forEach(order => { %>
-        <div class="bg-orange-50 p-4 rounded-md shadow-md">
-          <div class="flex items-center">
-            <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
-            <div>
-              <h2 class="text-md font-semibold text-blue-950"><%= order.info.recipeTitle %></h2>
-              <p class="text-sm text-gray-600"><%= new Date(order.orderDate).toLocaleString() %></p>
-              <p class="text-sm text-gray-600">Amount: $<%= order.amount %></p>
+  <div class="relative mx-auto bg-white rounded-md overflow-hidden md:max-w-2xl">
+    <div class="bg-white fixed z-10 w-full">
+      <!-- back button -->
+      <button onclick="window.location.href = '/user_account'"
+        class="z-10 fixed inline-flex bg-white items-center rounded-full m-4 px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+        <span class="sr-only">Previous</span>
+        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <!-- back button -->
+      <h1 class="text-2xl font-bold py-5  text-blue-950 text-center w-full">Order History</h1>
+    </div>
+    <div class="h-20"></div>
+
+
+
+    <div class="bg-white">
+      <div class="container mx-auto px-4">
+        <div id="orderHistory" class="space-y-4">
+          <% orders.forEach(order=> { %>
+            <div class="bg-orange-50 p-4 rounded-md shadow-md">
+              <div class="flex items-center">
+                <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
+                <div>
+                  <h2 class="text-md font-semibold text-blue-950">
+                    <%= order.info.recipeTitle %>
+                  </h2>
+                  <p class="text-sm text-gray-600">
+                    <%= new Date(order.orderDate).toLocaleString() %>
+                  </p>
+                  <p class="text-sm text-gray-600">Amount: $<%= order.amount %>
+                  </p>
+                </div>
+              </div>
+              <a href="/order/<%= order.orderId %>"
+                class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
             </div>
-          </div>
-          <a href="/order/<%= order.orderId %>" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
+            <% }) %>
         </div>
-      <% }) %>
-    </div>
-    <div class="mt-4 flex justify-between items-center">
-      <button onclick="previousPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="prevBtn">Previous</button>
-      <span>Page <span id="currentPage"><%= currentPage %></span> of <span id="totalPages"><%= totalPages %></span></span>
-      <button onclick="nextPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="nextBtn">Next</button>
-    </div>
-    <div class="mt-4 flex justify-center items-center space-x-2">
-      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded mr-8" id="lastBtn">Last</button>
-      <div class="flex space-x-2">
-        <input type="text" id="pageInput" class="border rounded p-1 w-16" placeholder="Go to" />
-        <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded">Go</button>
+        <div class="mt-4 flex justify-between items-center">
+          <button onclick="previousPage()" class="bg-blue-950 text-white px-3 py-1 rounded"
+            id="prevBtn">Previous</button>
+          <span>Page <span id="currentPage">
+              <%= currentPage %>
+            </span> of <span id="totalPages">
+              <%= totalPages %>
+            </span></span>
+          <button onclick="nextPage()" class="bg-blue-950 text-white px-3 py-1 rounded" id="nextBtn">Next</button>
+        </div>
+        <div class="mt-4 flex justify-center items-center space-x-2">
+          <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded mr-8" id="lastBtn">Last</button>
+          <div class="flex space-x-2">
+            <input type="text" id="pageInput" class="border rounded p-1 w-16" placeholder="Go to" />
+            <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded">Go</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<%- include('templates/menuBar'); %>
-<%- include('templates/footer'); %>
+  <%- include('templates/menuBar'); %>
+    <%- include('templates/footer'); %>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const currentPage = parseInt(document.getElementById('currentPage').innerText);
-    const totalPages = parseInt(document.getElementById('totalPages').innerText);
-    
-    if (currentPage === 1) {
-      document.getElementById('prevBtn').disabled = true;
-      document.getElementById('prevBtn').classList.add('opacity-50', 'cursor-not-allowed');
-    }
-    
-    if (currentPage === totalPages) {
-      document.getElementById('nextBtn').disabled = true;
-      document.getElementById('nextBtn').classList.add('opacity-50', 'cursor-not-allowed');
-      document.getElementById('lastBtn').disabled = true;
-      document.getElementById('lastBtn').classList.add('opacity-50', 'cursor-not-allowed');
-    }
-  });
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const currentPage = parseInt(document.getElementById('currentPage').innerText);
+          const totalPages = parseInt(document.getElementById('totalPages').innerText);
 
-  function previousPage() {
-    const currentPage = parseInt(document.getElementById('currentPage').innerText);
-    if (currentPage > 1) {
-      window.location.href = `/order_history?page=${currentPage - 1}`;
-    } else {
-      alert('Already on the first page.');
-    }
-  }
+          if (currentPage === 1) {
+            document.getElementById('prevBtn').disabled = true;
+            document.getElementById('prevBtn').classList.add('opacity-50', 'cursor-not-allowed');
+          }
 
-  function nextPage() {
-    const currentPage = parseInt(document.getElementById('currentPage').innerText);
-    const totalPages = parseInt(document.getElementById('totalPages').innerText);
-    if (currentPage < totalPages) {
-      window.location.href = `/order_history?page=${currentPage + 1}`;
-    } else {
-      alert('No more pages available.');
-    }
-  }
+          if (currentPage === totalPages) {
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('nextBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('lastBtn').disabled = true;
+            document.getElementById('lastBtn').classList.add('opacity-50', 'cursor-not-allowed');
+          }
+        });
 
-  function lastPage() {
-    const totalPages = parseInt(document.getElementById('totalPages').innerText);
-    window.location.href = `/order_history?page=${totalPages}`;
-  }
+        function previousPage() {
+          const currentPage = parseInt(document.getElementById('currentPage').innerText);
+          if (currentPage > 1) {
+            window.location.href = `/order_history?page=${currentPage - 1}`;
+          } else {
+            alert('Already on the first page.');
+          }
+        }
 
-  function goToPage() {
-    const pageInput = document.getElementById('pageInput').value.trim();
-    const totalPages = parseInt(document.getElementById('totalPages').innerText);
-    
-    if (!pageInput || isNaN(pageInput) || pageInput % 1 !== 0 || pageInput < 1 || pageInput > totalPages) {
-      alert(`Please enter a valid page number between 1 and ${totalPages}.`);
-      document.getElementById('pageInput').value = '';
-      return;
-    }
-    
-    window.location.href = `/order_history?page=${pageInput}`;
-  }
-</script>
+        function nextPage() {
+          const currentPage = parseInt(document.getElementById('currentPage').innerText);
+          const totalPages = parseInt(document.getElementById('totalPages').innerText);
+          if (currentPage < totalPages) {
+            window.location.href = `/order_history?page=${currentPage + 1}`;
+          } else {
+            alert('No more pages available.');
+          }
+        }
+
+        function lastPage() {
+          const totalPages = parseInt(document.getElementById('totalPages').innerText);
+          window.location.href = `/order_history?page=${totalPages}`;
+        }
+
+        function goToPage() {
+          const pageInput = document.getElementById('pageInput').value.trim();
+          const totalPages = parseInt(document.getElementById('totalPages').innerText);
+
+          if (!pageInput || isNaN(pageInput) || pageInput % 1 !== 0 || pageInput < 1 || pageInput > totalPages) {
+            alert(`Please enter a valid page number between 1 and ${totalPages}.`);
+            document.getElementById('pageInput').value = '';
+            return;
+          }
+
+          window.location.href = `/order_history?page=${pageInput}`;
+        }
+      </script>
