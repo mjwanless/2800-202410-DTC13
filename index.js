@@ -278,6 +278,7 @@ app.get("/mycart", async (req, res) => {
     res.render("my_cart", {
       recipeDetails: filteredRecipes,
       priceList: priceList,
+      menuIcon: 2
     });
   } catch (err) {
     console.error("Failed to retrieve cart items:", err);
@@ -447,11 +448,12 @@ app.get("/home", async (req, res) => {
   res.render("home", {
     recipeList: recipeList,
     monthlyRecipeList: monthlyRecipeList,
+    menuIcon: 1
   });
 });
 
 app.get("/browse", (req, res) => {
-  res.render("browse");
+  res.render("browse", { menuIcon: 3 });
 });
 
 app.use(getRecipeInfo);
@@ -613,7 +615,7 @@ app.get("/user_account", async (req, res) => {
       if (!user) {
         return res.status(404).send("User not found");
       }
-      res.render("user_account", { user: user });
+      res.render("user_account", { user: user, menuIcon: 4});
     } catch (err) {
       console.error("Failed to retrieve user:", err);
       res.status(500).send("Internal server error");
