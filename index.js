@@ -105,7 +105,6 @@ const createUser = async (req, res, next) => {
   });
 
   const { error } = schema.validate(req.body);
-  console.log(error);
 
   if (!req.body.security_question) {
     return res.render("signup", {
