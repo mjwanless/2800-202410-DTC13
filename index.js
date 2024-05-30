@@ -622,12 +622,24 @@ app.get("/user_account", async (req, res) => {
   }
 });
 
+// Route to get user orders
+app.get("/user_orders", async (req, res) => {
+  try {
+    const user = await userModel.findOne({ email: req.session.email });
+    const userOrders = await orders.find({ orderId: { $in: user.order } }).sort({ orderDate: -1 });
+    res.json(userOrders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Error fetching orders");
+  }
+});
+
 // Route to render order history page
 app.get('/order_history', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await user.findOne({ email: req.session.email });
     const totalOrders = await orders.countDocuments({ orderId: { $in: user.order } });
     const paginatedOrders = await orders
       .find({ orderId: { $in: user.order } })
