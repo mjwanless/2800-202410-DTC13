@@ -7,9 +7,15 @@
     <div id="orderHistory" class="space-y-4">
       <% orders.forEach(order => { %>
         <div class="bg-orange-50 p-4 rounded-md shadow-md">
-          <h3 class="text-lg font-bold text-blue-950">Order ID: <%= order.orderId %></h3>
-          <p class="text-gray-600">Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
-          <p class="text-gray-600">Amount: $<%= order.amount %></p>
+          <div class="flex items-center">
+            <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
+            <div>
+              <h2 class="text-md font-semibold text-blue-950"><%= order.info.recipeTitle %></h2>
+              <p class="text-sm text-gray-600"><%= new Date(order.orderDate).toLocaleString() %></p>
+              <p class="text-sm text-gray-600">Amount: $<%= order.amount %></p>
+            </div>
+          </div>
+          <a href="/order/<%= order.orderId %>" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
         </div>
       <% }) %>
     </div>
