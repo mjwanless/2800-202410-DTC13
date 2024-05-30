@@ -652,7 +652,7 @@ app.get("/order_history", async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    res.render("order_history", {
+    res.render("orderHistory", {
       orders: paginatedOrders,
       totalPages: Math.ceil(totalOrders / limit),
       currentPage: page,
