@@ -1,0 +1,94 @@
+<%- include('templates/header'); %>
+<%- include('templates/backBtn'); %>
+
+<div class="bg-white min-h-screen py-10">
+  <div class="container mx-auto px-4">
+    <h2 class="text-2xl font-bold mb-5 text-blue-950 text-center">Order History</h2>
+    <div id="orderHistory" class="space-y-4">
+      <% orders.forEach(order => { %>
+        <div class="bg-orange-50 p-4 rounded-md shadow-md">
+          <div class="flex items-center">
+            <img src="/orderimg.jpg" alt="Order Image" class="w-16 h-16 rounded-md mr-4">
+            <div>
+              <h2 class="text-md font-semibold text-blue-950"><%= order.info.recipeTitle %></h2>
+              <p class="text-sm text-gray-600"><%= new Date(order.orderDate).toLocaleString() %></p>
+              <p class="text-sm text-gray-600">Amount: $<%= order.amount %></p>
+            </div>
+          </div>
+          <a href="/order/<%= order.orderId %>" class="text-orange-500 hover:underline text-sm font-bold mt-2 block">View Details</a>
+        </div>
+      <% }) %>
+    </div>
+    <div class="mt-4 flex justify-between items-center">
+      <button onclick="previousPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="prevBtn">Previous</button>
+      <span>Page <span id="currentPage"><%= currentPage %></span> of <span id="totalPages"><%= totalPages %></span></span>
+      <button onclick="nextPage()" class="bg-gray-500 text-white px-3 py-1 rounded" id="nextBtn">Next</button>
+    </div>
+    <div class="mt-4 flex justify-center items-center space-x-2">
+      <button onclick="lastPage()" class="bg-gray-500 text-white px-3 py-1 rounded mr-8" id="lastBtn">Last</button>
+      <div class="flex space-x-2">
+        <input type="text" id="pageInput" class="border rounded p-1 w-16" placeholder="Go to" />
+        <button onclick="goToPage()" class="bg-orange-500 text-white px-3 py-1 rounded">Go</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('templates/menuBar'); %>
+<%- include('templates/footer'); %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = parseInt(document.getElementById('currentPage').innerText);
+    const totalPages = parseInt(document.getElementById('totalPages').innerText);
+    
+    if (currentPage === 1) {
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('prevBtn').classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    
+    if (currentPage === totalPages) {
+      document.getElementById('nextBtn').disabled = true;
+      document.getElementById('nextBtn').classList.add('opacity-50', 'cursor-not-allowed');
+      document.getElementById('lastBtn').disabled = true;
+      document.getElementById('lastBtn').classList.add('opacity-50', 'cursor-not-allowed');
+    }
+  });
+
+  function previousPage() {
+    const currentPage = parseInt(document.getElementById('currentPage').innerText);
+    if (currentPage > 1) {
+      window.location.href = `/order_history?page=${currentPage - 1}`;
+    } else {
+      alert('Already on the first page.');
+    }
+  }
+
+  function nextPage() {
+    const currentPage = parseInt(document.getElementById('currentPage').innerText);
+    const totalPages = parseInt(document.getElementById('totalPages').innerText);
+    if (currentPage < totalPages) {
+      window.location.href = `/order_history?page=${currentPage + 1}`;
+    } else {
+      alert('No more pages available.');
+    }
+  }
+
+  function lastPage() {
+    const totalPages = parseInt(document.getElementById('totalPages').innerText);
+    window.location.href = `/order_history?page=${totalPages}`;
+  }
+
+  function goToPage() {
+    const pageInput = document.getElementById('pageInput').value.trim();
+    const totalPages = parseInt(document.getElementById('totalPages').innerText);
+    
+    if (!pageInput || isNaN(pageInput) || pageInput % 1 !== 0 || pageInput < 1 || pageInput > totalPages) {
+      alert(`Please enter a valid page number between 1 and ${totalPages}.`);
+      document.getElementById('pageInput').value = '';
+      return;
+    }
+    
+    window.location.href = `/order_history?page=${pageInput}`;
+  }
+</script>
