@@ -796,7 +796,7 @@ app.post("/save_feedback", async (req, res) => {
 app.get("/my_preference", async (req, res) => {
   try {
     const preferences = await Preference.find();
-    res.render("my_preference", { preferences });
+    res.render("myPreference", { preferences });
   } catch (error) {
     console.error("Error fetching preferences:", error);
     res.status(500).send("Error fetching preferences");
