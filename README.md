@@ -141,13 +141,14 @@ Team Members:
     │   myPreference.ejs
     │   orderDetails.ejs
     │   orderConfirm.ejs
+    |   orderHistory.ejs
     │   payment.ejs
     │   recipeSearchPage.ejs
     │   recipeInfo.ejs
     │   resetPassword.ejs
     │   signup.ejs
     │   userAccount.ejs
-    │   user_profile.ejs
+    │   userProfile.ejs
     │
     └── templates
         │   backBtn.ejs
