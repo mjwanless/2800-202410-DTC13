@@ -374,15 +374,21 @@ const getRecommendation = async (preferenceList) => {
 
         if (data && data.hits && data.hits.length > 0) {
           const recipes = data.hits;
-          for (let j = 1; j < 3; j++) {
+          let j = 0;
+          while(j < 2) {
             let index = Math.floor(Math.random() * 10);
+            
             let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+            if (recipeList.some((recipe) => recipe.recipeId === recipeId)) {
+              continue;
+            }
             let imgUrl = recipes[index].recipe.image;
             let recipeTitle = recipes[index].recipe.label;
             if (recipeTitle.length > 40) {
               recipeTitle = recipeTitle.substring(0, 40) + "...";
             }
             recipeList.push({ recipeId, imgUrl, recipeTitle });
+            j++;
           }
         }
       })
