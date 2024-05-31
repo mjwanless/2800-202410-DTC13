@@ -35,7 +35,10 @@ const resetPassword = async (req, res, next) => {
       const inputAnswer = req.body.security_answer;
 
       if (!(await bcrypt.compare(inputAnswer, outputAnswer))) {
-        return res.render("reset_password", { wrongAnswer: true, email: req.body.email });
+        return res.render("resetPassword", {
+          wrongAnswer: true,
+          email: req.body.email,
+        });
       }
 
       var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -52,7 +55,7 @@ const resetPassword = async (req, res, next) => {
         res.status(500).send("Failed to update password.");
       }
     } else {
-      return res.render("reset_password", { noUser: true });
+      return res.render("resetPassword", { noUser: true });
     }
   } catch (err) {
     console.log("fail to login", err);
@@ -101,7 +104,7 @@ resetPasswordRouter.post("/reset_password", resetPassword, async (req, res) => {
         clientId: config.clientId,
         clientSecret: config.clientSecret,
         refreshToken: config.refreshToken,
-        accessToken: accessToken
+        accessToken: accessToken,
       },
     });
 

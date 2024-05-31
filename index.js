@@ -292,7 +292,7 @@ app.get("/signup", (req, res) => {
 
 // GET request for the reset password page
 app.get("/reset_password", (req, res) => {
-  res.render("reset_password");
+  res.render("resetPassword");
 });
 
 // After successful signup
@@ -531,7 +531,7 @@ app.get("/get_cart_number", async (req, res) => {
 
 // GET request for the recipe_search_page
 app.get("/recipe_search_page", (req, res) => {
-  res.render("recipe_search_page");
+  res.render("recipeSearchPage");
 });
 
 app.get("/get_search_query/:query", async (req, res) => {
@@ -620,7 +620,7 @@ app.get("/user_account", async (req, res) => {
       if (!user) {
         return res.status(404).send("User not found");
       }
-      res.render("user_account", { user: user, menuIcon: 4});
+      res.render("userAccount", { user: user, menuIcon: 4});
     } catch (err) {
       console.error("Failed to retrieve user:", err);
       res.status(500).send("Internal server error");
@@ -659,7 +659,7 @@ app.get("/order_history", async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    res.render("order_history", {
+    res.render("orderHistory", {
       orders: paginatedOrders,
       totalPages: Math.ceil(totalOrders / limit),
       currentPage: page,
@@ -674,7 +674,7 @@ app.get("/order_history", async (req, res) => {
 app.get("/order/:orderId", async (req, res) => {
   try {
     const order = await orders.findOne({ orderId: req.params.orderId });
-    res.render("order_details", { order });
+    res.render("orderDetails", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
     res.status(500).send("Error fetching order");
@@ -803,7 +803,7 @@ app.post("/save_feedback", async (req, res) => {
 app.get("/my_preference", async (req, res) => {
   try {
     const preferences = await Preference.find();
-    res.render("my_preference", { preferences });
+    res.render("myPreference", { preferences });
   } catch (error) {
     console.error("Error fetching preferences:", error);
     res.status(500).send("Error fetching preferences");

@@ -139,14 +139,14 @@ Team Members:
     │   logout.ejs
     │   myCart.ejs
     │   myPreference.ejs
-    │   order_details.ejs
+    │   orderDetails.ejs
     │   orderConfirm.ejs
     │   payment.ejs
-    │   recipe_search_page.ejs
+    │   recipeSearchPage.ejs
     │   recipeInfo.ejs
-    │   reset_password.ejs
+    │   resetPassword.ejs
     │   signup.ejs
-    │   user_account.ejs
+    │   userAccount.ejs
     │   user_profile.ejs
     │
     └── templates
