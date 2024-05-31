@@ -219,6 +219,11 @@ Team Members:
   > For guidance on setting up Nodemailer for the first time, check out this helpful [YouTube video](https://www.youtube.com/watch?v=18qA61bpfUs&t=1s).
 - Update environment variables with your credentials and API keys.
 
+> 💡 **Tip:**
+> 
+> You can refer to [FreshPlate test plan](https://docs.google.com/spreadsheets/d/1HzwHzfYbDwXY4LjH6PUsZWfb1iw-0PDkPEDa3QB8iJ8/edit?usp=sharing) to check how should FreshPlate work.
+
+
 ## How to Use the Product (Features)
 
 - **Recipe Searching**
