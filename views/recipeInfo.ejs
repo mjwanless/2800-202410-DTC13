@@ -1,166 +1,194 @@
-<%- include('templates/header') %>
-    <%- include('templates/backBtn') %>
-        <div class="z-10 fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9"
-            onclick="favoritesToggleInfoPage()">
-            <i class="<% if(isFavorite){ %>fas<% }else{ %>far<% } %> fa-heart icon text-red-500 text-lg"></i>
-        </div>
+<%- include('templates/header') %> <%- include('templates/backBtn') %>
+<div
+  class="z-10 fixed inline-flex items-center justify-center shadow-md bg-white items-center rounded-full m-4 px-4 py-4 text-gray-400 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 top-0 right-2 h-9 w-9"
+  onclick="favoritesToggleInfoPage()"
+>
+  <i
+    class="<% if(isFavorite){ %>fas<% }else{ %>far<% } %> fa-heart icon text-red-500 text-lg"
+  ></i>
+</div>
 
-        <div class="max-w-md mx-auto bg-white overflow-hidden md:max-w-2xl">
-            <div class="md:flex">
-                <div class="md:flex-shrink-0">
-                    <img id="recipe-image" src="<%= recipeDetails.recipeImg %>" class="h-48 w-full object-cover md:w-48"
-                        alt="Recipe image">
+<div class="max-w-md mx-auto bg-white overflow-hidden md:max-w-2xl">
+  <div class="md:flex">
+    <div class="md:flex-shrink-0">
+      <img
+        id="recipe-image"
+        src="<%= recipeDetails.recipeImg %>"
+        class="h-48 w-full object-cover md:w-48"
+        alt="Recipe image"
+      />
+    </div>
+    <div class="p-8">
+      <div class="flex items-center justify-between">
+        <h1 id="recipe-name" class="text-2xl font-bold text-blue-950">
+          <%= recipeDetails.recipeTitle %>
+        </h1>
+      </div>
+      <% let i=0 %> <% recipeDetails.recipeCuisineType.forEach((cuisine)=> { %>
+      <p class="recipe-cuisine mt-2 text-gray-400 font-medium">
+        <span class="font-bold">Cuisine type:</span>
+        <%= cuisine %>
+      </p>
+      <% }) %>
+
+      <div class="flex items-center justify-between mt-4">
+        <h2 class="text-2xl font-semibold text-blue-950">Ingredients</h2>
+      </div>
+
+      <div class="mt-4 bg-indigo-50 p-4 rounded-xl">
+        <ul id="ingredients-list" class="mt-2">
+          <% recipeDetails.recipeIngredients.forEach((ingredient)=> { %>
+          <li class="items-center mt-2 w-full ingredient">
+            <div class="flex items-center justify-between">
+              <span> <%= ingredient %> </span>
+
+              <!-- plus and minus buttons -->
+              <form class="max-w-xs">
+                <div class="relative flex items-center">
+                  <button
+                    type="button"
+                    id="decrement-button<%=i%>"
+                    data-input-counter-decrement="counter-input"
+                    class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center rounded-sm h-5 w-5"
+                  >
+                    <svg
+                      class="w-2.5 h-2.5 text-black"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 18 2"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M1 1h16"
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type="text"
+                    id="counter-input"
+                    data-input-counter
+                    class="flex-shrink-0 text-gray-900 border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center"
+                    placeholder=""
+                    value="1"
+                    required
+                  />
+                  <button
+                    type="button"
+                    id="increment-button<%=i%>"
+                    data-input-counter-increment="counter-input"
+                    class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center rounded-sm h-5 w-5"
+                  >
+                    <svg
+                      class="w-2.5 h-2.5 text-white"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 18 18"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 1v16M1 9h16"
+                      />
+                    </svg>
+                  </button>
                 </div>
-                <div class="p-8">
-                    <div class="flex items-center justify-between">
-                        <h1 id="recipe-name" class="text-2xl font-bold text-blue-950">
-                            <%= recipeDetails.recipeTitle %>
-                        </h1>
-                    </div>
-                    <% let i=0 %>
-                        <% recipeDetails.recipeCuisineType.forEach((cuisine)=> { %>
-                            <p class="recipe-cuisine mt-2 text-gray-400 font-medium">
-                                <span class="font-bold">Cuisine type:</span>
-                                <%= cuisine %>
-                            </p>
-                            <% }) %>
-
-                                <div class="flex items-center justify-between mt-4">
-                                    <h2 class="text-2xl font-semibold text-blue-950">Ingredients</h2>
-                                </div>
-
-                                <div class="mt-4 bg-indigo-50 p-4 rounded-xl">
-                                    <ul id="ingredients-list" class="mt-2">
-                                        <% recipeDetails.recipeIngredients.forEach((ingredient)=> { %>
-                                            <li class="items-center mt-2 w-full ingredient">
-                                                <div class="flex items-center justify-between">
-                                                    <span>
-                                                        <%= ingredient %>
-                                                    </span>
-
-                                                    <!-- plus and minus buttons -->
-                                                    <form class="max-w-xs">
-                                                        <div class="relative flex items-center">
-                                                            <button type="button" id="decrement-button<%=i%>"
-                                                                data-input-counter-decrement="counter-input"
-                                                                class="flex-shrink-0 bg-orange-50 inline-flex items-center justify-center rounded-sm h-5 w-5">
-                                                                <svg class="w-2.5 h-2.5 text-black" aria-hidden="true"
-                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                    viewBox="0 0 18 2">
-                                                                    <path stroke="currentColor" stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M1 1h16" />
-                                                                </svg>
-                                                            </button>
-                                                            <input type="text" id="counter-input" data-input-counter
-                                                                class="flex-shrink-0 text-gray-900 border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center"
-                                                                placeholder="" value="1" required />
-                                                            <button type="button" id="increment-button<%=i%>"
-                                                                data-input-counter-increment="counter-input"
-                                                                class="flex-shrink-0 bg-orange-500 inline-flex items-center justify-center rounded-sm h-5 w-5">
-                                                                <svg class="w-2.5 h-2.5 text-white" aria-hidden="true"
-                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                    viewBox="0 0 18 18">
-                                                                    <path stroke="currentColor" stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M9 1v16M1 9h16" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </li>
-                                            <% i++ %>
-                                                <% }) %>
-                                    </ul>
-                                </div>
-
-                                <div class="flex items-center justify-between mt-4">
-                                    <h2 class="text-xl font-semibold text-blue-950">Price: $<%=
-                                            recipeDetails.recipePrice.toFixed(2) %>
-                                    </h2>
-                                    <div class="flex justify-end">
-                                        <form id="add-to-cart-form" action="/add-to-cart" method="POST">
-                                            <input class="hidden" name="recipeId" type="data"
-                                                value="<%= recipeDetails.recipeId %>">
-                                            <input class="hidden" name="recipePrice" type="data"
-                                                value="<%= recipeDetails.recipePrice %>">
-                                            <button type="submit"
-                                                class="bg-orange-500 text-white text-md px-4 py-2 rounded-md ml-2">Add
-                                                to
-                                                Cart</button>
-                                        </form>
-                                    </div>
-                                </div>
-
-
-                                <div class="mt-6">
-                                    <h2 class="text-2xl font-semibold text-blue-950">Nutritional Information</h2>
-                                    <ul id="nutritional-info" class="list-disc list-inside mt-2 text-gray-700">
-                                        <% if (recipeDetails.recipeNutrients.ENERC_KCAL) { %>
-                                            <li>Calories: <%=
-                                                    recipeDetails.recipeNutrients.ENERC_KCAL.quantity.toFixed(2) %>
-                                                    <%= recipeDetails.recipeNutrients.ENERC_KCAL.unit %>
-                                            </li>
-                                            <% } %>
-                                                <% if (recipeDetails.recipeNutrients.PROCNT) { %>
-                                                    <li>Protein: <%=
-                                                            recipeDetails.recipeNutrients.PROCNT.quantity.toFixed(2) %>
-                                                            <%= recipeDetails.recipeNutrients.PROCNT.unit %>
-                                                    </li>
-                                                    <% } %>
-                                                        <% if (recipeDetails.recipeNutrients.FAT) { %>
-                                                            <li>Fat: <%=
-                                                                    recipeDetails.recipeNutrients.FAT.quantity.toFixed(2)
-                                                                    %>
-                                                                    <%= recipeDetails.recipeNutrients.FAT.unit %>
-                                                            </li>
-                                                            <% } %>
-                                                                <% if (recipeDetails.recipeNutrients.CHOCDF) { %>
-                                                                    <li>Carbohydrates: <%=
-                                                                            recipeDetails.recipeNutrients.CHOCDF.quantity.toFixed(2)
-                                                                            %>
-                                                                            <%= recipeDetails.recipeNutrients.CHOCDF.unit
-                                                                                %>
-                                                                    </li>
-                                                                    <% } %>
-                                                                        <% if (recipeDetails.recipeNutrients.FIBTG) { %>
-                                                                            <li>Fiber: <%=
-                                                                                    recipeDetails.recipeNutrients.FIBTG.quantity.toFixed(2)
-                                                                                    %>
-                                                                                    <%= recipeDetails.recipeNutrients.FIBTG.unit
-                                                                                        %>
-                                                                            </li>
-                                                                            <% } %>
-                                                                                <% if (recipeDetails.recipeNutrients.NA)
-                                                                                    { %>
-                                                                                    <li>Sodium: <%=
-                                                                                            recipeDetails.recipeNutrients.NA.quantity.toFixed(2)
-                                                                                            %>
-                                                                                            <%= recipeDetails.recipeNutrients.NA.unit
-                                                                                                %>
-                                                                                    </li>
-                                                                                    <% } %>
-                                                                                        <% if
-                                                                                            (recipeDetails.recipeNutrients.SUGAR)
-                                                                                            { %>
-                                                                                            <li>Sugar: <%=
-                                                                                                    recipeDetails.recipeNutrients.SUGAR.quantity.toFixed(2)
-                                                                                                    %>
-                                                                                                    <%= recipeDetails.recipeNutrients.SUGAR.unit
-                                                                                                        %>
-                                                                                            </li>
-                                                                                            <% } %>
-                                    </ul>
-                                </div>
-                </div>
+              </form>
             </div>
+          </li>
+          <% i++ %> <% }) %>
+        </ul>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <h2 class="text-xl font-semibold text-blue-950">
+          Price: $<%= recipeDetails.recipePrice.toFixed(2) %>
+        </h2>
+        <div class="flex justify-end">
+          <form id="add-to-cart-form" action="/add_to_cart" method="POST">
+            <input
+              class="hidden"
+              name="recipeId"
+              type="data"
+              value="<%= recipeDetails.recipeId %>"
+            />
+            <input
+              class="hidden"
+              name="recipePrice"
+              type="data"
+              value="<%= recipeDetails.recipePrice %>"
+            />
+            <button
+              type="submit"
+              class="bg-orange-500 text-white text-md px-4 py-2 rounded-md ml-2"
+            >
+              Add to Cart
+            </button>
+          </form>
         </div>
-        <script>
+      </div>
 
-        </script>
+      <div class="mt-6">
+        <h2 class="text-2xl font-semibold text-blue-950">
+          Nutritional Information
+        </h2>
+        <ul
+          id="nutritional-info"
+          class="list-disc list-inside mt-2 text-gray-700"
+        >
+          <% if (recipeDetails.recipeNutrients.ENERC_KCAL) { %>
+          <li>
+            Calories: <%=
+            recipeDetails.recipeNutrients.ENERC_KCAL.quantity.toFixed(2) %> <%=
+            recipeDetails.recipeNutrients.ENERC_KCAL.unit %>
+          </li>
+          <% } %> <% if (recipeDetails.recipeNutrients.PROCNT) { %>
+          <li>
+            Protein: <%=
+            recipeDetails.recipeNutrients.PROCNT.quantity.toFixed(2) %> <%=
+            recipeDetails.recipeNutrients.PROCNT.unit %>
+          </li>
+          <% } %> <% if (recipeDetails.recipeNutrients.FAT) { %>
+          <li>
+            Fat: <%= recipeDetails.recipeNutrients.FAT.quantity.toFixed(2) %>
+            <%= recipeDetails.recipeNutrients.FAT.unit %>
+          </li>
+          <% } %> <% if (recipeDetails.recipeNutrients.CHOCDF) { %>
+          <li>
+            Carbohydrates: <%=
+            recipeDetails.recipeNutrients.CHOCDF.quantity.toFixed(2) %> <%=
+            recipeDetails.recipeNutrients.CHOCDF.unit %>
+          </li>
+          <% } %> <% if (recipeDetails.recipeNutrients.FIBTG) { %>
+          <li>
+            Fiber: <%= recipeDetails.recipeNutrients.FIBTG.quantity.toFixed(2)
+            %> <%= recipeDetails.recipeNutrients.FIBTG.unit %>
+          </li>
+          <% } %> <% if (recipeDetails.recipeNutrients.NA) { %>
+          <li>
+            Sodium: <%= recipeDetails.recipeNutrients.NA.quantity.toFixed(2) %>
+            <%= recipeDetails.recipeNutrients.NA.unit %>
+          </li>
+          <% } %> <% if (recipeDetails.recipeNutrients.SUGAR) { %>
+          <li>
+            Sugar: <%= recipeDetails.recipeNutrients.SUGAR.quantity.toFixed(2)
+            %> <%= recipeDetails.recipeNutrients.SUGAR.unit %>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script></script>
 
-        <%- include('templates/menuBar') %>
-            <script src="/script/recipeInfoScript.js"></script>
-            <script src="/script/increseCartNumber.js"></script>
-            <%- include('templates/footer') %>
+<%- include('templates/menuBar') %>
+<script src="/script/recipeInfoScript.js"></script>
+<script src="/script/increseCartNumber.js"></script>
+<%- include('templates/footer') %>

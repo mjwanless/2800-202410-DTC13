@@ -122,7 +122,7 @@ function sendConfirmationEmail(
 }
 
 //post request for the order confirmation page
-orderconfirmRouter.post("/orderConfirm", async (req, res) => {
+orderconfirmRouter.post("/order_confirm", async (req, res) => {
   const orderNumber = getConfirmationNumber();
   const formattedDate = getDeliveryDate();
   const formattedAmount = getTotalAmount(req.body.amount.replace(/^\$/, ""));
@@ -132,7 +132,7 @@ orderconfirmRouter.post("/orderConfirm", async (req, res) => {
     { username: req.session.username },
     {
       $push: { order: orderNumber },
-      $set: { cart: {} }
+      $set: { cart: {} },
     }
   );
 

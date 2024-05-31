@@ -1,7 +1,7 @@
 function createRecipeCard(recipe) {
   const recipeCard = document.createElement("a");
   recipeCard.className = "flex justify-center p-1 rounded-md";
-  recipeCard.href = `/recipeInfo/${recipe.uri.split("#recipe_")[1]}`;
+  recipeCard.href = `/recipe_Info/${recipe.uri.split("#recipe_")[1]}`;
 
   const tagList = generateTagList(recipe);
   recipeCard.innerHTML = `

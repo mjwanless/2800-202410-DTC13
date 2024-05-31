@@ -15,14 +15,12 @@ const draggingStart = (e) => {
 const dragging = (e) => {
   if (!isMove) return;
   e.preventDefault();
-  // Carousel.classList.add("dragging");
   let positionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
   carousel.scrollLeft = prevScrollLeft - positionDiff;
 };
 
 const draggingStop = () => {
   isMove = false;
-  // Carousel.classList.remove("dragging");
 };
 carousel.addEventListener("mousedown", draggingStart);
 carousel.addEventListener("touchstart", draggingStart);
@@ -31,4 +29,5 @@ carousel.addEventListener("mousemove", dragging);
 carousel.addEventListener("touchmove", dragging);
 
 carousel.addEventListener("mouseup", draggingStop);
-carousel.addEventListener("touched", draggingStop);
+carousel.addEventListener("mouseleave", draggingStop);
+carousel.addEventListener("touchend", draggingStop);

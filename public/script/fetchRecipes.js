@@ -1,5 +1,5 @@
 async function getRecipes(query) {
-  const url = `/getSearchQuery/${query}`;
+  const url = `/get_search_query/${query}`;
   const response = await fetch(url);
   const data = await response.json();
 

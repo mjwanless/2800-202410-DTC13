@@ -1,10 +1,6 @@
 /* jshint esversion: 8 */
 
-/*
-// ======================================
-// Just some fun import statements
-// ======================================
-*/
+// Import statements for the required modules.
 const express = require("express");
 require("dotenv").config();
 const session = require("express-session");
@@ -13,45 +9,29 @@ const mongoose = require("mongoose");
 var MongoDBStore = require("connect-mongodb-session")(session);
 const cors = require("cors");
 
-// Import modules
+// Import modules.
 const monthlyRecipe = require("./js/monthlyRecipeSchema");
 const feedbacks = require("./js/createFeedback");
-const User = require("./js/userSchema");
+const userModel = require("./js/userSchema");
 const orders = require("./js/orderSchema");
 const calculator = require("./js/caloriesCalculator");
 const sendConfirmationEmail = require("./js/sendOrderConfirmationEmail");
 const sendResetPasswordEmail = require("./js/sendResetPasswordEmail");
 const getRecipeInfo = require("./js/getRecipeInfo");
-const getPrice = require("./js/getPrice");
 
-
-const sessionExpireTime = 1 * 60 * 60 * 1000; //1 hour
+const sessionExpireTime = 1 * 60 * 60 * 1000; // 1 hour expiration time for session
 const saltRounds = 10;
 const joi = require("joi");
 
-/*
-* ======================================
-* Create a new express app and set up the port for .env variables
-* ======================================
-*/
+// Create a new express app and set up the port for .env variables
 const app = express();
+exports.app = app;
 app.use(cors());
 const port = process.env.PORT || 3000;
-
 app.set("view engine", "ejs");
 
-/*
-* ======================================
-* This is to be able to allow us to parse the req.body/URL-encoded bodies
-* ======================================
-*/
+// This is to be able to allow us to parse the req.body/URL-encoded bodies
 app.use(express.urlencoded({ extended: false }));
-
-/*
-* ======================================
-* We need a session setup to maintain security and user data and create sessions with cookies
-* ======================================
-*/
 
 // Mongo variables from the .env file
 const mongodb_host = process.env.MONGODB_HOST;
@@ -59,7 +39,7 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-// Connecting to the Atlas database
+// Connect to the Atlas database.
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/FreshPlate`;
 const connectToDB = async () => {
   try {
@@ -85,7 +65,7 @@ const preferenceSchema = new mongoose.Schema({
 });
 const Preference = mongoose.model("Preference", preferenceSchema);
 
-// MongoDB session
+// MongoDB session setup to maintain security and user data and create sessions with cookies
 var store = new MongoDBStore({
   uri: atlasURI,
   collection: "sessions",
@@ -101,24 +81,9 @@ app.use(
   })
 );
 
-/*
-* ======================================
-* This is to be able to use html, css, and js files in the public folder
-* ======================================
-*/
+// This is to be able to use html, css, and js files in the public folder
 app.use(express.static(__dirname + "/public"));
 app.use(express.json());
-/*
-* ======================================
-* Where the magic happens
-* ======================================
-*/
-
-/*
-* ======================================
-* functions and middleware
-* ======================================
-*/
 
 // Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -138,33 +103,53 @@ const createUser = async (req, res, next) => {
     security_question: joi.string().max(50).required(),
     security_answer: joi.string().max(50).required(),
   });
-  
 
   const { error } = schema.validate(req.body);
-  console.log(error);
 
   if (!req.body.security_question) {
-    return res.render("signup", { noSecurityQuestion: true, email: req.body.email.trim(), username: req.body.username.trim() });
+    return res.render("signup", {
+      noSecurityQuestion: true,
+      email: req.body.email.trim(),
+      username: req.body.username.trim(),
+    });
   }
 
   if (error) {
     if (error.details[0].message == '"email" must be a valid email') {
-      return res.render("signup", { invalidEmail: true, username: req.body.username.trim(), email: req.body.email.trim() });
+      return res.render("signup", {
+        invalidEmail: true,
+        username: req.body.username.trim(),
+        email: req.body.email.trim(),
+      });
     }
 
-    if (error.details[0].message == '"username" must only contain alpha-numeric characters') {
-      return res.render("signup", { invalidUsername: true, email: req.body.email.trim(), username: req.body.username.trim() });
+    if (
+      error.details[0].message ==
+      '"username" must only contain alpha-numeric characters'
+    ) {
+      return res.render("signup", {
+        invalidUsername: true,
+        email: req.body.email.trim(),
+        username: req.body.username.trim(),
+      });
     }
 
-    return res.render(
-      "signup", { error: true, email: req.body.email.trim(), username: req.body.username.trim() }
-    );
+    return res.render("signup", {
+      error: true,
+      email: req.body.email.trim(),
+      username: req.body.username.trim(),
+    });
   }
 
-  // Checks if there isn't already an account with this email
-  const existingUser = await User.findOne({ email: req.body.email.trim() });
+  // Check if there isn't already an account with this email
+  const existingUser = await userModel.findOne({
+    email: req.body.email.trim(),
+  });
   if (existingUser) {
-    return res.render("signup", { repeatEmail: true, username: req.body.username.trim(), });
+    return res.render("signup", {
+      repeatEmail: true,
+      username: req.body.username.trim(),
+    });
   }
 
   var hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -173,7 +158,7 @@ const createUser = async (req, res, next) => {
     saltRounds
   );
 
-  const user = new User({
+  const user = new userModel({
     username: req.body.username.trim(),
     email: req.body.email.trim(),
     password: hashedPassword,
@@ -206,7 +191,7 @@ const loginValidation = async (req, res, next) => {
     res.render("login", { invalidEmail: true, email: req.body.email.trim() });
   }
   try {
-    const user = await User.findOne({ email: req.body.email.trim() });
+    const user = await userModel.findOne({ email: req.body.email.trim() });
     if (user) {
       const outputPassword = user.password;
       const inputPassword = req.body.password;
@@ -217,10 +202,16 @@ const loginValidation = async (req, res, next) => {
         req.session.cookie.maxAge = sessionExpireTime;
         next();
       } else {
-        return res.render("login", { wrongPassword: true, email: req.body.email.trim() });
+        return res.render("login", {
+          wrongPassword: true,
+          email: req.body.email.trim(),
+        });
       }
     } else {
-      return res.render("login", { noUser: true, email: req.body.email.trim() });
+      return res.render("login", {
+        noUser: true,
+        email: req.body.email.trim(),
+      });
     }
   } catch (err) {
     console.log("fail to login", err);
@@ -245,25 +236,24 @@ app.get("/login", (req, res) => {
 // GET request for the my_cart page
 app.get("/mycart", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.session.username.trim() });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
 
     /*
-    * Get the price list from the cart
-    * the priceList is an array of objects with recipeId, recipePrice, and quantity
-    */
+     * Get the price list from the cart and
+     * the priceList is an array of objects with recipeId, recipePrice, and quantity.
+     */
     let priceList = [];
     user.cart.forEach((value, key) => {
       priceList.push({
         recipeId: key,
         recipePrice: value.recipePrice,
-        quantity: value.quantity
+        quantity: value.quantity,
       });
     });
 
-    // Form the recipeIds array from the user's cart
     const recipeIds = Array.from(user.cart.keys());
 
     // Using map to create an array of promises
@@ -284,9 +274,10 @@ app.get("/mycart", async (req, res) => {
     const recipeDetails = await Promise.all(recipeDetailsPromises);
     const filteredRecipes = recipeDetails.filter((recipe) => recipe !== null);
 
-    res.render("my_cart", {
+    res.render("myCart", {
       recipeDetails: filteredRecipes,
       priceList: priceList,
+      menuIcon: 2
     });
   } catch (err) {
     console.error("Failed to retrieve cart items:", err);
@@ -301,7 +292,7 @@ app.get("/signup", (req, res) => {
 
 // GET request for the reset password page
 app.get("/reset_password", (req, res) => {
-  res.render("reset_password");
+  res.render("resetPassword");
 });
 
 // After successful signup
@@ -316,7 +307,7 @@ app.post("/signup", async (req, res) => {
     req.body;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-  const newUser = new User({
+  const newUser = new userModel({
     username,
     email,
     password: hashedPassword,
@@ -344,7 +335,7 @@ app.post("/login", loginValidation, (req, res) => {
 app.get("/getSecurityQuestion/:email", async (req, res) => {
   const email = req.params.email.trim();
   try {
-    const requestedUser = await User.findOne({ email: email });
+    const requestedUser = await userModel.findOne({ email: email });
     res.json(requestedUser.security_question);
   } catch (err) {
     console.error("Failed to retrieve user:", err);
@@ -362,7 +353,7 @@ let cachedRecipes = {
   data: [],
 };
 
-const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+const TWO_DAYS_IN_MILLISECONDS = 2 * 24 * 60 * 60 * 1000;
 
 function isCacheExpired() {
   if (!cachedRecipes.timestamp) return true; // If there is no timestamp, cache is expired
@@ -383,15 +374,21 @@ const getRecommendation = async (preferenceList) => {
 
         if (data && data.hits && data.hits.length > 0) {
           const recipes = data.hits;
-          for (let j = 1; j < 3; j++) {
+          let j = 0;
+          while(j < 2) {
             let index = Math.floor(Math.random() * 10);
+            
             let recipeId = recipes[index].recipe.uri.split("#recipe_")[1];
+            if (recipeList.some((recipe) => recipe.recipeId === recipeId)) {
+              continue;
+            }
             let imgUrl = recipes[index].recipe.image;
             let recipeTitle = recipes[index].recipe.label;
             if (recipeTitle.length > 40) {
               recipeTitle = recipeTitle.substring(0, 40) + "...";
             }
             recipeList.push({ recipeId, imgUrl, recipeTitle });
+            j++;
           }
         }
       })
@@ -413,7 +410,7 @@ async function fetchAndCacheRecommendations(preferenceList) {
 // GET user's preferences from database
 const getPreference = async (email) => {
   try {
-    const user = await User.findOne({ email: email });
+    const user = await userModel.findOne({ email: email });
     if (user) {
       return user.preferences;
     } else {
@@ -447,7 +444,8 @@ app.get("/home", async (req, res) => {
       let recipeId = monthlyRecipes[i].recipeId;
       let recipeImg = monthlyRecipes[i].recipeImg;
       let recipeTitle = monthlyRecipes[i].recipeTitle;
-      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle });
+      let description = monthlyRecipes[i].description;
+      monthlyRecipeList.push({ recipeId, recipeImg, recipeTitle, description });
     }
   } else {
     console.log("No monthly recipe found");
@@ -455,18 +453,19 @@ app.get("/home", async (req, res) => {
   res.render("home", {
     recipeList: recipeList,
     monthlyRecipeList: monthlyRecipeList,
+    menuIcon: 1
   });
 });
 
 app.get("/browse", (req, res) => {
-  res.render("browse");
+  res.render("browse", { menuIcon: 3 });
 });
 
 app.use(getRecipeInfo);
 
-app.post("/add-to-cart", async (req, res) => {
+app.post("/add_to_cart", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -490,9 +489,9 @@ app.post("/add-to-cart", async (req, res) => {
   }
 });
 
-app.post("/recipeInfo/:id", async (req, res) => {
+app.post("/recipe_Info/:id", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -500,7 +499,7 @@ app.post("/recipeInfo/:id", async (req, res) => {
     const userCart = user.cart;
 
     try {
-      await User.findOneAndUpdate(
+      await userModel.findOneAndUpdate(
         { email: req.session.email },
         { $set: { cart: userCart } }
       );
@@ -515,9 +514,9 @@ app.post("/recipeInfo/:id", async (req, res) => {
   }
 });
 
-app.get("/getCartNumber", async (req, res) => {
+app.get("/get_cart_number", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     let cartCount = 0;
 
     user.cart.forEach((item) => {
@@ -532,10 +531,10 @@ app.get("/getCartNumber", async (req, res) => {
 
 // GET request for the recipe_search_page
 app.get("/recipe_search_page", (req, res) => {
-  res.render("recipe_search_page");
+  res.render("recipeSearchPage");
 });
 
-app.get("/getSearchQuery/:query", async (req, res) => {
+app.get("/get_search_query/:query", async (req, res) => {
   const appId = process.env.EDAMAM_APP_ID;
   const appKey = process.env.EDAMAM_APP_KEY;
   const query = req.params.query;
@@ -549,7 +548,7 @@ app.get("/getSearchQuery/:query", async (req, res) => {
 
 // This is for testing, will be refactored as app.post("/payment")
 app.get("/payment", async (req, res) => {
-  const user = await User.findOne({ email: req.session.email });
+  const user = await userModel.findOne({ email: req.session.email });
   const userCart = user.cart;
   let priceList = [];
   let totalPrice = 0;
@@ -566,62 +565,62 @@ app.get("/payment", async (req, res) => {
   res.render("payment", { priceList: priceList });
 });
 
-app.post("/update-cart", async (req, res) => {
-  try {
-    const { recipeLabel, action } = req.body;
+// app.post("/update_cart", async (req, res) => {
+//   try {
+//     const { recipeLabel, action } = req.body;
 
-    const user = await User.findOne({ email: req.session.email });
-    if (!user) {
-      console.error("User not found");
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found." });
-    }
+//     const user = await userModel.findOne({ email: req.session.email });
+//     if (!user) {
+//       console.error("User not found");
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found." });
+//     }
 
-    if (!user.cart) {
-      user.cart = [];
-    }
-    if (!user.cart) {
-      user.cart = [];
-    }
+//     if (!user.cart) {
+//       user.cart = [];
+//     }
+//     if (!user.cart) {
+//       user.cart = [];
+//     }
 
-    let item = user.cart.find((item) => item.label === recipeLabel);
+//     let item = user.cart.find((item) => item.label === recipeLabel);
 
-    if (item) {
-      if (action === "increment") {
-        item.count += 1;
-      } else if (action === "decrement" && item.count > 1) {
-        item.count -= 1;
-      } else if (action === "decrement" && item.count === 1) {
-        user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
-      }
+//     if (item) {
+//       if (action === "increment") {
+//         item.count += 1;
+//       } else if (action === "decrement" && item.count > 1) {
+//         item.count -= 1;
+//       } else if (action === "decrement" && item.count === 1) {
+//         user.cart = user.cart.filter((item) => item.label !== recipeLabel); // Remove item if count is 1
+//       }
 
-      await User.updateOne(
-        { username: req.session.username },
-        { $set: { cart: user.cart } }
-      );
+//       await userModel.updateOne(
+//         { username: req.session.username },
+//         { $set: { cart: user.cart } }
+//       );
 
-      console.log("Cart updated:", user.cart);
-      res.json({ success: true });
-    } else {
-      console.error("Item not found in cart");
-      res.json({ success: false, message: "Item not found in cart." });
-    }
-  } catch (error) {
-    console.error("Error updating cart:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
+//       console.log("Cart updated:", user.cart);
+//       res.json({ success: true });
+//     } else {
+//       console.error("Item not found in cart");
+//       res.json({ success: false, message: "Item not found in cart." });
+//     }
+//   } catch (error) {
+//     console.error("Error updating cart:", error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// });
 
 // User Account page
 app.get("/user_account", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ email: req.session.email });
+      const user = await userModel.findOne({ email: req.session.email });
       if (!user) {
         return res.status(404).send("User not found");
       }
-      res.render("user_account", { user: user });
+      res.render("userAccount", { user: user, menuIcon: 4});
     } catch (err) {
       console.error("Failed to retrieve user:", err);
       res.status(500).send("Internal server error");
@@ -634,10 +633,10 @@ app.get("/user_account", async (req, res) => {
 // Route to get user orders
 app.get("/user_orders", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     const userOrders = await orders
       .find({ orderId: { $in: user.order } })
-      .sort({ orderDate: -1 }); // Sort by orde_date descending
+      .sort({ orderDate: -1 });
     res.json(userOrders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -645,11 +644,37 @@ app.get("/user_orders", async (req, res) => {
   }
 });
 
+// Route to render order history page
+app.get("/order_history", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 5;
+  try {
+    const user = await userModel.findOne({ email: req.session.email });
+    const totalOrders = await orders.countDocuments({
+      orderId: { $in: user.order },
+    });
+    const paginatedOrders = await orders
+      .find({ orderId: { $in: user.order } })
+      .sort({ orderDate: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.render("orderHistory", {
+      orders: paginatedOrders,
+      totalPages: Math.ceil(totalOrders / limit),
+      currentPage: page,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
 // Route to render order details page
 app.get("/order/:orderId", async (req, res) => {
   try {
     const order = await orders.findOne({ orderId: req.params.orderId });
-    res.render("order_details", { order });
+    res.render("orderDetails", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
     res.status(500).send("Error fetching order");
@@ -659,9 +684,9 @@ app.get("/order/:orderId", async (req, res) => {
 app.get("/user_profile", async (req, res) => {
   if (req.session.username) {
     try {
-      const user = await User.findOne({ email: req.session.email });
+      const user = await userModel.findOne({ email: req.session.email });
       if (user) {
-        res.render("user_profile", { user: user });
+        res.render("userProfile", { user: user });
       } else {
         res.status(404).send("User not found");
       }
@@ -677,10 +702,14 @@ app.get("/user_profile", async (req, res) => {
 app.post("/update_profile", async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await userModel.findOneAndUpdate(
       { email: req.session.email },
       {
-        $set: { username: name.trim(), phone: phone.trim(), address: address.trim() },
+        $set: {
+          username: name.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+        },
       },
       { new: true }
     );
@@ -694,7 +723,7 @@ app.post("/update_profile", async (req, res) => {
 
 // Favorites page
 app.get("/favorites", async (req, res) => {
-  const user = await User.findOne({ email: req.session.email });
+  const user = await userModel.findOne({ email: req.session.email });
   const favoriteList = user.my_fav;
 
   let recipeDetailsArray = [];
@@ -724,7 +753,7 @@ app.get("/feedback", (req, res) => {
 app.post("/favorites/remove/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $pull: { my_fav: id } }
     );
@@ -739,7 +768,7 @@ app.post("/favorites/remove/:id", async (req, res) => {
 app.post("/favorites/add/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $push: { my_fav: id } }
     );
@@ -774,7 +803,7 @@ app.post("/save_feedback", async (req, res) => {
 app.get("/my_preference", async (req, res) => {
   try {
     const preferences = await Preference.find();
-    res.render("my_preference", { preferences });
+    res.render("myPreference", { preferences });
   } catch (error) {
     console.error("Error fetching preferences:", error);
     res.status(500).send("Error fetching preferences");
@@ -785,7 +814,7 @@ app.get("/my_preference", async (req, res) => {
 app.post("/update_preference", async (req, res) => {
   const { preferences } = req.body;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
@@ -800,8 +829,8 @@ app.post("/update_preference", async (req, res) => {
 // Route to render the local preferences page
 app.get("/local_preference", isAuthenticated, async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.session.email });
-    res.render("local_preference", { user });
+    const user = await userModel.findOne({ email: req.session.email });
+    res.render("localPreference", { user });
   } catch (error) {
     console.error("Error fetching user preferences:", error);
     res.status(500).send("Error fetching user preferences");
@@ -812,7 +841,7 @@ app.get("/local_preference", isAuthenticated, async (req, res) => {
 app.post("/save_preferences", async (req, res) => {
   const preferences = req.body.preferences;
   try {
-    await User.findOneAndUpdate(
+    await userModel.findOneAndUpdate(
       { email: req.session.email },
       { $set: { preferences: preferences } },
       { new: true }
@@ -827,7 +856,7 @@ app.post("/save_preferences", async (req, res) => {
 app.post("/delete_preference", async (req, res) => {
   const { preference } = req.body;
   try {
-    await User.updateOne(
+    await userModel.updateOne(
       { username: req.session.username },
       { $pull: { preferences: preference } }
     );
@@ -842,11 +871,11 @@ app.post("/delete_preference", async (req, res) => {
 app.post("/quantity/decrease/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
-    await User.updateOne(
+    await userModel.updateOne(
       { email: req.session.email },
       { $inc: { [`cart.${recipeId}.quantity`]: -1 } }
     );
@@ -861,11 +890,11 @@ app.post("/quantity/decrease/:id", async (req, res) => {
 app.post("/quantity/increase/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    const user = await User.findOne({ email: req.session.email });
+    const user = await userModel.findOne({ email: req.session.email });
     if (!user) {
       return res.status(404).send("User not found");
     }
-    await User.updateOne(
+    await userModel.updateOne(
       { email: req.session.email },
       { $inc: { [`cart.${recipeId}.quantity`]: 1 } }
     );
@@ -879,7 +908,7 @@ app.post("/quantity/increase/:id", async (req, res) => {
 app.post("/deleteRecipe/:id", async (req, res) => {
   const recipeId = req.params.id;
   try {
-    await User.updateOne(
+    await userModel.updateOne(
       { email: req.session.email },
       { $unset: { [`cart.${recipeId}`]: "" } }
     );

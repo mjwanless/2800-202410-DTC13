@@ -6,7 +6,7 @@ require("dotenv").config();
 const getPrice = require("./getPrice");
 const getRecipeInfoRouter = express.Router();
 
-getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
+getRecipeInfoRouter.get("/recipe_Info/:id", async (req, res) => {
   const recipeId = req.params.id;
   req.session.recipeId = recipeId;
   let recipeDetails = {};
@@ -28,7 +28,6 @@ getRecipeInfoRouter.get("/recipeInfo/:id", async (req, res) => {
         recipeCuisineType: data.recipe.cuisineType,
         recipeNutrients: data.recipe.totalNutrients,
       };
-
 
       let count = 0;
       for (let nutrient in data.recipe.totalNutrients) {

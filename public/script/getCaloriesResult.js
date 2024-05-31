@@ -14,7 +14,7 @@ function getResults() {
     .then((res) => res.json())
     .then((data) => {
       console.log(" Calories burned: ", data);
-      // TODO - Display the result
+      // Display the result
       const modal = document.getElementById("calori-modal");
       const calories = document.getElementById("calories");
       modal.style.display = "block";
